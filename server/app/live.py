@@ -37,13 +37,14 @@ import ipaddress
 import json
 import os
 import re
+import secrets
 import shutil
 import time
 from pathlib import Path
 from typing import Optional
 
 from fastapi import APIRouter, File, Form, Header, HTTPException, Request, UploadFile
-from fastapi.responses import FileResponse, JSONResponse, Response
+from fastapi.responses import FileResponse, HTMLResponse, JSONResponse, RedirectResponse, Response
 from PIL import Image
 from pydantic import BaseModel
 
@@ -229,6 +230,51 @@ def setting(con, k: str, default: str = "") -> str:
 
 def set_setting(con, k: str, v: str):
     con.execute("INSERT INTO settings (k, v) VALUES (?,?) ON CONFLICT(k) DO UPDATE SET v=excluded.v", (k, v))
+
+
+# ---------- 固定連結：永遠導到最新的相簿（安裝完就能先給，不用等第一張照片）----------
+# 返圖與即時監看各一組隨機碼：把返圖連結給客人，也推不出即時監看的網址
+
+SITE_KEYS = {"album": "site_album_key", "live": "site_live_key"}
+
+
+def site_key(con, kind: str) -> str:
+    k = setting(con, SITE_KEYS[kind])
+    if not k:
+        k = secrets.token_urlsafe(12)
+        set_setting(con, SITE_KEYS[kind], k)
+    return k
+
+
+def site_links(con) -> dict:
+    return {kind: f"/go/{kind}/{site_key(con, kind)}" for kind in SITE_KEYS}
+
+
+WAIT_PAGE = """<!doctype html><html lang="zh-Hant"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1"><meta http-equiv="refresh" content="10">
+<meta name="robots" content="noindex"><title>{site}</title>
+<style>body{{font-family:system-ui,sans-serif;display:grid;place-items:center;min-height:90vh;margin:0;
+color:#333;background:#fafafa}}@media(prefers-color-scheme:dark){{body{{color:#ddd;background:#111}}}}
+div{{text-align:center;padding:24px}}p{{opacity:.7}}</style></head>
+<body><div><h2>{site}</h2><p>還沒有相簿：第一張照片傳進來就會出現在這裡（每 10 秒自動重新整理）</p>
+<p>No album yet — this page refreshes automatically.</p></div></body></html>"""
+
+
+@router.api_route("/go/{kind}/{key}", methods=["GET", "HEAD"])
+def go_latest(kind: str, key: str):
+    """/go/album/<碼> → 最新相簿的返圖頁；/go/live/<碼> → 正在進照片的相簿的即時監看頁。"""
+    if kind not in SITE_KEYS:
+        raise HTTPException(404)
+    with core.db() as con:
+        if not hmac.compare_digest(key.encode(), site_key(con, kind).encode()):
+            raise HTTPException(404)
+        order = "created_at DESC" if kind == "album" else "COALESCE(updated_at, created_at) DESC"
+        a = con.execute(f"SELECT share_key, live_key FROM albums ORDER BY {order} LIMIT 1").fetchone()
+    if not a:
+        site = core.SITE_NAME.replace("&", "&amp;").replace("<", "&lt;")
+        return HTMLResponse(WAIT_PAGE.format(site=site), headers={"Cache-Control": "no-store"})
+    url = core.share_url(a["share_key"]) if kind == "album" else core.live_url(a["live_key"])
+    return RedirectResponse(url, status_code=302, headers={"Cache-Control": "no-store"})
 
 
 def uploads_enabled(con=None) -> bool:

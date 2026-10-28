@@ -165,12 +165,17 @@ if [ -n "$INSTALL" ]; then
   echo "SnapPipe 安裝設定（直接 Enter 用預設值）"
   ask SITE_NAME "網站名稱：整個返圖站的名字，例「小明的返圖」（每本相簿的名稱之後上傳時才設定）" "返圖"
   ask DISK "LXC 磁碟大小 GB（所有相簿的 JPG + RAW 都存這裡，一場活動可能就數十 GB）" "64"
+  ask PUBLIC_URL "對外網址：Pi 在外面上傳、分享連結用的 https 網域，例 https://photos.example.com（沒有就留空）" ""
   if [ -z "$NO_WORKER" ]; then
     if [ -n "$NO_AI" ]; then META_KEY=""; else ask_meta_key; fi
   fi
   echo
 fi
 DISK=${DISK:-64}
+if [ -n "$PUBLIC_URL" ]; then                  # 只打網域也行：補上 https://、去掉結尾的 /
+  case "$PUBLIC_URL" in http://*|https://*) ;; *) PUBLIC_URL="https://$PUBLIC_URL" ;; esac
+  PUBLIC_URL="${PUBLIC_URL%/}"
+fi
 [[ "$DISK" =~ ^[0-9]+$ ]] || die "磁碟大小要是數字（GB）：$DISK"
 
 CTID=${CTID:-$(pvesh get /cluster/nextid </dev/null)}
@@ -234,20 +239,23 @@ if [ -n "$INSTALL" ]; then
   if [ -z "$NO_WORKER" ]; then
     push_worker "$CTID" || die "worker 安裝失敗，看記錄：pct exec $CTID -- journalctl -u snappipe-worker -n 50"
   fi
-  # 安裝摘要（Pi 指令、token）放在最後印，才不會被上面的安裝輸出蓋過
+  # 記下容器編號：snappipe-cmd 印指令時才知道要加 pct exec <編號>（重跑安裝會保留這行）
+  pct exec "$CTID" -- bash -c "grep -q '^SNAPPIPE_CTID=' /etc/snappipe.env || echo 'SNAPPIPE_CTID=$CTID' >> /etc/snappipe.env" </dev/null || true
+  # 對外網址有沒有通（反向代理設好了沒）
+  PUB_OK=""
+  if [ -n "$PUBLIC_URL" ]; then
+    curl -fsS --max-time 10 "$PUBLIC_URL/healthz" </dev/null >/dev/null 2>&1 && PUB_OK=1
+  fi
+  # 「下一步」清單放在最後印，才不會被上面的安裝輸出蓋過
   echo
   echo "════════════════════ ✅ SnapPipe 安裝完成 ════════════════════"
-  pct exec "$CTID" -- snappipe-cmd </dev/null || true
-  echo
-  echo "  容器編號：$CTID   主機名稱：$HOST   IP：$IP"
-  echo "  以上設定忘了：pct exec $CTID -- snappipe-cmd"
-  if [ -z "$NO_WORKER" ]; then
-    echo "  worker：$([ -n "$META_KEY" ] && echo "Meta AI 開啟" || echo "不用 AI（普通相簿）")；記錄：pct exec $CTID -- journalctl -u snappipe-worker -f"
-    echo "  換金鑰 / 開 AI：curl -fsSL $(raw_url main deploy/create-lxc.sh) | bash -s -- --set-key --id $CTID"
+  echo "  容器編號：$CTID   主機名稱：$HOST   區網 IP：$IP"
+  if [ -n "$PUBLIC_URL" ]; then
+    if [ -n "$PUB_OK" ]; then echo "  對外網址：$PUBLIC_URL ✅ 連得到"
+    else echo "  對外網址：$PUBLIC_URL ⚠ 現在連不到：反向代理請轉到 http://$IP:8080（設好後 Pi 才能在外面上傳）"; fi
   fi
-  echo "  之後更新（返圖站與 worker 一起）：pct exec $CTID -- bash -c 'curl -fsSL $(raw_url main bootstrap.sh) | bash -s -- --no-prompt'"
-  echo "  即時上傳開關（容器沒設密碼，從 Proxmox 這裡免密碼執行）：pct exec $CTID -- snappipe-live off | on | status"
-  echo "  進容器：pct enter $CTID"
+  echo
+  pct exec "$CTID" -- snappipe-cmd </dev/null || true
   echo "═════════════════════════════════════════════════════════════════"
   return
 fi

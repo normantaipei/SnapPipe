@@ -107,7 +107,7 @@ cd SnapPipe
 curl -fsSL https://raw.githubusercontent.com/normantaipei/SnapPipe/main/deploy/create-lxc.sh | bash -s -- --install
 ```
 
-一開始會問網站名稱、磁碟大小和 **Meta API 金鑰**（輸入時不顯示，當場向 Meta 驗證、不收費；沒通過會說原因並再問一次；**直接 Enter 留空 = 不用 AI，只當普通相簿**）。問完就不用守在旁邊：建容器、裝返圖站、在同一個容器裝好 worker 並設成開機常駐，全程不用進容器。
+一開始會問網站名稱、磁碟大小、**對外網址**（反向代理的 https 網域，Pi 在外面上傳與分享連結用；沒有就留空）和 **Meta API 金鑰**（輸入時不顯示，當場向 Meta 驗證、不收費；沒通過會說原因並再問一次；**直接 Enter 留空 = 不用 AI，只當普通相簿**）。問完就不用守在旁邊：建容器、裝返圖站、在同一個容器裝好 worker 並設成開機常駐，全程不用進容器。
 
 不想裝 worker（worker 要放 Mac 或別台）加 `--no-worker`；自動化可以用 `--meta-key <金鑰>` 或 `--no-ai` 免詢問。之後換金鑰、或當初留空現在要開 AI，同樣在 Proxmox Shell 一行：
 
@@ -120,6 +120,8 @@ curl -fsSL https://raw.githubusercontent.com/normantaipei/SnapPipe/main/deploy/c
 ```bash
 pct exec <容器編號> -- bash -c 'curl -fsSL https://raw.githubusercontent.com/normantaipei/SnapPipe/main/bootstrap.sh | bash -s -- --no-prompt'
 ```
+
+裝完最後會印出「下一步」：每台 Pi 的一行安裝指令（網址與 token 都填好）、**兩個現在就能用的固定連結**（返圖給客人、即時監看給攝影師，永遠自動導到最新的相簿；還沒有照片時顯示等待頁）、賽後插卡指令與常用指令。忘了就在 Proxmox 執行 `pct exec <容器編號> -- snappipe-cmd`；各相簿自己的連結用 `pct exec <容器編號> -- snappipe-live links`。
 
 worker 的記錄：`pct exec <容器編號> -- journalctl -u snappipe-worker -f`。比賽資料放在容器裡的 `/opt/snappipe/src/worker/games/`。
 

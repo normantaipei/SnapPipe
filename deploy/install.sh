@@ -161,38 +161,67 @@ ENV
   # 之後忘記指令可在 LXC 執行 snappipe-cmd 再印一次
   cat > /usr/local/bin/snappipe-cmd <<'CMD'
 #!/bin/bash
+# 安裝完的「下一步」清單；忘了指令時再執行一次
 set -a; source /etc/snappipe.env; set +a
 RAW=https://raw.githubusercontent.com/normantaipei/SnapPipe/main
-echo "返圖站：$SNAPPIPE_HINT_SERVER"
+LAN="$SNAPPIPE_HINT_SERVER"
+PUB="${SNAPPIPE_PUBLIC_URL%/}"
+URL="${PUB:-$LAN}"
+# 裝在 Proxmox 的 LXC（create-lxc.sh 記下了容器編號）：伺服器上的指令改成在 Proxmox Shell 執行的寫法
+P=""; [ -n "${SNAPPIPE_CTID:-}" ] && P="pct exec $SNAPPIPE_CTID -- "
+
+echo "返圖站：${SNAPPIPE_SITE_NAME:-SnapPipe}　${PUB:+$PUB（對外）　}$LAN（區網）"
 echo
-echo "樹莓派（在 Pi 上貼這行；--mode：gphoto2 = 相機 USB 接 Pi、ftp = 相機用 FTP 傳給 Pi、watch = 看資料夾）："
+echo "── 下一步 ──────────────────────────────────────────────"
+echo
+echo "① 裝樹莓派：在 Pi 上貼這行（--mode：gphoto2 = 相機 USB 接 Pi、ftp = 相機用 FTP 傳給 Pi、watch = 看資料夾）"
 IFS=',' read -ra _devs <<< "$SNAPPIPE_DEVICE_TOKENS"
 for _d in "${_devs[@]}"; do
   _d="${_d// /}"; [ -n "$_d" ] || continue
-  printf '  curl -fsSL %s/agent/bootstrap.sh | sudo bash -s -- \\\n    --url %s --token %s --name %s --mode gphoto2\n' \
-    "$RAW" "$SNAPPIPE_HINT_SERVER" "${_d#*:}" "${_d%%:*}"
+  printf '   curl -fsSL %s/agent/bootstrap.sh | sudo bash -s -- --url %s --token %s --name %s --mode gphoto2\n' \
+    "$RAW" "$URL" "${_d#*:}" "${_d%%:*}"
 done
-echo "  （要加 Pi：在 /etc/snappipe.env 的 SNAPPIPE_DEVICE_TOKENS 多寫一組 名稱:token，再 systemctl restart snappipe）"
+if [ -z "$PUB" ]; then
+  echo "   ⚠ 這是區網網址，Pi 離開這個網路就連不到；要在外面上傳請設對外網址（見最下面「常用指令」）"
+fi
+echo "   看 Pi 的記錄（在 Pi 上）：journalctl -u snap-agent -f"
 echo
-echo "賽後插卡匯入（Mac 或 Linux；--save 會記住連線設定，之後只要打 ingest.sh 本身）："
+echo "② 開拍：照片傳上來就自動建相簿（名稱預設是拍攝日期）。下面兩個連結現在就能用，永遠導到最新的相簿："
+/usr/local/bin/snappipe-live links 2>/dev/null | sed 's/^/ /'
+echo "   之後隨時查（含每本相簿各自的連結）：${P}snappipe-live links"
+echo
+echo "③ 賽後插卡匯入（Mac 或 Linux，在 SnapPipe 資料夾裡執行；要和伺服器在同一個區網）："
 case "$SNAPPIPE_HINT_INGEST" in
   /*|~*) ;;
-  *) echo "（先 git clone https://github.com/normantaipei/SnapPipe ，在 SnapPipe 資料夾裡執行）" ;;
+  *) echo "   （第一次先 git clone https://github.com/normantaipei/SnapPipe ）" ;;
 esac
-printf '  %s \\\n    --server %s \\\n    --token %s \\\n    --save\n' \
-  "$SNAPPIPE_HINT_INGEST" "$SNAPPIPE_HINT_SERVER" "$SNAPPIPE_UPLOAD_TOKEN"
-echo "  其他選項：--staging <暫存資料夾>（預設 ~/SnapPipeStaging）、--nas smb://帳號@NAS位址/共用資料夾/子資料夾、--album <相簿名稱>"
+printf '   %s --server %s --token %s --save\n' "$SNAPPIPE_HINT_INGEST" "$LAN" "$SNAPPIPE_UPLOAD_TOKEN"
+echo "   選用：--nas smb://帳號@NAS位址/共用資料夾/子資料夾（備份整張卡）、--album <相簿名稱>、--staging <暫存資料夾>"
 echo
 _unit=/etc/systemd/system/snappipe-worker.service
 if [ -f "$_unit" ]; then
   _w=$(sed -n 's/^WorkingDirectory=//p' "$_unit")
   _a=$(sed -n 's/^ANALYZER=//p' "$_w/.env" 2>/dev/null | tail -1)
-  echo "worker：已裝在這台（$([ "$_a" = meta_ai ] && echo "Meta AI 開啟" || echo "不用 AI，普通相簿")；$(systemctl is-active snappipe-worker)）"
-  echo "  記錄：journalctl -u snappipe-worker -f    比賽資料：$_w/games/<相簿名稱>.toml / .csv"
+  echo "AI：$([ "$_a" = meta_ai ] && echo "Meta AI 開啟（選片、星等、圖說）" || echo "不用 AI，普通相簿")　worker $(systemctl is-active snappipe-worker 2>/dev/null)"
+  echo "   worker 記錄：${P}journalctl -u snappipe-worker -f"
+  echo "   比賽資料與名單：容器裡的 $_w/games/<相簿名稱>.toml / .csv（範本 example.toml）"
 else
   echo "worker（Meta AI 處理端；可以裝在這台、Mac 或任何 Linux）："
-  echo "  worker/setup.sh 會問並驗證 Meta API 金鑰（留空 = 不用 AI）；worker/.env 填 SERVER_URL=$SNAPPIPE_HINT_SERVER"
-  [ -z "$SNAPPIPE_WORKER_TOKEN" ] || echo "  WORKER_TOKEN=$SNAPPIPE_WORKER_TOKEN"
+  echo "   worker/setup.sh 會問並驗證 Meta API 金鑰（留空 = 不用 AI）；worker/.env 填 SERVER_URL=$LAN"
+  [ -z "$SNAPPIPE_WORKER_TOKEN" ] || echo "   WORKER_TOKEN=$SNAPPIPE_WORKER_TOKEN"
+fi
+echo
+echo "── 常用指令 ────────────────────────────────────────────"
+echo "   即時上傳開關：${P}snappipe-live off | on | status"
+echo "   再看一次這份清單：${P}snappipe-cmd"
+if [ -n "${SNAPPIPE_CTID:-}" ]; then
+  _upd="curl -fsSL $RAW/bootstrap.sh | bash -s -- --no-prompt"
+  echo "   更新（返圖站與 worker 一起）：pct exec $SNAPPIPE_CTID -- bash -c '$_upd'"
+  [ -n "$PUB" ] || echo "   設對外網址：pct exec $SNAPPIPE_CTID -- bash -c '$_upd --public-url https://你的網域'"
+  [ -f "$_unit" ] && echo "   換 Meta 金鑰 / 開 AI：curl -fsSL $RAW/deploy/create-lxc.sh | bash -s -- --set-key --id $SNAPPIPE_CTID"
+  echo "   進容器：pct enter $SNAPPIPE_CTID"
+else
+  echo "   更新：curl -fsSL $RAW/bootstrap.sh | bash -s -- --no-prompt$([ -n "$PUB" ] || echo "（加 --public-url https://你的網域 設對外網址）")"
 fi
 CMD
   chmod 700 /usr/local/bin/snappipe-cmd
