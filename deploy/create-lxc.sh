@@ -255,7 +255,7 @@ if [ -n "$INSTALL" ]; then
     else echo "  對外網址：$PUBLIC_URL ⚠ 現在連不到：反向代理請轉到 http://$IP:8080（設好後 Pi 才能在外面上傳）"; fi
   fi
   echo
-  pct exec "$CTID" -- snappipe-cmd </dev/null || true
+  pct exec "$CTID" -- /usr/local/bin/snappipe-cmd </dev/null || true
   echo "═════════════════════════════════════════════════════════════════"
   return
 fi

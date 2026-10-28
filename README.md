@@ -121,7 +121,7 @@ curl -fsSL https://raw.githubusercontent.com/normantaipei/SnapPipe/main/deploy/c
 pct exec <容器編號> -- bash -c 'curl -fsSL https://raw.githubusercontent.com/normantaipei/SnapPipe/main/bootstrap.sh | bash -s -- --no-prompt'
 ```
 
-裝完最後會印出「下一步」：每台 Pi 的一行安裝指令（網址與 token 都填好）、**兩個現在就能用的固定連結**（返圖給客人、即時監看給攝影師，永遠自動導到最新的相簿；還沒有照片時顯示等待頁）、賽後插卡指令與常用指令。忘了就在 Proxmox 執行 `pct exec <容器編號> -- snappipe-cmd`；各相簿自己的連結用 `pct exec <容器編號> -- snappipe-live links`。
+裝完最後會印出「下一步」：每台 Pi 的一行安裝指令（網址與 token 都填好）、**兩個現在就能用的固定連結**（返圖給客人、即時監看給攝影師，永遠自動導到最新的相簿；還沒有照片時顯示等待頁）、賽後插卡指令與常用指令。忘了就在 Proxmox 執行 `pct exec <容器編號> -- /usr/local/bin/snappipe-cmd`；各相簿自己的連結用 `pct exec <容器編號> -- /usr/local/bin/snappipe-live links`。
 
 worker 的記錄：`pct exec <容器編號> -- journalctl -u snappipe-worker -f`。比賽資料放在容器裡的 `/opt/snappipe/src/worker/games/`。
 
@@ -148,7 +148,7 @@ snappipe-live on
 snappipe-live status   # 開關、裝置、佇列、各相簿的返圖 / 即時監看網址
 ```
 
-Proxmox 上的容器可以 `pct exec <CTID> -- snappipe-live off`；也可以在 worker 那台 `worker/worker.sh --live off|on`。
+Proxmox 上的容器可以 `pct exec <CTID> -- /usr/local/bin/snappipe-live off`；也可以在 worker 那台 `worker/worker.sh --live off|on`。
 
 `/etc/snappipe.env` 裡和即時路徑有關的：
 
@@ -163,7 +163,7 @@ Proxmox 上的容器可以 `pct exec <CTID> -- snappipe-live off`；也可以在
 
 ## 2. 樹莓派 snap-agent
 
-伺服器裝完最後會印出每台 Pi 的一行安裝指令（網址與裝置 token 都填好了），直接貼到 Pi 上執行；忘了就在伺服器執行 `snappipe-cmd`（Proxmox：`pct exec <容器編號> -- snappipe-cmd`）。指令長這樣：
+伺服器裝完最後會印出每台 Pi 的一行安裝指令（網址與裝置 token 都填好了），直接貼到 Pi 上執行；忘了就在伺服器執行 `snappipe-cmd`（Proxmox：`pct exec <容器編號> -- /usr/local/bin/snappipe-cmd`）。指令長這樣：
 
 ```bash
 curl -fsSL https://raw.githubusercontent.com/normantaipei/SnapPipe/main/agent/bootstrap.sh | sudo bash -s -- \

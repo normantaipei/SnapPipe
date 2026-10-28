@@ -168,7 +168,8 @@ LAN="$SNAPPIPE_HINT_SERVER"
 PUB="${SNAPPIPE_PUBLIC_URL%/}"
 URL="${PUB:-$LAN}"
 # 裝在 Proxmox 的 LXC（create-lxc.sh 記下了容器編號）：伺服器上的指令改成在 Proxmox Shell 執行的寫法
-P=""; [ -n "${SNAPPIPE_CTID:-}" ] && P="pct exec $SNAPPIPE_CTID -- "
+# pct exec 的 PATH 不含 /usr/local/bin，所以指令要寫完整路徑
+P=""; [ -n "${SNAPPIPE_CTID:-}" ] && P="pct exec $SNAPPIPE_CTID -- /usr/local/bin/"
 
 echo "返圖站：${SNAPPIPE_SITE_NAME:-SnapPipe}　${PUB:+$PUB（對外）　}$LAN（區網）"
 echo
@@ -203,7 +204,7 @@ if [ -f "$_unit" ]; then
   _w=$(sed -n 's/^WorkingDirectory=//p' "$_unit")
   _a=$(sed -n 's/^ANALYZER=//p' "$_w/.env" 2>/dev/null | tail -1)
   echo "AI：$([ "$_a" = meta_ai ] && echo "Meta AI 開啟（選片、星等、圖說）" || echo "不用 AI，普通相簿")　worker $(systemctl is-active snappipe-worker 2>/dev/null)"
-  echo "   worker 記錄：${P}journalctl -u snappipe-worker -f"
+  echo "   worker 記錄：${SNAPPIPE_CTID:+pct exec $SNAPPIPE_CTID -- }journalctl -u snappipe-worker -f"
   echo "   比賽資料與名單：容器裡的 $_w/games/<相簿名稱>.toml / .csv（範本 example.toml）"
 else
   echo "worker（Meta AI 處理端；可以裝在這台、Mac 或任何 Linux）："
