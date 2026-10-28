@@ -31,7 +31,7 @@ from typing import Optional
 from urllib.parse import quote
 
 from fastapi import FastAPI, File, Form, Header, HTTPException, Request, UploadFile
-from fastapi.responses import FileResponse, HTMLResponse, JSONResponse, StreamingResponse
+from fastapi.responses import FileResponse, HTMLResponse, JSONResponse, RedirectResponse, StreamingResponse
 from fastapi.staticfiles import StaticFiles
 from PIL import Image, ImageCms, ImageEnhance, ImageFilter, ImageOps
 from pydantic import BaseModel
@@ -46,6 +46,10 @@ UPLOAD_NETS = [ipaddress.ip_network(n.strip(), strict=False) for n in os.environ
     "SNAPPIPE_UPLOAD_NETS", "127.0.0.0/8,10.0.0.0/8,172.16.0.0/12,192.168.0.0/16,::1/128").split(",")
     if n.strip()]
 WEB_DIR = Path(os.environ.get("SNAPPIPE_WEB", Path(__file__).resolve().parents[2] / "web" / "dist"))
+# 一台伺服器（一個 LXC）= 一個拍攝計劃 = 一本相簿：Pi、插卡、任何日期的照片都進同一本。
+# SNAPPIPE_SINGLE_ALBUM=0 才回到舊行為（依 Pi / 插卡給的名稱或拍攝日期分相簿）
+SINGLE_ALBUM = os.environ.get("SNAPPIPE_SINGLE_ALBUM", "1") != "0"
+ALBUM_SLUG = "album"
 # 相簿最後一次有新照片 / 新結果後，這段時間內返圖頁會自動輪詢（秒）
 LIVE_WINDOW = int(os.environ.get("SNAPPIPE_LIVE_WINDOW", "900"))
 
@@ -165,6 +169,61 @@ with db() as _con:
     for (_id,) in _con.execute("SELECT id FROM albums WHERE live_key IS NULL").fetchall():
         _con.execute("UPDATE albums SET live_key=? WHERE id=?", (new_key(), _id))
     _con.execute("UPDATE photos SET updated_at=uploaded_at WHERE updated_at IS NULL")
+    # 合併掉的相簿：舊的返圖 / 即時監看碼 → 現在那本相簿的碼（舊連結繼續能開）
+    _con.execute("CREATE TABLE IF NOT EXISTS album_alias (key TEXT PRIMARY KEY, kind TEXT NOT NULL, target TEXT NOT NULL)")
+
+
+def the_album(con):
+    """單一相簿模式的那一本；還沒有就建（名稱 = 網站名稱，也就是安裝時填的拍攝計劃名稱）。"""
+    row = con.execute("SELECT * FROM albums WHERE slug=?", (ALBUM_SLUG,)).fetchone()
+    if row:
+        return row
+    now = time.time()
+    con.execute("INSERT INTO albums (slug, title, shoot_date, share_key, live_key, created_at, updated_at) "
+                "VALUES (?,?,?,?,?,?,?)", (ALBUM_SLUG, SITE_NAME, time.strftime("%Y-%m-%d"), new_key(), new_key(), now, now))
+    return con.execute("SELECT * FROM albums WHERE slug=?", (ALBUM_SLUG,)).fetchone()
+
+
+def merge_into_single(con):
+    """舊版依日期分了好幾本：照片全部併進一本（照片最多的那本當主體，連結沿用它的），其他本的舊連結轉過去。"""
+    albums = con.execute("SELECT a.*, (SELECT COUNT(*) FROM photos p WHERE p.album_id=a.id) AS n "
+                         "FROM albums a ORDER BY (a.slug=?) DESC, n DESC, a.created_at DESC", (ALBUM_SLUG,)).fetchall()
+    if not albums:
+        the_album(con)
+        return
+    target = albums[0]
+    if target["slug"] != ALBUM_SLUG:
+        con.execute("UPDATE albums SET slug=?, title=? WHERE id=?", (ALBUM_SLUG, SITE_NAME, target["id"]))
+    for a in albums[1:]:
+        dup = "SELECT photo_id FROM photos WHERE album_id=?"
+        gone = [r["id"] for r in con.execute(f"SELECT id FROM photos WHERE album_id=? AND photo_id IN ({dup})",
+                                             (a["id"], target["id"]))]
+        for pid in gone:                       # 兩本都有同一張：留主體那張
+            con.execute("DELETE FROM jobs WHERE photo=?", (pid,))
+            con.execute("DELETE FROM person_photos WHERE photo_id=?", (pid,))
+            con.execute("DELETE FROM photos WHERE id=?", (pid,))
+        con.execute("UPDATE photos SET album_id=? WHERE album_id=?", (target["id"], a["id"]))
+        con.execute("UPDATE jobs SET album_id=? WHERE album_id=?", (target["id"], a["id"]))
+        con.execute("DELETE FROM person_photos WHERE person_id IN (SELECT id FROM people WHERE album_id=?)", (a["id"],))
+        con.execute("DELETE FROM people WHERE album_id=?", (a["id"],))
+        con.execute("INSERT OR REPLACE INTO album_alias (key, kind, target) VALUES (?,?,?)",
+                    (a["share_key"], "share", target["share_key"]))
+        if a["live_key"]:
+            con.execute("INSERT OR REPLACE INTO album_alias (key, kind, target) VALUES (?,?,?)",
+                        (a["live_key"], "live", target["live_key"]))
+        con.execute("UPDATE albums SET updated_at=MAX(COALESCE(updated_at, 0), ?) WHERE id=?",
+                    (a["updated_at"] or 0, target["id"]))
+        con.execute("DELETE FROM albums WHERE id=?", (a["id"],))
+
+
+def alias_target(con, key: str, kind: str):
+    r = con.execute("SELECT target FROM album_alias WHERE key=? AND kind=?", (key, kind)).fetchone()
+    return r["target"] if r else None
+
+
+if SINGLE_ALBUM:
+    with db() as _con:
+        merge_into_single(_con)
 
 
 # ---------- 存檔路徑 ----------
@@ -340,6 +399,8 @@ def live_url(key: str) -> str:
 
 
 def album_by_slug(con, slug: str):
+    if SINGLE_ALBUM:                     # 不管插卡 / worker 給什麼名稱，都是這台唯一那本
+        return the_album(con)
     row = con.execute("SELECT * FROM albums WHERE slug=?", (slug,)).fetchone()
     if not row:
         raise HTTPException(404, "相簿不存在")
@@ -430,8 +491,10 @@ def create_album(body: AlbumIn, request: Request, authorization: Optional[str] =
     if not SLUG_RE.match(body.slug):
         raise HTTPException(400, "相簿名稱只能用文字、數字、. _ -")
     with db() as con:
-        row = con.execute("SELECT * FROM albums WHERE slug=?", (body.slug,)).fetchone()
-        if not row:
+        row = the_album(con) if SINGLE_ALBUM else con.execute("SELECT * FROM albums WHERE slug=?", (body.slug,)).fetchone()
+        if SINGLE_ALBUM:
+            pass                         # 一台一本：插卡給的名稱與標題不改相簿（相簿名稱 = 拍攝計劃名稱）
+        elif not row:
             con.execute(
                 "INSERT INTO albums (slug, title, shoot_date, share_key, live_key, created_at) VALUES (?,?,?,?,?,?)",
                 (body.slug, body.title or body.slug, body.shoot_date, new_key(), new_key(), time.time()))
@@ -970,9 +1033,12 @@ def photo_og(pk: str, name: str):
 def album_page(key: str, request: Request):
     with db() as con:
         album = con.execute("SELECT * FROM albums WHERE share_key=?", (key,)).fetchone()
+        new = None if album else alias_target(con, key, "share")
         top = album_top(con, album["id"]) if album else []
         count = con.execute("SELECT COUNT(*) FROM photos WHERE album_id=?", (album["id"],)).fetchone()[0] \
             if album else 0
+    if new:                              # 合併掉的舊相簿連結 → 現在那本
+        return RedirectResponse(f"/a/{new}", status_code=301)
     tx = OG_TEXT[req_lang(request)]
     if not album:
         return spa(request, tx["album_nf"], path=f"/a/{key}")
@@ -1011,7 +1077,10 @@ def live_page(key: str, request: Request):
     from .live import uploads_enabled
     with db() as con:
         album = con.execute("SELECT title FROM albums WHERE live_key=?", (key,)).fetchone()
+        new = None if album else alias_target(con, key, "live")
         enabled = uploads_enabled(con)
+    if new:
+        return RedirectResponse(f"/live/{new}", status_code=301)
     tx = OG_TEXT[req_lang(request)]
     title = tx["live_closed"] if not enabled else (album["title"] + " · Live") if album else tx["album_nf"]
     return spa(request, title, path=f"/live/{key}")

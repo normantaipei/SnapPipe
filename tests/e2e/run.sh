@@ -24,7 +24,8 @@ trap 'kill $MOCK $SRV 2>/dev/null' EXIT
 for _ in $(seq 1 40); do curl -fsS "http://127.0.0.1:$PORT/healthz" >/dev/null 2>&1 && break; sleep 0.25; done
 
 ALBUM=2026_10_30_test
-cat > "$S/games/$ALBUM.toml" <<TOML
+# 一台一本相簿：拍攝計劃（比賽資料與名單）就是 default.toml
+cat > "$S/games/default.toml" <<TOML
 [game]
 sport = "basketball"
 event = "2026 城市聯賽"
@@ -41,7 +42,7 @@ credit = "SnapPipe"
 [cameras]
 "5530" = "李攝影"
 TOML
-cp "$REPO/worker/games/example.csv" "$S/games/$ALBUM.csv"
+cp "$REPO/worker/games/example.csv" "$S/games/default.csv"
 
 "$V/python" "$E2E/make_and_upload.py" "$S/photos" "http://127.0.0.1:$PORT" dev-token "$ALBUM"
 

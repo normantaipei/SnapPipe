@@ -1,15 +1,15 @@
 """
 比賽資料（session）：賽事、場館、主客隊、球員名單、每台相機的攝影師、圖說範本。
 
-放在 worker/games/（或 .env 的 GAMES_DIR），檔名 = 相簿名稱：
-  games/2026_10_30_hawks.toml     賽事資訊（格式見 games/example.toml）
-  games/2026_10_30_hawks.csv      名單：team,jersey,name,position（team = home / away）
-找不到該相簿的檔案時用 games/default.toml（可以只寫攝影師署名、城市等固定資料）。
+放在 worker/games/（或 .env 的 GAMES_DIR）。一台伺服器 = 一個拍攝計劃 = 一本相簿，所以通常只有一份：
+  games/default.toml     拍攝計劃（一般攝影見 games/general.toml，體育賽事格式見 games/example.toml）
+  games/default.csv      體育名單：team,jersey,name,position（team = home / away）
+（舊模式 SNAPPIPE_SINGLE_ALBUM=0 時，也可以用 games/<相簿名稱>.toml 替個別相簿設定）
 比賽中改檔案會自動重新載入（看修改時間），不用重開 worker。
 
 名單的用途是「防止 AI 編造人名」：模型只能回報看到的球衣號碼，姓名一律由這裡查表填入。
 
-兩種模式（自動判斷）：
+三種模式（自動判斷）：
   - 體育：有寫賽事（event）、主客隊（home / away）或名單 → 用體育新聞的標準選片，並寫圖說
   - 一般攝影：都沒寫（例如 default.toml 只有署名）→ 依對焦、表情、構圖選片、評星等，不寫圖說
     [game] subject 可以描述拍攝題材給 AI 參考（例 "cosplay portrait"）

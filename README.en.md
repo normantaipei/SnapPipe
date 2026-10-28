@@ -4,6 +4,8 @@
 
 **A real-time photo delivery system for sports photojournalism.** Seconds after the shutter fires, the photo is already backed up on the server. Meta AI compares every frame of a burst against the others to pick the decisive moment, reads jersey numbers, matches them against the roster, drafts a wire-service-style caption and writes it into IPTC. An editor confirms it on a web page, copies the caption, and files the photo.
 
+**One server (one LXC) = one shoot plan = one album.** Photos sent live from the Pi, photos imported from the card after the game, and photos shot across midnight all go into the same album; nothing is split by date. To shoot another plan, create another LXC.
+
 A project for the Meta Global AI Developer Hackathon 2026. Design and application documents:
 
 - [Design Document (Chinese)](docs/DESIGN.md)
@@ -96,7 +98,7 @@ Dependencies: **server → worker → Raspberry Pi**. Install the server first, 
 
 **On game day:**
 
-1. **Before the game**: to use a custom album name, run `snappipe-live album <name>` (not set = shooting date). For a sports game, put this game's data and roster in `worker/games/<album-name>.toml / .csv` (the album name defaults to the shooting date, e.g. `2026_10_30`; or set it with `worker.sh --set-album pi-1 2026_10_30_hawks`). Under `[cameras]`, list who shoots with each body, and the caption byline is filled in automatically.
+1. **Before the game**: one LXC per game (the shoot plan name you enter during installation is the album name; you can change it later with `snappipe-live album <new name>`). This game's data and roster are the shoot plan, written in `worker/games/default.toml / default.csv`. Under `[cameras]`, list who shoots with each body, and the caption byline is filled in automatically.
 2. **Tip-off**: the worker runs as a service (systemd / launchd); the Pi connects and uploads on its own after boot; the photo editor opens `/live/<live-key>` and clicks "◆ Picks only".
 3. **During the game**: open a pick to see the draft caption; check names on ⚠ photos first; click "Copy caption" and paste into the publishing system. Downloaded JPGs already carry the IPTC caption, headline, names and stars.
 4. **After the game**: insert the card and run `ingest/ingest.sh` to add RAW files and photos that didn't make it live (photos already sent live are skipped automatically and not re-analyzed); turn off live upload with `snappipe-live off`.
@@ -111,7 +113,7 @@ When installation finishes it prints the tokens and the settings the worker, Pi 
 curl -fsSL https://raw.githubusercontent.com/normantaipei/SnapPipe/main/deploy/create-lxc.sh | bash -s -- --install --lang en
 ```
 
-It starts by asking for the site name, disk size, **public URL** (the HTTPS domain of your reverse proxy, used for Pi uploads from outside and for share links; leave blank if you don't have one) and the **Meta API key** (input is hidden; it is validated against Meta on the spot at no charge; if validation fails it tells you why and asks again; **press Enter to leave it blank = no AI, just a plain album site**). After that you don't need to stay at the keyboard: it creates the container, installs the album site, installs the worker in the same container and sets it to start on boot, all without you entering the container.
+It starts by asking for the **shoot plan name** (one LXC holds only this shoot plan; it is also the name of its one and only album), disk size, **public URL** (the HTTPS domain of your reverse proxy, used for Pi uploads from outside and for share links; leave blank if you don't have one) and the **Meta API key** (input is hidden; it is validated against Meta on the spot at no charge; if validation fails it tells you why and asks again; **press Enter to leave it blank = no AI, just a plain album site**). After that you don't need to stay at the keyboard: it creates the container, installs the album site, installs the worker in the same container and sets it to start on boot, all without you entering the container.
 
 If you don't want the worker installed (because it will run on a Mac or another machine), add `--no-worker`; for automation, use `--meta-key <key>` or `--no-ai` to skip the prompt. To change the key later, or to turn AI on if you left it blank, it is again one line in the Proxmox shell:
 
@@ -125,7 +127,9 @@ Update (album site and worker together; the key and photos are kept):
 pct exec <CTID> -- bash -c 'curl -fsSL https://raw.githubusercontent.com/normantaipei/SnapPipe/main/bootstrap.sh | bash -s -- --no-prompt --lang en'
 ```
 
-At the end the installer prints the "next steps": a one-line install command for each Pi (URL and token already filled in), **two fixed links you can use right away** (the album link for clients and the live view link for photographers; they always redirect to the newest album, and show a waiting page while there are no photos yet), the post-game card-import command, and common commands. If you forget, run `pct exec <CTID> -- /usr/local/bin/snappipe-cmd` on Proxmox; for each album's own links, use `pct exec <CTID> -- /usr/local/bin/snappipe-live links`.
+At the end the installer prints the "next steps": a one-line install command for each Pi (URL and token already filled in), **this album's links, ready to use now** (the album page for clients and the live view for photographers; the album is created at install time, so you can hand out the links before there are any photos), the post-game card-import command, and common commands. If you forget, run `pct exec <CTID> -- /usr/local/bin/snappipe-cmd` on Proxmox; for just the links, use `pct exec <CTID> -- /usr/local/bin/snappipe-live links`.
+
+**Another shoot plan**: run the one-liner above again to create a new LXC (it automatically uses the next container ID). Each LXC has its own album, its own links and its own shoot plan.
 
 worker logs: `pct exec <CTID> -- journalctl -u snappipe-worker -f`. Game data lives in `/opt/snappipe/src/worker/games/` inside the container.
 
@@ -149,14 +153,13 @@ If you fork, point the environment variables `SNAPPIPE_GIT` and `SNAPPIPE_REPO` 
 ```bash
 snappipe-live off      # Pis pause uploading (photos stay on the card) and /live is closed; the album page and card-import uploads keep working
 snappipe-live on
-snappipe-live status   # switch state, devices, queue, and each album's album page / live view URLs
-snappipe-live links    # fixed links (always redirect to the newest album) and each album's links
-snappipe-live album Saki_shoot_1030        # everything any Pi shoots from now on goes into this album (not set = shooting date)
-snappipe-live album pi-1 Saki_shoot_1030   # set it for one Pi only
-snappipe-live album -                      # clear it and go back to the shooting date; with no argument = list each Pi's current album
+snappipe-live status   # switch state, devices, queue, and the album's album page / live view URLs
+snappipe-live links    # the album's album page / live view URLs
+snappipe-live album                    # show the album name
+snappipe-live album Saki shoot Oct 30  # rename the album (spaces are OK; links don't change)
 ```
 
-Album names: if none is set, the shooting date is used (e.g. `2026_10_30`). To use a custom name, run `snappipe-live album` before the shoot (Proxmox: `pct exec <CTID> -- /usr/local/bin/snappipe-live album <name>`); the Pi switches to uploading into that album within seconds. Photos already queued on the Pi still go into the original album.
+Album: each server has exactly one, named after the shoot plan name entered at install time. Album names sent by a Pi, the card-import `--album` option and photo capture dates never split off a separate album. When updating from an older version (which split albums by date), all albums are merged into one automatically (the album with the most photos is kept as the base), and the old album page and live view links redirect to the merged album. If you really need the old behavior, add `SNAPPIPE_SINGLE_ALBUM=0` to `/etc/snappipe.env`.
 
 For a container on Proxmox you can run `pct exec <CTID> -- /usr/local/bin/snappipe-live off`; you can also run `worker/worker.sh --live off|on` on the worker machine.
 
@@ -204,7 +207,6 @@ nano .env                              # SERVER_URL
 ./worker.sh                            # run continuously; Ctrl-C to stop
 ./worker.sh --once                     # process the current queue and exit
 ./worker.sh --status                   # the server's queue, devices, albums and live view URLs
-./worker.sh --set-album pi-1 2026_10_30_hawks   # set which album a given Pi's photos go into from now on (- to clear)
 ```
 
 **Meta API key**: `setup.sh` asks for it (input is hidden) and first validates it against Meta (using the list-models endpoint, at no charge), saving it to `.env` only after confirming the key is valid and the model is available. If validation fails it tells you why (wrong key, model not found…) and asks you to enter it again. Meta has no API for checking billing status, so **if you haven't added a credit card yet, you won't find out until the first analysis**: the worker log says "the account has no payment method set up or has run out of credit," photos still go into the album as usual (stars and picks fall back to local sharpness estimates, and no captions are written), and once you fix it on the Billing page at dev.meta.ai, the next group works again. **Press Enter to leave it blank and run without AI**: `ANALYZER=none`; photos still go into the album live and can be browsed and downloaded, they just aren't scored, picked or captioned, so it works as a plain album.
@@ -241,13 +243,13 @@ Key `.env` settings (full documentation in `worker/.env.example`):
 
 ### Game data (`worker/games/`)
 
-File name = album name; if there is no match, `default.toml` is used. Changes to the files during a game are reloaded automatically. Templates: `worker/games/example.toml`, `example.csv`.
+**The shoot plan is `default.toml`** (one server has one album, so there is only this one file; the roster goes in `default.csv`). Changes to the files during a shoot are reloaded automatically. Templates: `general.toml` (general photography), `example.toml` / `example.csv` (sports). To edit on Proxmox: `pct exec <CTID> -- nano /opt/snappipe/src/worker/games/default.toml`.
 
 **Three modes (detected automatically)**:
 
-- **General photography** (default): an album without its own config file uses `default.toml`, which has no event, home/away teams or roster. AI picks based on focus, expression and composition, and **only gives stars and tags** (generated during picking, e.g. blue wig, red paper umbrella, stone bridge, pavilion); it doesn't write captions. `setup.sh` creates this file from `games/general.toml`; `[game] subject` can describe the shoot's subject for the AI's reference.
-- **General photography + shoot plan** (optional): copy `general.toml` to `games/<album-name>.toml` and fill in `notes` (props, scenes) and `[[people]]` (name, character, appearance). Only then does that album get captions, and only for 5-star picks (`CAPTION_MIN_STARS`). AI only reports "the person in the frame matches person number N's appearance," and the system fills in the name (the same principle as the sports roster: names are never sent to the AI). Test results (Saki, 30 photos): names correct 25/26, it doesn't force-match people who aren't in the frame, and Chinese-style clothing is no longer described as "Japanese-style" (和風); prop details still need human checking.
-- **Sports**: copy `example.toml` to `games/<album-name>.toml` and fill in the event (`event`), home/away teams or roster. Only then does that album use sports-news picking criteria and get captions.
+- **General photography** (default): `default.toml` has no event, home/away teams or roster, and no `notes` / `[[people]]`. AI picks based on focus, expression and composition, and **only gives stars and tags** (generated during picking, e.g. blue wig, red paper umbrella, stone bridge, pavilion); it doesn't write captions. `setup.sh` creates this file from `games/general.toml`; `[game] subject` can describe the shoot's subject for the AI's reference.
+- **General photography + shoot plan** (optional): enable `notes` (props, scenes) and `[[people]]` (name, character, appearance) in `default.toml`. Only then are captions written, and only for 5-star picks (`CAPTION_MIN_STARS`). AI only reports "the person in the frame matches person number N's appearance," and the system fills in the name (the same principle as the sports roster: names are never sent to the AI). Test results (Saki, 30 photos): names correct 25/26, it doesn't force-match people who aren't in the frame, and Chinese-style clothing is no longer described as "Japanese-style" (和風); prop details still need human checking.
+- **Sports**: following the format of `example.toml`, fill in the event (`event`), home/away teams or roster in `default.toml` (or just copy `example.toml` to `default.toml` and edit it). Only then are sports-news picking criteria used and captions written.
 
 Older installs used the basketball template directly as `default.toml`, which caused every album to be captioned as that game; on update, if `default.toml` is still the unmodified template, it is automatically replaced with the general-photography one.
 

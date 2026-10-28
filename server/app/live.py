@@ -369,7 +369,8 @@ def heartbeat(body: dict, request: Request, authorization: Optional[str] = Heade
                        stats=excluded.stats""", (name, time.time(), client_ip(request), json.dumps(stats)))
         row = con.execute("SELECT active_album FROM devices WHERE name=?", (name,)).fetchone()
         enabled = uploads_enabled(con)
-    return {"device": name, "album": row["active_album"], "server_time": time.time(),
+    album = core.ALBUM_SLUG if core.SINGLE_ALBUM else row["active_album"]   # 一台一本：Pi 的照片都進這本
+    return {"device": name, "album": album, "server_time": time.time(),
             "chunk_bytes": 1 << 20, "max_bytes": UPLOAD_MAX, "enabled": enabled}
 
 
@@ -474,7 +475,8 @@ def finalize_upload(row, tmp: Path) -> dict:
 
     now = time.time()
     with core.db() as con:
-        album = con.execute("SELECT * FROM albums WHERE slug=?", (row["album"],)).fetchone()
+        album = core.the_album(con) if core.SINGLE_ALBUM else \
+            con.execute("SELECT * FROM albums WHERE slug=?", (row["album"],)).fetchone()
         if not album:
             shoot_date = (taken_at or time.strftime("%Y-%m-%dT"))[:10]
             con.execute("INSERT INTO albums (slug, title, shoot_date, share_key, live_key, created_at, updated_at) "
@@ -688,6 +690,9 @@ async def upload_chunk(upload_id: str, request: Request, authorization: Optional
             kind = file_kind(filename)
             if not core.SLUG_RE.match(album):
                 raise HTTPException(400, "第一段要帶 X-SnapPipe-Album（相簿名稱：文字、數字、. _ -）")
+            if core.SINGLE_ALBUM:              # 一台一本：Pi 給的相簿名稱（日期）不用，也不依拍攝日期分
+                album = core.ALBUM_SLUG
+                h = {**h, "x-snappipe-album-auto": "0"}
             if not filename:
                 raise HTTPException(400, "第一段要帶 X-SnapPipe-Filename")
             if not kind:

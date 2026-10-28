@@ -4,6 +4,8 @@
 
 **體育新聞攝影的即時回傳系統。** 快門按下幾秒後，照片已經回到伺服器備份；Meta AI 把同一組連拍互相比較、選出決定性瞬間，讀出球衣號碼、對照名單，草擬通訊社格式的圖說並寫進 IPTC。編輯在網頁上確認、複製圖說就能發稿。
 
+**一台伺服器（一個 LXC）= 一個拍攝計劃 = 一本相簿。** Pi 即時傳的、賽後插卡匯入的、跨過午夜拍的，全部進同一本，不會依日期拆開。要拍另一個計劃，就再建一個 LXC。
+
 Meta Global AI Developer Hackathon 2026 參賽專案。設計與申請文件：
 
 - [設計文件 Design Document（中文）](docs/DESIGN.md)
@@ -94,7 +96,7 @@ cd SnapPipe
 
 **比賽當天：**
 
-1. **賽前**：要自訂相簿名稱就 `snappipe-live album <名稱>`（不設 = 拍攝日期）。體育比賽把這場的比賽資料與名單放進 `worker/games/<相簿名稱>.toml / .csv`（相簿名稱預設是拍攝日期，如 `2026_10_30`；或 `worker.sh --set-album pi-1 2026_10_30_hawks` 指定）。`[cameras]` 寫每台機身由誰拍，圖說署名會自動帶入。
+1. **賽前**：一場比賽一台 LXC（安裝時填的拍攝計劃名稱就是相簿名稱，之後可用 `snappipe-live album <新名稱>` 改）。這場的比賽資料與名單就是拍攝計劃，寫在 `worker/games/default.toml / default.csv`。`[cameras]` 寫每台機身由誰拍，圖說署名會自動帶入。
 2. **開賽**：worker 常駐（systemd / launchd）；Pi 開機自己連、自己傳；圖片編輯開 `/live/<即時碼>`，按「◆ 只看精選」。
 3. **比賽中**：點開精選看圖說草稿；⚠ 的照片先核對姓名；按「複製圖說」貼到發稿系統。下載的 JPG 已經帶 IPTC 圖說、標題、人名、星等。
 4. **賽後**：插卡跑 `ingest/ingest.sh` 補 RAW 與沒傳到的照片（已即時傳過的自動跳過、不重新分析）；`snappipe-live off` 關掉即時上傳。
@@ -109,7 +111,7 @@ cd SnapPipe
 curl -fsSL https://raw.githubusercontent.com/normantaipei/SnapPipe/main/deploy/create-lxc.sh | bash -s -- --install
 ```
 
-一開始會問網站名稱、磁碟大小、**對外網址**（反向代理的 https 網域，Pi 在外面上傳與分享連結用；沒有就留空）和 **Meta API 金鑰**（輸入時不顯示，當場向 Meta 驗證、不收費；沒通過會說原因並再問一次；**直接 Enter 留空 = 不用 AI，只當普通相簿**）。問完就不用守在旁邊：建容器、裝返圖站、在同一個容器裝好 worker 並設成開機常駐，全程不用進容器。
+一開始會問**拍攝計劃名稱**（一台 LXC 只放這個拍攝計劃，這也是唯一那本相簿的名稱）、磁碟大小、**對外網址**（反向代理的 https 網域，Pi 在外面上傳與分享連結用；沒有就留空）和 **Meta API 金鑰**（輸入時不顯示，當場向 Meta 驗證、不收費；沒通過會說原因並再問一次；**直接 Enter 留空 = 不用 AI，只當普通相簿**）。問完就不用守在旁邊：建容器、裝返圖站、在同一個容器裝好 worker 並設成開機常駐，全程不用進容器。
 
 不想裝 worker（worker 要放 Mac 或別台）加 `--no-worker`；自動化可以用 `--meta-key <金鑰>` 或 `--no-ai` 免詢問。之後換金鑰、或當初留空現在要開 AI，同樣在 Proxmox Shell 一行：
 
@@ -123,7 +125,9 @@ curl -fsSL https://raw.githubusercontent.com/normantaipei/SnapPipe/main/deploy/c
 pct exec <容器編號> -- bash -c 'curl -fsSL https://raw.githubusercontent.com/normantaipei/SnapPipe/main/bootstrap.sh | bash -s -- --no-prompt'
 ```
 
-裝完最後會印出「下一步」：每台 Pi 的一行安裝指令（網址與 token 都填好）、**兩個現在就能用的固定連結**（返圖給客人、即時監看給攝影師，永遠自動導到最新的相簿；還沒有照片時顯示等待頁）、賽後插卡指令與常用指令。忘了就在 Proxmox 執行 `pct exec <容器編號> -- /usr/local/bin/snappipe-cmd`；各相簿自己的連結用 `pct exec <容器編號> -- /usr/local/bin/snappipe-live links`。
+裝完最後會印出「下一步」：每台 Pi 的一行安裝指令（網址與 token 都填好）、**這本相簿現在就能用的連結**（返圖給客人、即時監看給攝影師；相簿在安裝時就建好了，還沒有照片也能先給）、賽後插卡指令與常用指令。忘了就在 Proxmox 執行 `pct exec <容器編號> -- /usr/local/bin/snappipe-cmd`；只要連結就用 `pct exec <容器編號> -- /usr/local/bin/snappipe-live links`。
+
+**另一個拍攝計劃**：再跑一次上面的一行指令，建一台新的 LXC（自動用下一個容器編號）。每台各自一本相簿、各自的連結與拍攝計劃。
 
 worker 的記錄：`pct exec <容器編號> -- journalctl -u snappipe-worker -f`。比賽資料放在容器裡的 `/opt/snappipe/src/worker/games/`。
 
@@ -147,14 +151,13 @@ fork 的人用環境變數 `SNAPPIPE_GIT`、`SNAPPIPE_REPO` 改成自己的 repo
 ```bash
 snappipe-live off      # Pi 暫停上傳（照片留在卡上）、/live 關閉；返圖頁與插卡上傳照常
 snappipe-live on
-snappipe-live status   # 開關、裝置、佇列、各相簿的返圖 / 即時監看網址
-snappipe-live links    # 固定連結（永遠導到最新相簿）與各相簿的連結
-snappipe-live album Saki外拍_1030        # 所有 Pi 之後拍的照片都進這本（不設 = 拍攝日期）
-snappipe-live album pi-1 Saki外拍_1030   # 只指定一台
-snappipe-live album -                    # 清除，改回拍攝日期；不帶參數 = 列出每台目前的相簿
+snappipe-live status   # 開關、裝置、佇列、相簿的返圖 / 即時監看網址
+snappipe-live links    # 相簿的返圖 / 即時監看網址
+snappipe-live album                    # 看相簿名稱
+snappipe-live album Saki 外拍 10/30    # 改相簿名稱（可以有空白；連結不變）
 ```
 
-相簿名稱：沒指定時用拍攝日期（例 `2026_10_30`）。要自訂就在拍攝前用 `snappipe-live album`（Proxmox：`pct exec <容器編號> -- /usr/local/bin/snappipe-live album <名稱>`），Pi 幾秒內就會改傳到那本；已經在 Pi 上排隊的照片仍進原本的相簿。
+相簿：一台伺服器只有一本，名稱是安裝時填的拍攝計劃名稱。Pi 給的相簿名稱、插卡的 `--album`、照片的拍攝日期都不會拆出別本。從舊版（依日期分相簿）更新時，會自動把所有相簿併成一本（照片最多的那本當主體），舊的返圖與即時監看連結會轉到合併後的相簿。真的需要舊行為，在 `/etc/snappipe.env` 加 `SNAPPIPE_SINGLE_ALBUM=0`。
 
 Proxmox 上的容器可以 `pct exec <CTID> -- /usr/local/bin/snappipe-live off`；也可以在 worker 那台 `worker/worker.sh --live off|on`。
 
@@ -202,7 +205,6 @@ nano .env                              # SERVER_URL
 ./worker.sh                            # 常駐；Ctrl-C 停
 ./worker.sh --once                     # 把目前佇列處理完就結束
 ./worker.sh --status                   # 伺服器的佇列、裝置、相簿與即時監看網址
-./worker.sh --set-album pi-1 2026_10_30_hawks   # 指定某台 Pi 之後的照片進哪本相簿（填 - 清除）
 ```
 
 **Meta API 金鑰**：`setup.sh` 會問你（輸入時不顯示），先向 Meta 驗證（查詢模型的端點，不收費），確認金鑰有效、模型可以用才存進 `.env`；沒通過會說原因（金鑰錯誤、找不到模型…）並請你再輸入一次。Meta 沒有查付款狀態的 API，所以**還沒綁信用卡要到第一次分析才會發現**：worker 記錄會寫「帳號還沒設定付款或額度用完」，照片照常進相簿（星等與精選改用本機銳利度估計、不寫圖說），到 dev.meta.ai 的 Billing 頁補好後下一組就恢復。**直接按 Enter 留空就不用 AI**：`ANALYZER=none`，照片照常即時進相簿、可以瀏覽與下載，只是不評分、不選片、不寫圖說，當普通相簿用。
@@ -239,13 +241,13 @@ nano .env                              # SERVER_URL
 
 ### 比賽資料（`worker/games/`）
 
-檔名 = 相簿名稱，找不到就用 `default.toml`。比賽中改檔案會自動重新載入。範本：`worker/games/example.toml`、`example.csv`。
+**拍攝計劃就是 `default.toml`**（一台一本相簿，所以只有這一份；名單放 `default.csv`）。拍攝中改檔案會自動重新載入。範本：`general.toml`（一般攝影）、`example.toml` / `example.csv`（體育）。在 Proxmox 上編輯：`pct exec <容器編號> -- nano /opt/snappipe/src/worker/games/default.toml`。
 
 **三種模式（自動判斷）**：
 
-- **一般攝影**（預設）：相簿沒有自己的設定檔時用 `default.toml`，裡面沒有賽事、主客隊與名單。AI 依對焦、表情、構圖選片，**只給星等與標籤**（選片時順便產生，例：藍色假髮、紅色紙傘、石橋、涼亭），不寫圖說。`setup.sh` 會從 `games/general.toml` 建這份；`[game] subject` 可以寫拍攝題材給 AI 參考。
-- **一般攝影 + 拍攝計劃**（選用）：把 `general.toml` 複製成 `games/<相簿名稱>.toml`，寫 `notes`（道具、場景）與 `[[people]]`（名字、角色、外觀），那本相簿才寫圖說，而且只替 5 星的精選寫（`CAPTION_MIN_STARS`）。AI 只回報「畫面裡的人符合第幾個人的外觀」，名字由系統填入（和體育名單同一個原則，名字不送給 AI）。實測（Saki 30 張）：名字正確 25/26、不會硬套沒出現的人、中式服裝不再被寫成「和風」；道具細節仍要人工確認。
-- **體育**：把 `example.toml` 複製成 `games/<相簿名稱>.toml`、填好賽事（`event`）、主客隊或名單，那本相簿才用體育新聞的標準選片並寫圖說。
+- **一般攝影**（預設）：`default.toml` 裡沒有賽事、主客隊、名單，也沒有 `notes` / `[[people]]`。AI 依對焦、表情、構圖選片，**只給星等與標籤**（選片時順便產生，例：藍色假髮、紅色紙傘、石橋、涼亭），不寫圖說。`setup.sh` 會從 `games/general.toml` 建這份；`[game] subject` 可以寫拍攝題材給 AI 參考。
+- **一般攝影 + 拍攝計劃**（選用）：在 `default.toml` 打開 `notes`（道具、場景）與 `[[people]]`（名字、角色、外觀），才寫圖說，而且只替 5 星的精選寫（`CAPTION_MIN_STARS`）。AI 只回報「畫面裡的人符合第幾個人的外觀」，名字由系統填入（和體育名單同一個原則，名字不送給 AI）。實測（Saki 30 張）：名字正確 25/26、不會硬套沒出現的人、中式服裝不再被寫成「和風」；道具細節仍要人工確認。
+- **體育**：照 `example.toml` 的格式在 `default.toml` 填好賽事（`event`）、主客隊或名單（或直接把 `example.toml` 複製成 `default.toml` 再改），才用體育新聞的標準選片並寫圖說。
 
 舊版安裝把籃球範本直接當成 `default.toml`，導致每本相簿都被寫成那場比賽的圖說；更新時若 `default.toml` 還是範本原樣，會自動換成一般攝影。
 

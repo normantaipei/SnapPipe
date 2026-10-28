@@ -7,7 +7,7 @@
 #   2. 原始碼版：bootstrap.sh 在伺服器上 clone repo、build 前端後，以 SNAPPIPE_SRC=<repo> 直接執行（安裝法 B）
 #
 # 參數（不給就互動詢問；沒有終端機時用預設值）：
-#   --site-name NAME   網站名稱：整個返圖站的名字（首頁標題、分頁標題、分享預覽）  預設「返圖」
+#   --site-name NAME   拍攝計劃名稱（網站與唯一那本相簿的名稱；首頁、分頁標題、分享預覽）  預設「返圖」
 #                      每本相簿的名稱不在這裡設，是插卡上傳時用 ingest 的 --album / --title（或 Pi 依拍攝日期自動建）
 #   --port N           返圖站 port               預設 8080
 #   --upload-nets CIDR 允許上傳的網段（逗號分隔）  預設 LXC 所在區網
@@ -87,7 +87,7 @@ main() {
   [ "$PUBLIC_URL" = "http://$IP:$PORT" ] && PUBLIC_URL=""
 
   echo
-  ask SITE_NAME "$(t "網站名稱：整個返圖站的名字，例「小明的返圖」（每本相簿的名稱之後上傳時才設定）" "Site name: the name of the whole album site, e.g. \"Alex's Photos\" (album names are set later)")" "$(t 返圖 SnapPipe)"
+  ask SITE_NAME "$(t "拍攝計劃名稱：這台返圖站只放這個拍攝計劃，也是唯一那本相簿的名稱，例「Saki 外拍 10/30」（之後可以用 snappipe-live album 改）" "Shoot plan name: this album site holds just this one shoot, and it is also the name of its only album, e.g. \"Saki shoot Oct 30\" (rename later with snappipe-live album)")" "$(t 返圖 SnapPipe)"
   # 清掉終端機可能夾帶的控制字元、無效位元組與單引號（設定檔用單引號包）
   SITE_NAME=$(python3 -c '
 import sys
@@ -198,10 +198,11 @@ if [ -z "$PUB" ]; then
 fi
 echo "   $(t "看 Pi 的記錄（在 Pi 上）" "Pi logs (on the Pi)")$Cjournalctl -u snap-agent -f"
 echo
-echo "$(t "② 開拍：照片傳上來就自動建相簿（名稱預設是拍攝日期）。下面兩個連結現在就能用，永遠導到最新的相簿：" "② Shoot: albums are created automatically as photos arrive (named by shooting date). These two links work now and always open the newest album:")"
+echo "$(t "② 開拍：這台只有一本相簿，Pi、插卡、任何日期的照片都進這本。連結現在就能用：" "② Shoot: this server has one album; photos from the Pi, card import and any date all go into it. These links work now:")"
 /usr/local/bin/snappipe-live links 2>/dev/null | sed 's/^/ /'
-echo "   $(t "之後隨時查（含每本相簿各自的連結）" "List links any time (including each album's own links)")$C${P}snappipe-live links"
-echo "   $(t "自訂相簿名稱（不設 = 拍攝日期）" "Custom album name (default = shooting date)")$C${P}snappipe-live album $(t Saki外拍_1030 Saki_shoot_1030)$(t "　　" "   ")$(t 改回日期 "Back to dates")$C${P}snappipe-live album -"
+echo "   $(t "改相簿名稱（連結不變）" "Rename the album (links stay the same)")$C${P}snappipe-live album $(t "Saki 外拍 10/30" "Saki shoot Oct 30")"
+echo "   $(t "拍攝計劃（選用，有寫才會產生圖說）" "Shoot plan (optional; captions only when it exists)")$C${SNAPPIPE_CTID:+pct exec $SNAPPIPE_CTID -- }nano /opt/snappipe/src/worker/games/default.toml"
+echo "   $(t "另一個拍攝計劃：再建一個 LXC（再跑一次安裝的一行指令）" "Another shoot plan: create another LXC (run the one-line installer again)")"
 echo
 echo "$(t "③ 賽後插卡匯入（Mac 或 Linux，在 SnapPipe 資料夾裡執行；要和伺服器在同一個區網）：" "③ Card import after the shoot (Mac or Linux, run inside the SnapPipe folder; must be on the same LAN as the server):")"
 case "$SNAPPIPE_HINT_INGEST" in
@@ -217,7 +218,7 @@ if [ -f "$_unit" ]; then
   _a=$(sed -n 's/^ANALYZER=//p' "$_w/.env" 2>/dev/null | tail -1)
   echo "AI$C$([ "$_a" = meta_ai ] && t "Meta AI 開啟（選片、星等、標籤；有拍攝計劃才寫圖說）" "Meta AI on (picks, stars, tags; captions only with a shoot plan)" || t "不用 AI，普通相簿" "No AI, plain album site")$(t "　" "   ")worker $(systemctl is-active snappipe-worker 2>/dev/null)"
   echo "   $(t "worker 記錄" "Worker logs")$C${SNAPPIPE_CTID:+pct exec $SNAPPIPE_CTID -- }journalctl -u snappipe-worker -f"
-  echo "   $(t "拍攝計劃（選用）：容器裡的" "Shoot plan (optional): in the container,") $_w/games/<$(t 相簿名稱 album)>.toml$(t "（範本 general.toml；體育比賽用 example.toml）" " (template general.toml; sports: example.toml)")"
+  echo "   $(t "拍攝計劃寫在" "The shoot plan lives in") $_w/games/default.toml$(t "（範本與說明在檔案裡；體育比賽照 example.toml 寫）" " (instructions are in the file; for sports follow example.toml)")"
 else
   echo "$(t "worker（Meta AI 處理端；可以裝在這台、Mac 或任何 Linux）：" "Worker (the Meta AI part; can run here, on a Mac or any Linux):")"
   echo "   $(t "worker/setup.sh 會問並驗證 Meta API 金鑰（留空 = 不用 AI）；worker/.env 填" "worker/setup.sh asks for and checks the Meta API key (blank = no AI); in worker/.env set") SERVER_URL=$LAN"

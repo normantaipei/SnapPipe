@@ -1,8 +1,8 @@
-# 預設的相簿設定（一般攝影）。setup.sh 會複製成 games/default.toml：沒有自己設定檔的相簿都用這份。
+# 拍攝計劃（一般攝影）。setup.sh 會複製成 games/default.toml：一台伺服器 = 一個拍攝計劃 = 一本相簿，就是這份。
 # 一般攝影：AI 依對焦、表情、構圖選片，給星等與標籤，不寫圖說（省錢）。
-# 想要圖說：把這份複製成 games/<相簿名稱>.toml，打開下面的「拍攝計劃」（選用）——有計劃才寫圖說，
+# 想要圖說：打開下面的「拍攝計劃」（notes / [[people]]，選用）——有計劃才寫圖說，
 #   而且只替 5 星的精選寫（worker/.env 的 CAPTION_MIN_STARS 可以改）。
-# 拍體育比賽：改用 example.toml（賽事、主客隊、名單）。
+# 拍體育比賽：照 example.toml 的格式寫（賽事、主客隊；名單放 default.csv）。
 
 [game]
 lang = "zh"                          # zh / en

@@ -1,12 +1,11 @@
 """
 伺服器上的管理指令（安裝後有 snappipe-live 捷徑）：
 
-  snappipe-live status     目前狀態、裝置、佇列、各相簿的返圖 / 即時監看網址
-  snappipe-live links      固定連結（永遠導到最新相簿）與各相簿的返圖 / 即時監看網址
-  snappipe-live album <名稱>          所有 Pi 之後拍的照片都進這本相簿（不設 = 拍攝日期，例 2026_10_30）
-  snappipe-live album <裝置> <名稱>   只指定一台，例 snappipe-live album pi-1 Saki外拍
-  snappipe-live album -              清除指定，改回 Pi 自己的設定 / 拍攝日期（也可以 album pi-1 -）
-  snappipe-live album                列出每台 Pi 目前的相簿
+  snappipe-live status     目前狀態、裝置、佇列、相簿的返圖 / 即時監看網址
+  snappipe-live links      相簿的返圖 / 即時監看網址
+  snappipe-live album              看相簿名稱（一台伺服器 = 一個拍攝計劃 = 一本相簿）
+  snappipe-live album <新名稱>     改相簿名稱（可以有空白，例 snappipe-live album Saki 外拍 10/30）
+  （SNAPPIPE_SINGLE_ALBUM=0 的舊模式：album [裝置] <名稱 | -> 指定 Pi 之後的照片進哪本）
   snappipe-live off        關掉即時上傳：Pi 暫停上傳（照片留在卡上）、即時監看頁關閉；返圖頁與插卡上傳照常
   snappipe-live on         重新開啟
 
@@ -32,12 +31,11 @@ def t(zh, en):
 USAGE_EN = """
 Server admin commands (installed as the snappipe-live shortcut):
 
-  snappipe-live status     Status, devices, queue, and album site / live view links for each album
-  snappipe-live links      Fixed links (always go to the newest album) and album site / live view links for each album
-  snappipe-live album <name>            All Pis put new photos in this album (unset = shoot date, e.g. 2026_10_30)
-  snappipe-live album <device> <name>   Set one Pi only, e.g. snappipe-live album pi-1 Saki_shoot
-  snappipe-live album -                 Clear it; go back to the Pi's own setting / shoot date (also album pi-1 -)
-  snappipe-live album                   List each Pi's current album
+  snappipe-live status     Status, devices, queue, and the album's album site / live view links
+  snappipe-live links      The album's album site / live view links
+  snappipe-live album              Show the album name (one server = one shoot plan = one album)
+  snappipe-live album <new name>   Rename the album (spaces are fine, e.g. snappipe-live album Saki shoot Oct 30)
+  (Old mode with SNAPPIPE_SINGLE_ALBUM=0: album [device] <name | -> sets which album a Pi's new photos go to)
   snappipe-live off        Turn off live upload: Pis pause uploads (photos stay on the card) and live view closes;
                            the album site and card import keep working
   snappipe-live on         Turn it back on
@@ -58,6 +56,15 @@ def site_links(con):
     s = live.site_links(con)
     a, lv = full(core.PUBLIC_URL + s['album']), full(core.PUBLIC_URL + s['live'])
     print(t(f"  返圖（給客人，永遠是最新的相簿）：{a}", f"  Album site (for guests, always the newest album): {a}"))
+    print(t(f"  即時監看（攝影師 / 編輯，不要給客人）：{lv}", f"  Live view (photographer / editor, not for guests): {lv}"))
+
+
+def single_links(con):
+    """一台一本：直接印這本相簿的連結。"""
+    a = core.the_album(con)
+    share, lv = full(core.share_url(a['share_key'])), full(core.live_url(a['live_key']))
+    print(t(f"  相簿：{a['title']}", f"  Album: {a['title']}"))
+    print(t(f"  返圖（給客人）：{share}", f"  Album site (for guests): {share}"))
     print(t(f"  即時監看（攝影師 / 編輯，不要給客人）：{lv}", f"  Live view (photographer / editor, not for guests): {lv}"))
 
 
@@ -92,7 +99,26 @@ def show_albums(con):
         print(f"  {n:<12} → {(r and r['active_album']) or t('拍攝日期（沒有指定）', 'shoot date (not set)')}")
 
 
+def rename(args) -> int:
+    """一台一本：看或改相簿名稱（標題）。網址不變。"""
+    with core.db() as con:
+        a = core.the_album(con)
+        if not args:
+            print(t(f"  相簿：{a['title']}", f"  Album: {a['title']}"))
+            return 0
+        title = " ".join(args).strip()
+        title = "".join(c for c in title if c.isprintable())[:100]
+        if not title:
+            print(t("相簿名稱不能是空的", "The album name can't be empty"), file=sys.stderr)
+            return 1
+        con.execute("UPDATE albums SET title=? WHERE id=?", (title, a["id"]))
+    print(t(f"  相簿名稱改成：{title}（連結不變）", f"  Album renamed to: {title} (links stay the same)"))
+    return 0
+
+
 def album(args) -> int:
+    if core.SINGLE_ALBUM:
+        return rename(args)
     with core.db() as con:
         if not args:
             show_albums(con)
@@ -146,12 +172,15 @@ def status():
             secs = int(time.time() - d['last_seen']) if d["last_seen"] else None
             ago = (t(f"{secs} 秒前", f"{secs}s ago") if secs is not None else t("從未", "never"))
             pending = st.get('pending', '?')
-            print(t(f"  裝置 {d['name']:<12} 心跳 {ago:<10} 已傳 {d['uploads']:<5} 待傳 {pending:<4}"
-                    f" 相簿 {d['active_album'] or '（沒有指定：Pi 的設定或拍攝日期）'}",
-                    f"  Device {d['name']:<12} heartbeat {ago:<10} sent {d['uploads']:<5} queued {pending:<4}"
-                    f" album {d['active_album'] or '(not set: Pi setting or shoot date)'}"))
-        site_links(con)
-        links(con)
+            where = "" if core.SINGLE_ALBUM else t(f" 相簿 {d['active_album'] or '（沒有指定：Pi 的設定或拍攝日期）'}",
+                                                     f" album {d['active_album'] or '(not set: Pi setting or shoot date)'}")
+            print(t(f"  裝置 {d['name']:<12} 心跳 {ago:<10} 已傳 {d['uploads']:<5} 待傳 {pending:<4}",
+                    f"  Device {d['name']:<12} heartbeat {ago:<10} sent {d['uploads']:<5} queued {pending:<4}") + where)
+        if core.SINGLE_ALBUM:
+            single_links(con)
+        else:
+            site_links(con)
+            links(con)
 
 
 def main(argv=None):
@@ -168,6 +197,9 @@ def main(argv=None):
         sys.exit(album(argv[1:]))
     elif cmd == "links":
         with core.db() as con:
+            if core.SINGLE_ALBUM:
+                single_links(con)
+                return
             site_links(con)
             if links(con):
                 print(t("  （上面兩個固定連結會自動導到最新的相簿；要給客人某一本，就用那本自己的返圖連結）",

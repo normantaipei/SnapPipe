@@ -13,7 +13,7 @@
 #
 # 參數（都可省略）：
 #   --install          建好後直接在容器裡跑 bootstrap.sh：從 GitHub 抓程式、build、安裝返圖站
-#   --site-name NAME   網站名稱：整個返圖站的名字（--install 用，沒給會詢問）
+#   --site-name NAME   拍攝計劃名稱：一台 LXC = 一個拍攝計劃 = 一本相簿，這也是相簿名稱（--install 用，沒給會詢問）
 #                      暫存資料夾、NAS 備份、相簿名稱都是之後在 Mac 上傳時設定，這裡只架伺服器
 #   --public-url URL   對外網址（反向代理 / https 網域），例 https://photos.example.com（--install 用）
 #   --ref BRANCH|TAG   要裝哪個分支或 tag              預設 main
@@ -171,8 +171,8 @@ fi
 if [ -n "$INSTALL" ]; then
   echo
   echo "$(t "SnapPipe 安裝設定（直接 Enter 用預設值）" "SnapPipe setup (press Enter for the default)")"
-  ask SITE_NAME "$(t "網站名稱：整個返圖站的名字，例「小明的返圖」（每本相簿的名稱之後上傳時才設定）" "Site name: the name of the whole album site, e.g. \"Alex's Photos\" (album names are set later, when you shoot)")" "$(t 返圖 SnapPipe)"
-  ask DISK "$(t "LXC 磁碟大小 GB（所有相簿的 JPG + RAW 都存這裡，一場活動可能就數十 GB）" "LXC disk size in GB (all JPG + RAW files live here; one event can take tens of GB)")" "64"
+  ask SITE_NAME "$(t "拍攝計劃名稱：這台返圖站只放這個拍攝計劃，也是唯一那本相簿的名稱，例「Saki 外拍 10/30」（之後可以用 snappipe-live album 改）" "Shoot plan name: this album site holds just this one shoot, and it is also the name of its only album, e.g. \"Saki shoot Oct 30\" (rename later with snappipe-live album)")" "$(t 返圖 SnapPipe)"
+  ask DISK "$(t "LXC 磁碟大小 GB（這個拍攝計劃的 JPG + RAW 都存這裡，一場活動可能就數十 GB）" "LXC disk size in GB (all JPG + RAW files of this shoot live here; one event can take tens of GB)")" "64"
   ask PUBLIC_URL "$(t "對外網址：Pi 在外面上傳、分享連結用的 https 網域，例 https://photos.example.com（沒有就留空）" "Public URL: the https domain for uploads from outside and for share links, e.g. https://photos.example.com (leave blank if none)")" ""
   if [ -z "$NO_WORKER" ]; then
     if [ -n "$NO_AI" ]; then META_KEY=""; else ask_meta_key; fi

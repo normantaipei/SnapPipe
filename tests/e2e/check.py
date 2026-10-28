@@ -4,7 +4,9 @@ import requests
 server, tok, album, meta_log = sys.argv[1:5]
 H = {"Authorization": f"Bearer {tok}"}
 st = requests.get(f"{server}/api/live/status", headers=H, timeout=10).json()
-a = next(x for x in st["albums"] if x["slug"] == album)
+# 一台一本相簿：Pi 給的相簿名稱不用，伺服器上只有那一本
+assert len(st["albums"]) == 1, f"應該只有一本相簿：{[x['slug'] for x in st['albums']]}"
+a = st["albums"][0]
 feed = requests.get(f"{server}/api/live/feed/{a['live_key']}", timeout=10).json()
 share = requests.get(f"{server}/api/share/{a['share_key']}", timeout=10).json()
 ph = {p["name"]: p for p in feed["photos"]}
