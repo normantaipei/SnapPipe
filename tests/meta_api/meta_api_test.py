@@ -260,7 +260,7 @@ def cmd_run(a):
         sys.exit("沒有 META_API_KEY：設環境變數，或填在 worker/.env")
     games = Path(tempfile.mkdtemp(prefix="snappipe-games-"))
     (games / "default.toml").write_text(
-        f'[game]\nsport = "{a.sport}"\nlang = "{a.lang}"\ncreator = "測試"\ncredit = "SnapPipe"\ncaptions = true\n'
+        f'[game]\nsport = "{a.sport}"\nlang = "{a.lang}"\ncreator = "測試"\ncredit = "SnapPipe"\n'
         + (f'person = "{a.person}"\n' if a.person else "")
         + (Path(a.plan).read_text(encoding="utf-8") if a.plan else ""), encoding="utf-8")
     cfg = {"META_API_KEY": key, "META_MODEL": a.model, "META_REASONING": a.reasoning, "GAMES_DIR": str(games),

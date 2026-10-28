@@ -1,7 +1,7 @@
 # 預設的相簿設定（一般攝影）。setup.sh 會複製成 games/default.toml：沒有自己設定檔的相簿都用這份。
-# 一般攝影：AI 依對焦、表情、構圖選片、評星等，預設不寫圖說（省錢）。
-# 想要圖說：把這份複製成 games/<相簿名稱>.toml，打開下面的「拍攝計劃」（選用）——有計劃就會寫圖說，
-#   只替 4、5 星的精選寫（worker/.env 的 CAPTION_MIN_STARS 可以改）。
+# 一般攝影：AI 依對焦、表情、構圖選片，給星等與標籤，不寫圖說（省錢）。
+# 想要圖說：把這份複製成 games/<相簿名稱>.toml，打開下面的「拍攝計劃」（選用）——有計劃才寫圖說，
+#   而且只替 5 星的精選寫（worker/.env 的 CAPTION_MIN_STARS 可以改）。
 # 拍體育比賽：改用 example.toml（賽事、主客隊、名單）。
 
 [game]
@@ -9,7 +9,7 @@ lang = "zh"                          # zh / en
 creator = ""                         # 攝影師署名（寫進照片的 IPTC）
 credit = "SnapPipe"
 # subject = "cosplay portrait photoshoot"   # 拍攝題材，給 AI 參考（英文較準），例 wedding / concert / street
-# captions = true                    # 不寫拍攝計劃也要圖說；false = 有計劃也不寫
+# captions = false                   # 有寫拍攝計劃也不要圖說
 # person = "一名 Coser"              # 認不出是誰時的稱呼（預設「一名人物」）
 
 # ---- 拍攝計劃（選用）：讓圖說寫對名字、服裝、道具與場景 ----

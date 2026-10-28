@@ -63,6 +63,7 @@ Selection criteria, most important first:
 4. Composition: subject not cut off, nothing blocking the face.
 
 Score every frame from 1 to 10 (overall, peak, focus, composition) and list its problems.
+"tags": up to 8 short keywords for the whole burst in {LANG} (subject, scene, costume, props, mood); no names.
 "local sharpness" is a pixel-level hint from the server (0-1, higher is sharper), not a judgement of content.
 Output only JSON that matches the schema."""
 
@@ -80,15 +81,17 @@ Selection criteria, most important first:
 Score every frame from 1 to 10 (overall, peak = how well the moment / expression is caught, focus, composition)
 and list its problems. Never use the issue "ball_missing" (there is no ball here).
 For "moment" use portrait, crowd, celebration or other.
+"tags": up to 8 short keywords for the whole burst in {LANG} (subject, scene, costume, props, mood); no names.
 "local sharpness" is a pixel-level hint from the server (0-1, higher is sharper), not a judgement of content.
 Output only JSON that matches the schema."""
 
 SELECT_SCHEMA = {
     "type": "object",
     "additionalProperties": False,
-    "required": ["best", "frames", "moment"],
+    "required": ["best", "frames", "moment", "tags"],
     "properties": {
         "best": {"type": "array", "items": {"type": "integer"}, "minItems": 1, "maxItems": 3},
+        "tags": {"type": "array", "items": {"type": "string", "maxLength": 20}, "maxItems": 8},
         "moment": {"type": "string", "enum": MOMENTS},
         "frames": {
             "type": "array",
@@ -232,7 +235,7 @@ class MetaAIAnalyzer(Analyzer):
         self.max_picks = max(1, min(int(c("MAX_PICKS", "3")), 3))
         self.pick_min = float(c("PICK_MIN_SCORE", "4"))
         # 只替這個星等以上的精選寫圖說（圖說是主要開銷：每張約選片的 5 倍）；0 = 每張精選都寫
-        self.caption_min_stars = int(c("CAPTION_MIN_STARS", "4"))
+        self.caption_min_stars = int(c("CAPTION_MIN_STARS", "5"))
         self.thresholds = sorted(float(x) for x in c("STAR_THRESHOLDS", "4,5.5,7,8.5").split(","))
         self.review_conf = float(c("REVIEW_CONF", "0.8"))
         self.player_min_conf = float(c("PLAYER_MIN_CONF", "0.7"))
@@ -285,6 +288,12 @@ class MetaAIAnalyzer(Analyzer):
         # 第一名一定留；第二、三名分數太低（整組都糊）就不算精選，免得編輯檯塞滿爛片、也省下階段二的費用
         best = best[:1] + [i for i in best[1:] if finals[i] >= self.pick_min]
         moment = sel.get("moment") if sel.get("moment") in MOMENTS else "other"
+        burst_tags = []                        # 選片時順便給的標籤（沒寫圖說的照片也有）
+        for t in sel.get("tags") or []:
+            t = tidy(str(t).strip(), lang)[:20]
+            if t and t not in burst_tags:
+                burst_tags.append(t)
+        burst_tags = burst_tags[:8]
 
         # 階段二：只做選中的幾張，同時送出
         described = {}
@@ -306,7 +315,7 @@ class MetaAIAnalyzer(Analyzer):
         out = []
         for i, (path, job) in enumerate(items):
             out.append(self.build(path, job, game, lang, i, len(items), burst_id, best, moment, frames.get(i),
-                                  finals[i], sharp_n[i], described.get(i), ai_failed,
+                                  finals[i], sharp_n[i], described.get(i), ai_failed, burst_tags,
                                   {"model": self.client.model, "prompt": PROMPT_VERSION, "burst_sec": elapsed,
                                    **({"usage": usage} if i == 0 else {})}))
         return out
@@ -336,7 +345,8 @@ class MetaAIAnalyzer(Analyzer):
             offset = f"+{t - t_first:.2f}s" if t is not None and t_first is not None else "time unknown"
             content.append({"type": "text", "text": f"Frame {i}: {offset}, local sharpness {sharp_n[i]:.2f}"})
             content.append({"type": "image_url", "image_url": {"url": data_url(img, 80)}})
-        system = SELECT_SYSTEM if game.is_sports else SELECT_SYSTEM_GENERAL
+        system = (SELECT_SYSTEM if game.is_sports else SELECT_SYSTEM_GENERAL).replace(
+            "{LANG}", LANG_NAME.get(game.lang, LANG_NAME["zh"]))
         return self.client.chat_json(system, content, SELECT_SCHEMA, "burst_selection", max_tokens=3000)
 
     def final_score(self, f, sharp_n: float) -> float:
@@ -441,7 +451,7 @@ class MetaAIAnalyzer(Analyzer):
     # ---- 組合結果 ----
 
     def build(self, path, job, game: Game, lang, i, n, burst_id, best, moment, frame, final, sharp_n, desc,
-              ai_failed, extra) -> Analysis:
+              ai_failed, burst_tags, extra) -> Analysis:
         pick = i in best
         moment_label = MOMENT_LABEL[lang][moment]
         ai = {"pick": pick, "rank": best.index(i) + 1 if pick else None, "moment": moment,
@@ -452,7 +462,7 @@ class MetaAIAnalyzer(Analyzer):
             ai["issues"] = [x for x in frame.get("issues") or [] if x in ISSUES]
         if ai_failed:
             ai["ai_failed"] = ai_failed
-        tags = [moment_label] if moment != "other" else []
+        tags = ([moment_label] if moment != "other" else []) + [t for t in burst_tags if t != moment_label]
         if pick:
             tags.insert(0, PICK_LABEL[lang])
         # 機身序號：伺服器入庫時讀過就用；沒有就自己從 EXIF 讀（署名要靠它對到攝影師）
@@ -478,7 +488,7 @@ class MetaAIAnalyzer(Analyzer):
                 if p["name"] and p["confidence"] >= self.player_min_conf:
                     label = p["name"] if p["team"] == "plan" else f"#{p['jersey']} {p['name']}"
                     players.append(Player(f"{p['team']}:{p['jersey']}", label, p["box"], p["confidence"]))
-            tags += people_names + [str(k) for k in desc.get("keywords") or []][:8]
+            tags += [t for t in people_names + [str(k) for k in desc.get("keywords") or []][:8] if t not in tags]
             reasons += [str(r) for r in desc.get("review_reasons") or []]
             needs_review = bool(desc.get("needs_review")) or bool(reasons)
             ai.update({"players": [{k: v for k, v in p.items() if k != "n"} for p in plist],

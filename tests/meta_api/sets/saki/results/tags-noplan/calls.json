@@ -1,0 +1,50 @@
+[
+  {
+    "name": "burst_selection",
+    "images": 3,
+    "sec": 4.87,
+    "in": 1292,
+    "out": 963,
+    "raw": "{\"best\": [0], \"frames\": [{\"composition\": 5, \"focus\": 5, \"index\": 0, \"issues\": [\"under_exposed\"], \"overall\": 4, \"peak\": 4}, {\"composition\": 4, \"focus\": 4, \"index\": 1, \"issues\": [\"under_exposed\", \"out_of_focus\"], \"overall\": 3, \"peak\": 3}, {\"composition\": 4, \"focus\": 4, \"index\": 2, \"issues\": [\"under_exposed\"], \"overall\": 3, \"peak\": 3}], \"moment\": \"portrait\", \"tags\": [\"角色扮演\", \"藍色頭髮\", \"紅色紙傘\", \"古式長廊\", \"低光剪影\", \"神秘氛圍\", \"全身人像\", \"暗調攝影\"]}"
+  },
+  {
+    "name": "burst_selection",
+    "images": 4,
+    "sec": 6.0,
+    "in": 1527,
+    "out": 1191,
+    "raw": "{\"best\": [3], \"frames\": [{\"composition\": 4, \"focus\": 3, \"index\": 0, \"issues\": [\"motion_blur_subject\", \"out_of_focus\"], \"overall\": 3, \"peak\": 3}, {\"composition\": 1, \"focus\": 3, \"index\": 1, \"issues\": [\"subject_cropped\", \"face_blocked\"], \"overall\": 1, \"peak\": 1}, {\"composition\": 4, \"focus\": 2, \"index\": 2, \"issues\": [\"motion_blur_subject\", \"out_of_focus\"], \"overall\": 3, \"peak\": 4}, {\"composition\": 6, \"focus\": 7, \"index\": 3, \"issues\": [\"face_blocked\"], \"overall\": 5, \"peak\": 3}], \"moment\": \"other\", \"tags\": [\"\\u85cd\\u8272\\u5047\\u9aee\", \"\\u9ed1\\u8272\\u53e4\\u88dd\", \"\\u7d05\\u8272\\u7d19\\u5098\", \"\\u71c8\\u7c60\", \"\\u53e4\\u539d\\u8ff4\\u5eca\", \"\\u6236\\u5916\\u5beb\\u771f\"]}"
+  },
+  {
+    "name": "burst_selection",
+    "images": 8,
+    "sec": 5.08,
+    "in": 2467,
+    "out": 1022,
+    "raw": "{\"best\": [7, 6, 5], \"frames\": [{\"composition\": 6, \"focus\": 6, \"index\": 0, \"issues\": [], \"overall\": 5, \"peak\": 5}, {\"composition\": 6, \"focus\": 6, \"index\": 1, \"issues\": [], \"overall\": 5, \"peak\": 5}, {\"composition\": 7, \"focus\": 6, \"index\": 2, \"issues\": [], \"overall\": 6, \"peak\": 6}, {\"composition\": 7, \"focus\": 5, \"index\": 3, \"issues\": [\"out_of_focus\"], \"overall\": 6, \"peak\": 6}, {\"composition\": 7, \"focus\": 5, \"index\": 4, \"issues\": [\"out_of_focus\"], \"overall\": 6, \"peak\": 6}, {\"composition\": 8, \"focus\": 8, \"index\": 5, \"issues\": [], \"overall\": 8, \"peak\": 7}, {\"composition\": 8, \"focus\": 9, \"index\": 6, \"issues\": [], \"overall\": 8, \"peak\": 8}, {\"composition\": 8, \"focus\": 9, \"index\": 7, \"issues\": [], \"overall\": 9, \"peak\": 9}], \"moment\": \"portrait\", \"tags\": [\"角色扮演\", \"藍色假髮\", \"黑紅服裝\", \"石橋\", \"老榕樹\", \"涼亭\", \"戶外外拍\", \"迎面走來\"]}"
+  },
+  {
+    "name": "burst_selection",
+    "images": 7,
+    "sec": 4.22,
+    "in": 2232,
+    "out": 1123,
+    "raw": "{\"best\": [5, 4, 6], \"frames\": [{\"composition\": 6.0, \"focus\": 7.0, \"index\": 0, \"issues\": [], \"overall\": 6.0, \"peak\": 5.0}, {\"composition\": 6.0, \"focus\": 7.0, \"index\": 1, \"issues\": [], \"overall\": 6.0, \"peak\": 5.0}, {\"composition\": 6.5, \"focus\": 7.0, \"index\": 2, \"issues\": [], \"overall\": 6.5, \"peak\": 6.0}, {\"composition\": 7.5, \"focus\": 7.5, \"index\": 3, \"issues\": [], \"overall\": 7.5, \"peak\": 7.0}, {\"composition\": 8.5, \"focus\": 8.5, \"index\": 4, \"issues\": [], \"overall\": 8.5, \"peak\": 8.0}, {\"composition\": 9.0, \"focus\": 9.0, \"index\": 5, \"issues\": [], \"overall\": 9.0, \"peak\": 9.0}, {\"composition\": 8.5, \"focus\": 7.0, \"index\": 6, \"issues\": [\"out_of_focus\"], \"overall\": 8.0, \"peak\": 8.0}], \"moment\": \"portrait\", \"tags\": [\"角色扮演\", \"藍色假髮\", \"黑紅服飾\", \"石橋\", \"涼亭\", \"老樹\", \"戶外外拍\", \"古風氛圍\"]}"
+  },
+  {
+    "name": "burst_selection",
+    "images": 3,
+    "sec": 4.63,
+    "in": 1292,
+    "out": 998,
+    "raw": "{\"best\":[2,1],\"frames\":[{\"composition\":6.5,\"focus\":7,\"index\":0,\"issues\":[],\"overall\":7,\"peak\":7},{\"composition\":8,\"focus\":9,\"index\":1,\"issues\":[],\"overall\":8.5,\"peak\":8},{\"composition\":9,\"focus\":8.5,\"index\":2,\"issues\":[],\"overall\":9,\"peak\":8}],\"moment\":\"portrait\",\"tags\":[\"角色扮演\",\"藍色假髮\",\"黑色和服\",\"金龍雕飾\",\"室內人像\",\"紅色眼鏡\",\"側臉\",\"擺拍\"]}"
+  },
+  {
+    "name": "burst_selection",
+    "images": 5,
+    "sec": 6.36,
+    "in": 1762,
+    "out": 1308,
+    "raw": "{\"best\": [3, 2, 4], \"frames\": [{\"composition\": 7.0, \"focus\": 5.0, \"index\": 0, \"issues\": [\"out_of_focus\"], \"overall\": 6.0, \"peak\": 6.0}, {\"composition\": 7.0, \"focus\": 7.0, \"index\": 1, \"issues\": [\"motion_blur_subject\"], \"overall\": 7.0, \"peak\": 7.0}, {\"composition\": 7.5, \"focus\": 9.0, \"index\": 2, \"issues\": [], \"overall\": 8.5, \"peak\": 8.0}, {\"composition\": 9.0, \"focus\": 8.5, \"index\": 3, \"issues\": [], \"overall\": 9.0, \"peak\": 8.5}, {\"composition\": 8.5, \"focus\": 8.0, \"index\": 4, \"issues\": [], \"overall\": 8.5, \"peak\": 8.0}], \"moment\": \"portrait\", \"tags\": [\"\\u85cd\\u8272\\u5047\\u9aee\", \"\\u7d05\\u8272\\u58a8\\u93e1\", \"\\u4e2d\\u5f0f\\u53e4\\u98a8\", \"\\u9f8d\\u7d0b\\u80cc\\u666f\", \"\\u71c8\\u7c60\", \"\\u9577\\u7159\\u6597\", \"\\u9ed1\\u8272\\u670d\\u98fe\", \"\\u5ba4\\u5167\\u5beb\\u771f\"]}"
+  }
+]

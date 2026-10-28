@@ -12,7 +12,8 @@
 兩種模式（自動判斷）：
   - 體育：有寫賽事（event）、主客隊（home / away）或名單 → 用體育新聞的標準選片，並寫圖說
   - 一般攝影：都沒寫（例如 default.toml 只有署名）→ 依對焦、表情、構圖選片、評星等，不寫圖說
-    [game] subject 可以描述拍攝題材給 AI 參考（例 "cosplay portrait"）；captions = true 強制寫圖說
+    [game] subject 可以描述拍攝題材給 AI 參考（例 "cosplay portrait"）
+  有拍攝計劃（體育的賽事 / 名單，或一般攝影的 notes / [[people]]）才寫圖說；沒有就只給標籤與星等
 
 拍攝計劃（一般攝影寫圖說時用）：
   [game] notes = "道具：紅色油紙傘…；地點：中式庭園、室內攝影棚"   ← 只當參考，畫面看得到才會寫
@@ -60,13 +61,14 @@ class Game:
         return bool(self.get("event") or self.get("home") or self.get("away") or self.roster)
 
     @property
-    def captions(self) -> bool:
-        """要不要寫圖說：體育模式、或一般攝影有寫拍攝計劃（notes / [[people]]）就寫；
-        其他一般攝影不寫（省錢）。[game] captions = true / false 可以強制。"""
-        v = self.info.get("captions")
-        if v is not None:
-            return bool(v)
+    def has_plan(self) -> bool:
+        """有拍攝計劃：體育的賽事 / 主客隊 / 名單，或一般攝影的 notes / [[people]]。"""
         return self.is_sports or bool(self.people or self.get("notes"))
+
+    @property
+    def captions(self) -> bool:
+        """有拍攝計劃才寫圖說；沒有就只給標籤與星等。[game] captions = false 可以在有計劃時也關掉。"""
+        return self.has_plan and self.info.get("captions") is not False
 
     @property
     def subject(self) -> str:
