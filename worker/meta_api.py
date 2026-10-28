@@ -10,6 +10,7 @@ Meta Model API（Muse Spark）的最小用戶端：Chat Completions + 影像 + J
 import base64
 import io
 import json
+import os
 import time
 from pathlib import Path
 
@@ -42,24 +43,30 @@ class MetaApiError(RuntimeError):
 def check_key(api_key: str, base: str = DEFAULT_BASE, model: str = DEFAULT_MODEL, timeout: float = 20):
     """金鑰能不能用：GET /models/{model}（不產生內容、不收費），確認金鑰有效、這個模型可以用。
     Meta 沒有查付款狀態的 API，沒綁卡要等第一次真的分析時才會收到 402（worker 記錄會說明怎麼處理）。
-    回傳 (結果, 說明)；結果是 ok / invalid（要換金鑰或設定才會好）/ network（連不上，晚點可能會好）。"""
+    回傳 (結果, 說明)；結果是 ok / invalid（要換金鑰或設定才會好）/ network（連不上，晚點可能會好）。
+    說明的語言跟著 SNAPPIPE_LANG（en = 英文，安裝程式用）。"""
+    en = os.environ.get("SNAPPIPE_LANG") == "en"
+    t = (lambda zh, e: e) if en else (lambda zh, e: zh)
     if not api_key:
-        return "invalid", "沒有金鑰"
+        return "invalid", t("沒有金鑰", "no key")
     try:
         r = requests.get(f"{base.rstrip('/')}/models/{model}", timeout=timeout,
                          headers={"Authorization": f"Bearer {api_key}"})
     except requests.RequestException as e:
-        return "network", f"連不上 {base}：{type(e).__name__}"
+        return "network", t(f"連不上 {base}：{type(e).__name__}", f"can't reach {base}: {type(e).__name__}")
     if r.status_code == 200:
-        return "ok", f"{model} 可以使用"
+        return "ok", t(f"{model} 可以使用", f"{model} is available")
     try:
         err = r.json().get("error") or {}
         detail = err.get("message") or err.get("code") or ""
     except (ValueError, AttributeError):
         detail = r.text[:120]
-    hint = {401: "金鑰錯誤或已撤銷", 404: f"找不到模型 {model}（檢查 META_MODEL）"}.get(r.status_code) \
-        or ACCOUNT_HINTS.get(r.status_code, "")
-    msg = f"HTTP {r.status_code}" + (f" {hint}" if hint else "") + (f"（{detail}）" if detail else "")
+    hints = {401: t("金鑰錯誤或已撤銷", "wrong or revoked key"),
+             402: t(ACCOUNT_HINTS[402], "billing is not set up or credit is used up: add a card on the Billing page at https://dev.meta.ai"),
+             403: t(ACCOUNT_HINTS[403], "this key has no access (or your region is not supported)"),
+             404: t(f"找不到模型 {model}（檢查 META_MODEL）", f"model {model} not found (check META_MODEL)")}
+    hint = hints.get(r.status_code, "")
+    msg = f"HTTP {r.status_code}" + (f" {hint}" if hint else "") + (t(f"（{detail}）", f" ({detail})") if detail else "")
     return ("network" if r.status_code >= 500 or r.status_code == 429 else "invalid"), msg
 
 

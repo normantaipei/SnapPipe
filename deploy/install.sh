@@ -24,6 +24,8 @@ APP=/opt/snappipe
 DATA=/var/lib/snappipe
 ENV_FILE=/etc/snappipe.env
 
+# 介面語言：SNAPPIPE_LANG=en（或 --lang en）印英文。t '中文' 'English'
+t() { if [ "${SNAPPIPE_LANG:-}" = en ]; then printf '%s' "$2"; else printf '%s' "$1"; fi; }
 die() { echo "❌ $*" >&2; exit 1; }
 say() { echo -e "\033[1;36m▸\033[0m $*"; }
 
@@ -33,7 +35,7 @@ has_tty() { [ -t 1 ] && ( : </dev/tty ) 2>/dev/null; }
 ask() {
   local __v="${!1:-}"
   if [ -z "$__v" ] && [ -z "$NO_PROMPT" ] && has_tty; then
-    read -r -p "$2 [${3:-留空}]: " __v </dev/tty || true
+    read -r -p "$2 [${3:-$(t 留空 blank)}]: " __v </dev/tty || true
   fi
   printf -v "$1" '%s' "${__v:-$3}"
 }
@@ -50,24 +52,28 @@ main() {
       --upload-nets) UPLOAD_NETS="$2"; shift 2 ;;
       --public-url) PUBLIC_URL="$2"; shift 2 ;;
       --no-prompt) NO_PROMPT=1; shift ;;
+      --lang) export SNAPPIPE_LANG="$2"; shift 2 ;;
       -h|--help) sed -n '2,15p' "$0" 2>/dev/null || true; exit 0 ;;
-      *) die "不認得的參數：$1" ;;
+      *) die "$(t "不認得的參數：$1" "Unknown option: $1")" ;;
     esac
   done
-  [ "$(id -u)" = 0 ] || die "請用 root 執行"
-  command -v apt-get >/dev/null || die "只支援 Debian / Ubuntu"
+  # 語言沿用上次安裝的設定（更新時不用再加 --lang）
+  [ -n "${SNAPPIPE_LANG:-}" ] || SNAPPIPE_LANG=$(env_get SNAPPIPE_LANG)
+  export SNAPPIPE_LANG
+  [ "$(id -u)" = 0 ] || die "$(t "請用 root 執行" "Run as root")"
+  command -v apt-get >/dev/null || die "$(t "只支援 Debian / Ubuntu" "Only Debian / Ubuntu are supported")"
 
   # 重跑時沿用上次的設定（照片放哪也沿用：手動搬過資料夾的話，更新後不會指回空的預設位置）
   DATA=$(env_get SNAPPIPE_DATA); DATA=${DATA:-/var/lib/snappipe}
   PORT=${PORT:-$(env_get SNAPPIPE_PORT)}; PORT=${PORT:-8080}
   SITE_NAME=${SITE_NAME:-$(env_get SNAPPIPE_SITE_NAME)}
 
-  say "安裝系統套件"
+  say "$(t 安裝系統套件 "Installing system packages")"
   export DEBIAN_FRONTEND=noninteractive
   apt-get update -qq </dev/null
   apt-get install -y -qq python3 python3-venv iproute2 curl ca-certificates </dev/null >/dev/null
   python3 -c 'import sys; sys.exit(sys.version_info < (3, 10))' \
-    || die "需要 Python 3.10 以上（目前 $(python3 --version)），請用 Debian 12 / Ubuntu 22.04 以上"
+    || die "$(t "需要 Python 3.10 以上（目前 $(python3 --version)），請用 Debian 12 / Ubuntu 22.04 以上" "Python 3.10+ is required (found $(python3 --version)); use Debian 12 / Ubuntu 22.04 or newer")"
 
   local IP CIDR NET
   IP=$(ip -o -4 route get 1.1.1.1 2>/dev/null | sed -n 's/.* src \([0-9.]*\).*/\1/p')
@@ -81,19 +87,19 @@ main() {
   [ "$PUBLIC_URL" = "http://$IP:$PORT" ] && PUBLIC_URL=""
 
   echo
-  ask SITE_NAME "網站名稱：整個返圖站的名字，例「小明的返圖」（每本相簿的名稱之後上傳時才設定）" "返圖"
+  ask SITE_NAME "$(t "網站名稱：整個返圖站的名字，例「小明的返圖」（每本相簿的名稱之後上傳時才設定）" "Site name: the name of the whole album site, e.g. \"Alex's Photos\" (album names are set later)")" "$(t 返圖 SnapPipe)"
   # 清掉終端機可能夾帶的控制字元、無效位元組與單引號（設定檔用單引號包）
   SITE_NAME=$(python3 -c '
 import sys
 s = sys.argv[1].encode("utf-8", "surrogateescape").decode("utf-8", "ignore")
 print("".join(c for c in s if c.isprintable() and c not in "\x27\ufffd").strip())' "$SITE_NAME")
-  [ -n "$SITE_NAME" ] || SITE_NAME="返圖"
+  [ -n "$SITE_NAME" ] || SITE_NAME="$(t 返圖 SnapPipe)"
 
-  say "取得程式（後端 + 前端）"
+  say "$(t "取得程式（後端 + 前端）" "Getting the code (backend + frontend)")"
   TMP=$(mktemp -d); trap 'rm -rf "$TMP"' EXIT
   if [ -n "${SNAPPIPE_SRC:-}" ]; then
     # 原始碼版：從 repo 取後端與已 build 好的前端
-    [ -f "$SNAPPIPE_SRC/web/dist/index.html" ] || die "找不到 $SNAPPIPE_SRC/web/dist，前端還沒 build"
+    [ -f "$SNAPPIPE_SRC/web/dist/index.html" ] || die "$(t "找不到 $SNAPPIPE_SRC/web/dist，前端還沒 build" "$SNAPPIPE_SRC/web/dist not found; the frontend is not built yet")"
     mkdir -p "$TMP/server" "$TMP/web"
     cp -a "$SNAPPIPE_SRC/server/app" "$SNAPPIPE_SRC/server/requirements.txt" "$TMP/server/"
     cp -a "$SNAPPIPE_SRC/web/dist" "$TMP/web/dist"
@@ -109,16 +115,16 @@ print("".join(c for c in s if c.isprintable() and c not in "\x27\ufffd").strip()
   cp -a "$TMP/web/." "$APP/web/"
   cp "$TMP/snappipe.service" /etc/systemd/system/snappipe.service
 
-  say "建立 Python 環境"
+  say "$(t "建立 Python 環境" "Setting up the Python environment")"
   [ -x "$APP/server/.venv/bin/python" ] || python3 -m venv "$APP/server/.venv"
   "$APP/server/.venv/bin/pip" install -q --upgrade pip </dev/null
   "$APP/server/.venv/bin/pip" install -q -r "$APP/server/requirements.txt" </dev/null
   chown -R snappipe:snappipe "$DATA"
 
-  say "寫入設定 $ENV_FILE"
+  say "$(t "寫入設定 $ENV_FILE" "Writing settings to $ENV_FILE")"
   # 自己手動加進設定檔、這支腳本不認得的設定，原樣保留到新設定檔最後
   local EXTRA=""
-  [ -f "$ENV_FILE" ] && EXTRA=$(grep -v -E '^(#|$|SNAPPIPE_(DATA|PORT|UPLOAD_TOKEN|UPLOAD_NETS|PUBLIC_URL|SITE_NAME|WORKER_TOKEN|DEVICE_TOKENS|HINT_[A-Z]+)=)' "$ENV_FILE" || true)
+  [ -f "$ENV_FILE" ] && EXTRA=$(grep -v -E '^(#|$|SNAPPIPE_(DATA|PORT|UPLOAD_TOKEN|UPLOAD_NETS|PUBLIC_URL|SITE_NAME|WORKER_TOKEN|DEVICE_TOKENS|LANG|HINT_[A-Z]+)=)' "$ENV_FILE" || true)
   local TOKEN; TOKEN=$(env_get SNAPPIPE_UPLOAD_TOKEN)
   [ -n "$TOKEN" ] || TOKEN=$(python3 -c 'import secrets; print(secrets.token_urlsafe(32))')
   # worker 預設不用 token（區網信任模式）：區網或同一台機器直連即可；之前設過的保留
@@ -136,6 +142,8 @@ SNAPPIPE_UPLOAD_TOKEN=$TOKEN
 SNAPPIPE_UPLOAD_NETS=$UPLOAD_NETS
 # 網站名稱（改完 systemctl restart snappipe）
 SNAPPIPE_SITE_NAME='${SITE_NAME}'
+# 安裝程式與管理指令的語言：en = 英文，留空 = 繁體中文
+SNAPPIPE_LANG=${SNAPPIPE_LANG:-}
 # 對外網址，例 https://photos.example.com。留空 = 自動用瀏覽者連進來的網域
 #（經反向代理時讀 X-Forwarded-Host / Proto），通訊軟體縮圖與分享連結都靠它
 SNAPPIPE_PUBLIC_URL=$PUBLIC_URL
@@ -163,67 +171,70 @@ ENV
 #!/bin/bash
 # 安裝完的「下一步」清單；忘了指令時再執行一次
 set -a; source /etc/snappipe.env; set +a
+t() { if [ "${SNAPPIPE_LANG:-}" = en ]; then printf '%s' "$2"; else printf '%s' "$1"; fi; }
+C=$(t "：" ": ")   # 冒號跟著語言（英文用半形）
 RAW=https://raw.githubusercontent.com/normantaipei/SnapPipe/main
 LAN="$SNAPPIPE_HINT_SERVER"
 PUB="${SNAPPIPE_PUBLIC_URL%/}"
 URL="${PUB:-$LAN}"
+LANGARG=""; [ "${SNAPPIPE_LANG:-}" = en ] && LANGARG=" --lang en"
 # 裝在 Proxmox 的 LXC（create-lxc.sh 記下了容器編號）：伺服器上的指令改成在 Proxmox Shell 執行的寫法
 # pct exec 的 PATH 不含 /usr/local/bin，所以指令要寫完整路徑
 P=""; [ -n "${SNAPPIPE_CTID:-}" ] && P="pct exec $SNAPPIPE_CTID -- /usr/local/bin/"
 
-echo "返圖站：${SNAPPIPE_SITE_NAME:-SnapPipe}　${PUB:+$PUB（對外）　}$LAN（區網）"
+echo "$(t 返圖站 "Album site")$C${SNAPPIPE_SITE_NAME:-SnapPipe}$(t "　" "   ")${PUB:+$PUB$(t "（對外）　" " (public)  ")}$LAN$(t "（區網）" " (LAN)")"
 echo
-echo "── 下一步 ──────────────────────────────────────────────"
+echo "── $(t 下一步 "Next steps") ──────────────────────────────────────────────"
 echo
-echo "① 裝樹莓派：在 Pi 上貼這行（--mode：gphoto2 = 相機 USB 接 Pi、ftp = 相機用 FTP 傳給 Pi、watch = 看資料夾）"
+echo "$(t "① 裝樹莓派：在 Pi 上貼這行（--mode：gphoto2 = 相機 USB 接 Pi、ftp = 相機用 FTP 傳給 Pi、watch = 看資料夾）" "① Set up the Raspberry Pi: paste this on the Pi (--mode: gphoto2 = camera on USB, ftp = camera sends over FTP, watch = watch a folder)")"
 IFS=',' read -ra _devs <<< "$SNAPPIPE_DEVICE_TOKENS"
 for _d in "${_devs[@]}"; do
   _d="${_d// /}"; [ -n "$_d" ] || continue
-  printf '   curl -fsSL %s/agent/bootstrap.sh | sudo bash -s -- --url %s --token %s --name %s --mode gphoto2\n' \
-    "$RAW" "$URL" "${_d#*:}" "${_d%%:*}"
+  printf '   curl -fsSL %s/agent/bootstrap.sh | sudo bash -s -- --url %s --token %s --name %s --mode gphoto2%s\n' \
+    "$RAW" "$URL" "${_d#*:}" "${_d%%:*}" "$LANGARG"
 done
 if [ -z "$PUB" ]; then
-  echo "   ⚠ 這是區網網址，Pi 離開這個網路就連不到；要在外面上傳請設對外網址（見最下面「常用指令」）"
+  echo "   $(t "⚠ 這是區網網址，Pi 離開這個網路就連不到；要在外面上傳請設對外網址（見最下面「常用指令」）" "⚠ This is a LAN address: the Pi can't reach it from outside. To upload from anywhere, set a public URL (see \"Common commands\" below)")"
 fi
-echo "   看 Pi 的記錄（在 Pi 上）：journalctl -u snap-agent -f"
+echo "   $(t "看 Pi 的記錄（在 Pi 上）" "Pi logs (on the Pi)")$Cjournalctl -u snap-agent -f"
 echo
-echo "② 開拍：照片傳上來就自動建相簿（名稱預設是拍攝日期）。下面兩個連結現在就能用，永遠導到最新的相簿："
+echo "$(t "② 開拍：照片傳上來就自動建相簿（名稱預設是拍攝日期）。下面兩個連結現在就能用，永遠導到最新的相簿：" "② Shoot: albums are created automatically as photos arrive (named by shooting date). These two links work now and always open the newest album:")"
 /usr/local/bin/snappipe-live links 2>/dev/null | sed 's/^/ /'
-echo "   之後隨時查（含每本相簿各自的連結）：${P}snappipe-live links"
-echo "   自訂相簿名稱（不設 = 拍攝日期）：${P}snappipe-live album Saki外拍_1030　　改回日期：${P}snappipe-live album -"
+echo "   $(t "之後隨時查（含每本相簿各自的連結）" "List links any time (including each album's own links)")$C${P}snappipe-live links"
+echo "   $(t "自訂相簿名稱（不設 = 拍攝日期）" "Custom album name (default = shooting date)")$C${P}snappipe-live album $(t Saki外拍_1030 Saki_shoot_1030)$(t "　　" "   ")$(t 改回日期 "Back to dates")$C${P}snappipe-live album -"
 echo
-echo "③ 賽後插卡匯入（Mac 或 Linux，在 SnapPipe 資料夾裡執行；要和伺服器在同一個區網）："
+echo "$(t "③ 賽後插卡匯入（Mac 或 Linux，在 SnapPipe 資料夾裡執行；要和伺服器在同一個區網）：" "③ Card import after the shoot (Mac or Linux, run inside the SnapPipe folder; must be on the same LAN as the server):")"
 case "$SNAPPIPE_HINT_INGEST" in
   /*|~*) ;;
-  *) echo "   （第一次先 git clone https://github.com/normantaipei/SnapPipe ）" ;;
+  *) echo "   $(t "（第一次先 git clone https://github.com/normantaipei/SnapPipe ）" "(First time: git clone https://github.com/normantaipei/SnapPipe )")" ;;
 esac
 printf '   %s --server %s --token %s --save\n' "$SNAPPIPE_HINT_INGEST" "$LAN" "$SNAPPIPE_UPLOAD_TOKEN"
-echo "   選用：--nas smb://帳號@NAS位址/共用資料夾/子資料夾（備份整張卡）、--album <相簿名稱>、--staging <暫存資料夾>"
+echo "   $(t "選用：--nas smb://帳號@NAS位址/共用資料夾/子資料夾（備份整張卡）、--album <相簿名稱>、--staging <暫存資料夾>" "Optional: --nas smb://user@NAS/share/folder (back up the whole card), --album <album name>, --staging <staging folder>")"
 echo
 _unit=/etc/systemd/system/snappipe-worker.service
 if [ -f "$_unit" ]; then
   _w=$(sed -n 's/^WorkingDirectory=//p' "$_unit")
   _a=$(sed -n 's/^ANALYZER=//p' "$_w/.env" 2>/dev/null | tail -1)
-  echo "AI：$([ "$_a" = meta_ai ] && echo "Meta AI 開啟（選片、星等、圖說）" || echo "不用 AI，普通相簿")　worker $(systemctl is-active snappipe-worker 2>/dev/null)"
-  echo "   worker 記錄：${SNAPPIPE_CTID:+pct exec $SNAPPIPE_CTID -- }journalctl -u snappipe-worker -f"
-  echo "   比賽資料與名單：容器裡的 $_w/games/<相簿名稱>.toml / .csv（範本 example.toml）"
+  echo "AI$C$([ "$_a" = meta_ai ] && t "Meta AI 開啟（選片、星等、標籤；有拍攝計劃才寫圖說）" "Meta AI on (picks, stars, tags; captions only with a shoot plan)" || t "不用 AI，普通相簿" "No AI, plain album site")$(t "　" "   ")worker $(systemctl is-active snappipe-worker 2>/dev/null)"
+  echo "   $(t "worker 記錄" "Worker logs")$C${SNAPPIPE_CTID:+pct exec $SNAPPIPE_CTID -- }journalctl -u snappipe-worker -f"
+  echo "   $(t "拍攝計劃（選用）：容器裡的" "Shoot plan (optional): in the container,") $_w/games/<$(t 相簿名稱 album)>.toml$(t "（範本 general.toml；體育比賽用 example.toml）" " (template general.toml; sports: example.toml)")"
 else
-  echo "worker（Meta AI 處理端；可以裝在這台、Mac 或任何 Linux）："
-  echo "   worker/setup.sh 會問並驗證 Meta API 金鑰（留空 = 不用 AI）；worker/.env 填 SERVER_URL=$LAN"
+  echo "$(t "worker（Meta AI 處理端；可以裝在這台、Mac 或任何 Linux）：" "Worker (the Meta AI part; can run here, on a Mac or any Linux):")"
+  echo "   $(t "worker/setup.sh 會問並驗證 Meta API 金鑰（留空 = 不用 AI）；worker/.env 填" "worker/setup.sh asks for and checks the Meta API key (blank = no AI); in worker/.env set") SERVER_URL=$LAN"
   [ -z "$SNAPPIPE_WORKER_TOKEN" ] || echo "   WORKER_TOKEN=$SNAPPIPE_WORKER_TOKEN"
 fi
 echo
-echo "── 常用指令 ────────────────────────────────────────────"
-echo "   即時上傳開關：${P}snappipe-live off | on | status"
-echo "   再看一次這份清單：${P}snappipe-cmd"
+echo "── $(t 常用指令 "Common commands") ────────────────────────────────────────────"
+echo "   $(t 即時上傳開關 "Live upload on/off")$C${P}snappipe-live off | on | status"
+echo "   $(t 再看一次這份清單 "Show this list again")$C${P}snappipe-cmd"
 if [ -n "${SNAPPIPE_CTID:-}" ]; then
   _upd="curl -fsSL $RAW/bootstrap.sh | bash -s -- --no-prompt"
-  echo "   更新（返圖站與 worker 一起）：pct exec $SNAPPIPE_CTID -- bash -c '$_upd'"
-  [ -n "$PUB" ] || echo "   設對外網址：pct exec $SNAPPIPE_CTID -- bash -c '$_upd --public-url https://你的網域'"
-  [ -f "$_unit" ] && echo "   換 Meta 金鑰 / 開 AI：curl -fsSL $RAW/deploy/create-lxc.sh | bash -s -- --set-key --id $SNAPPIPE_CTID"
-  echo "   進容器：pct enter $SNAPPIPE_CTID"
+  echo "   $(t "更新（返圖站與 worker 一起）" "Update (album site and worker)")$Cpct exec $SNAPPIPE_CTID -- bash -c '$_upd'"
+  [ -n "$PUB" ] || echo "   $(t 設對外網址 "Set a public URL")$Cpct exec $SNAPPIPE_CTID -- bash -c '$_upd --public-url https://$(t 你的網域 your.domain)'"
+  [ -f "$_unit" ] && echo "   $(t "換 Meta 金鑰 / 開 AI" "Change the Meta key / turn on AI")$Ccurl -fsSL $RAW/deploy/create-lxc.sh | bash -s -- --set-key --id $SNAPPIPE_CTID$LANGARG"
+  echo "   $(t 進容器 "Open a shell in the container")$Cpct enter $SNAPPIPE_CTID"
 else
-  echo "   更新：curl -fsSL $RAW/bootstrap.sh | bash -s -- --no-prompt$([ -n "$PUB" ] || echo "（加 --public-url https://你的網域 設對外網址）")"
+  echo "   $(t 更新 Update)$Ccurl -fsSL $RAW/bootstrap.sh | bash -s -- --no-prompt$([ -n "$PUB" ] || t "（加 --public-url https://你的網域 設對外網址）" " (add --public-url https://your.domain to set a public URL)")"
 fi
 CMD
   chmod 700 /usr/local/bin/snappipe-cmd
@@ -236,7 +247,7 @@ cd /opt/snappipe/server && exec .venv/bin/python -m app.ctl "$@"
 CMD
   chmod 755 /usr/local/bin/snappipe-live
 
-  say "啟動服務"
+  say "$(t 啟動服務 "Starting the service")"
   systemctl daemon-reload
   systemctl enable snappipe >/dev/null 2>&1
   systemctl restart snappipe
@@ -245,20 +256,20 @@ CMD
     curl -fsS "http://127.0.0.1:$PORT/healthz" >/dev/null 2>&1 && { ok=1; break; }
     sleep 0.5
   done
-  [ -n "$ok" ] || die "服務沒有起來，請看 journalctl -u snappipe -n 50"
+  [ -n "$ok" ] || die "$(t "服務沒有起來，請看" "The service did not start; see") journalctl -u snappipe -n 50"
 
   echo
-  echo "════════════════════ ✅ SnapPipe 安裝完成 ════════════════════"
-  echo "  返圖站：${SITE_NAME}　${PUBLIC_URL:-http://$IP:$PORT}"
-  [ -n "$PUBLIC_URL" ] || echo "  對外網址：自動（經反向代理 / https 網域連進來時，縮圖與連結會用那個網域）"
-  echo "  插卡上傳 / 管理：token + 只接受 $UPLOAD_NETS 直連"
-  echo "  Pi 上傳：裝置 token，不限網段（伺服器只在區網時，外面要經 WireGuard / Tailscale 或反向代理）"
-  echo "  worker（Meta AI）：$([ -n "$WTOKEN" ] && echo token || echo "區網直連免 token")"
-  echo "  資料：$DATA   設定：$ENV_FILE"
+  echo "════════════════════ ✅ $(t "SnapPipe 安裝完成" "SnapPipe is installed") ════════════════════"
+  echo "  $(t 返圖站 "Album site")：${SITE_NAME}　${PUBLIC_URL:-http://$IP:$PORT}"
+  [ -n "$PUBLIC_URL" ] || echo "  $(t "對外網址：自動（經反向代理 / https 網域連進來時，縮圖與連結會用那個網域）" "Public URL: automatic (when visitors come in through a reverse proxy / https domain, previews and links use that domain)")"
+  echo "  $(t "插卡上傳 / 管理：token + 只接受 $UPLOAD_NETS 直連" "Card upload / admin: token, direct connections from $UPLOAD_NETS only")"
+  echo "  $(t "Pi 上傳：裝置 token，不限網段（伺服器只在區網時，外面要經 WireGuard / Tailscale 或反向代理）" "Pi upload: device token, from any network (if the server is LAN-only, come in via WireGuard / Tailscale or a reverse proxy)")"
+  echo "  worker（Meta AI）：$([ -n "$WTOKEN" ] && echo token || t "區網直連免 token" "no token needed on the LAN")"
+  echo "  $(t 資料 Data)：$DATA   $(t 設定 Settings)：$ENV_FILE"
   echo
   /usr/local/bin/snappipe-cmd
   echo
-  echo "  忘記指令：在這台 LXC 執行 snappipe-cmd"
+  echo "  $(t "忘記指令：在這台 LXC 執行 snappipe-cmd" "Forgot a command? Run snappipe-cmd on this LXC")"
   echo "═════════════════════════════════════════════════════════════════"
 }
 

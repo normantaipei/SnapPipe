@@ -13,9 +13,15 @@ SRC="$(cd "$(dirname "$0")/.." && pwd)"
 W="$SRC/worker"
 UNIT=${SNAPPIPE_WORKER_UNIT:-/etc/systemd/system/snappipe-worker.service}
 say() { echo -e "\033[1;36m▸\033[0m $*"; }
+# 訊息語言：環境變數沒給就看伺服器安裝時選的（/etc/snappipe.env 的 SNAPPIPE_LANG）；export 讓 setup.sh 跟著
+if [ -z "${SNAPPIPE_LANG:-}" ] && [ -f /etc/snappipe.env ]; then
+  SNAPPIPE_LANG=$(sed -n 's/^SNAPPIPE_LANG=//p' /etc/snappipe.env | tail -1 | tr -d "\"'") || true
+fi
+export SNAPPIPE_LANG="${SNAPPIPE_LANG:-}"
+t() { if [ "${SNAPPIPE_LANG:-}" = en ]; then printf '%s' "$2"; else printf '%s' "$1"; fi; }
 
 main() {
-  [ "$(id -u)" = 0 ] || { echo "請用 root 執行" >&2; exit 1; }
+  [ "$(id -u)" = 0 ] || { echo "$(t '請用 root 執行' 'Please run as root')" >&2; exit 1; }
   local args=() update="" key=""
   while [ $# -gt 0 ]; do
     case "$1" in
@@ -23,14 +29,14 @@ main() {
       --no-ai) args+=(--no-ai); shift ;;
       --no-check) args+=(--no-check); shift ;;
       --update) update=1; shift ;;
-      *) echo "不認得的參數：$1" >&2; exit 1 ;;
+      *) echo "$(t "不認得的參數：$1" "Unknown option: $1")" >&2; exit 1 ;;
     esac
   done
   if [ -n "$update" ] && [ ! -f "$UNIT" ]; then
     return 0                                   # 這台沒裝 worker（例如 worker 裝在 Mac 上）
   fi
 
-  say "安裝 worker（Meta AI 處理端）"
+  say "$(t '安裝 worker（Meta AI 處理端）' 'Installing the worker (Meta AI processing)')"
   export DEBIAN_FRONTEND=noninteractive
   # setup.sh：venv、exiftool、.env；金鑰從環境變數帶進去，不放在指令參數
   META_API_KEY="$key" bash "$W/setup.sh" ${args[@]+"${args[@]}"} </dev/null
@@ -50,9 +56,10 @@ write_env(Path(".env"), {"SERVER_URL": sys.argv[1], "WORKER_TOKEN": sys.argv[2]}
   systemctl restart snappipe-worker
   sleep 2
   if systemctl is-active -q snappipe-worker; then
-    say "worker 執行中（分析器：$(sed -n 's/^ANALYZER=//p' "$W/.env" | tail -1)）；記錄：journalctl -u snappipe-worker -f"
+    local analyzer; analyzer=$(sed -n 's/^ANALYZER=//p' "$W/.env" | tail -1) || true
+    say "$(t "worker 執行中（分析器：$analyzer）；記錄：journalctl -u snappipe-worker -f" "The worker is running (analyzer: $analyzer). Logs: journalctl -u snappipe-worker -f")"
   else
-    echo "⚠ worker 沒有啟動成功，看記錄：journalctl -u snappipe-worker -n 50" >&2
+    echo "$(t '⚠ worker 沒有啟動成功，看記錄：journalctl -u snappipe-worker -n 50' "⚠ The worker didn't start. Check the logs: journalctl -u snappipe-worker -n 50")" >&2
     exit 1
   fi
 }

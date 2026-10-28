@@ -20,6 +20,7 @@
 #   SNAPPIPE_REPO   repo 網址（預設 GitHub normantaipei/SnapPipe；fork 的人改這個）
 #   SNAPPIPE_REF    分支或 tag（預設 main）
 #   SNAPPIPE_DIR    原始碼位置（預設 /opt/snappipe/src）
+#   SNAPPIPE_LANG   en = 英文介面（或加參數 --lang en；會記住，之後更新不用再加）
 set -euo pipefail
 # 容器通常沒裝 en_US.UTF-8：一律用 Debian 內建的 C.UTF-8，中文輸入與輸出才正常，apt 也不會一直警告
 export LC_ALL=C.UTF-8 LANG=C.UTF-8 LANGUAGE=
@@ -30,31 +31,36 @@ DIR="${SNAPPIPE_DIR:-/opt/snappipe/src}"
 NODE_DIR=/opt/snappipe/node
 NODE_LINE=22   # 下載的 Node.js LTS 主版本
 
+# 介面語言：--lang en（或 SNAPPIPE_LANG=en、或上次安裝選過英文）印英文。t '中文' 'English'
+_prev=""; for _a in "$@"; do [ "$_prev" = --lang ] && export SNAPPIPE_LANG="$_a"; _prev="$_a"; done
+[ -n "${SNAPPIPE_LANG:-}" ] || SNAPPIPE_LANG=$(sed -n 's/^SNAPPIPE_LANG=//p' /etc/snappipe.env 2>/dev/null | tail -1)
+export SNAPPIPE_LANG
+t() { if [ "${SNAPPIPE_LANG:-}" = en ]; then printf '%s' "$2"; else printf '%s' "$1"; fi; }
 die() { printf '\n\033[1;31m✗ %b\033[0m\n' "$*" >&2; exit 1; }
 say() { echo -e "\033[1;36m▸\033[0m $*"; }
 
 # 包在 main 裡：curl … | bash 時 bash 會先讀完整支腳本，中間的指令不會把剩下的腳本當輸入吃掉
 main() {
-  [ "$(id -u)" = 0 ] || die "請用 root 執行"
-  command -v apt-get >/dev/null || die "只支援 Debian / Ubuntu"
+  [ "$(id -u)" = 0 ] || die "$(t "請用 root 執行" "Run as root")"
+  command -v apt-get >/dev/null || die "$(t "只支援 Debian / Ubuntu" "Only Debian / Ubuntu are supported")"
 
   # ── 1. 基本工具 ─────────────────────────────────────────────
-  say "安裝 git / curl / xz"
+  say "$(t "安裝 git / curl / xz" "Installing git / curl / xz")"
   export DEBIAN_FRONTEND=noninteractive
   apt-get update -qq </dev/null
   apt-get install -y -qq git curl ca-certificates xz-utils </dev/null >/dev/null
 
   # ── 2. 取得程式碼 ───────────────────────────────────────────
   if [ -d "$DIR/.git" ]; then
-    say "更新程式碼（${DIR}）"
+    say "$(t "更新程式碼（${DIR}）" "Updating the code (${DIR})")"
     git -C "$DIR" fetch -q --depth 1 origin "$REF" </dev/null
     git -C "$DIR" checkout -q -f FETCH_HEAD </dev/null
   else
-    say "下載程式碼 ${REPO}（${REF}）→ $DIR"
+    say "$(t "下載程式碼 ${REPO}（${REF}）→ $DIR" "Downloading ${REPO} (${REF}) → $DIR")"
     mkdir -p "$(dirname "$DIR")"
     git clone -q --depth 1 --branch "$REF" "$REPO" "$DIR" </dev/null
   fi
-  say "版本：$(git -C "$DIR" log -1 --format='%h %s' </dev/null)"
+  say "$(t 版本 Version)：$(git -C "$DIR" log -1 --format='%h %s' </dev/null)"
 
   # ── 3. Node.js（只用來 build 前端）──────────────────────────
   node_ok() {  # Vite 需要 Node 20.19+
@@ -68,33 +74,33 @@ main() {
     case "$(uname -m)" in
       x86_64|amd64) arch=x64 ;;
       aarch64|arm64) arch=arm64 ;;
-      *) die "不支援的 CPU 架構：$(uname -m)" ;;
+      *) die "$(t "不支援的 CPU 架構：$(uname -m)" "Unsupported CPU architecture: $(uname -m)")" ;;
     esac
     base="https://nodejs.org/dist/latest-v${NODE_LINE}.x"
-    curl -fsSL "$base/SHASUMS256.txt" -o /tmp/node-sums.txt </dev/null || die "無法下載 Node.js 版本清單"
+    curl -fsSL "$base/SHASUMS256.txt" -o /tmp/node-sums.txt </dev/null || die "$(t "無法下載 Node.js 版本清單" "Could not download the Node.js version list")"
     file=$(awk -v want="linux-${arch}.tar.xz" '$2 ~ want"$" && !f {print $2; f=1}' /tmp/node-sums.txt)
     sum=$(awk -v n="$file" '$2 == n {print $1}' /tmp/node-sums.txt)
-    [ -n "$file" ] && [ -n "$sum" ] || die "找不到對應的 Node.js 安裝檔"
-    say "下載 Node.js（${file}）"
-    curl -fsSL "$base/$file" -o "/tmp/$file" </dev/null || die "Node.js 下載失敗"
-    [ "$(sha256sum "/tmp/$file" | cut -d' ' -f1)" = "$sum" ] || die "Node.js 安裝檔 SHA-256 不符，已中止"
+    [ -n "$file" ] && [ -n "$sum" ] || die "$(t "找不到對應的 Node.js 安裝檔" "No matching Node.js download found")"
+    say "$(t "下載 Node.js（${file}）" "Downloading Node.js (${file})")"
+    curl -fsSL "$base/$file" -o "/tmp/$file" </dev/null || die "$(t "Node.js 下載失敗" "Node.js download failed")"
+    [ "$(sha256sum "/tmp/$file" | cut -d' ' -f1)" = "$sum" ] || die "$(t "Node.js 安裝檔 SHA-256 不符，已中止" "Node.js download failed its SHA-256 check; stopped")"
     rm -rf "$NODE_DIR" && mkdir -p "$NODE_DIR"
     tar -xJf "/tmp/$file" -C "$NODE_DIR" --strip-components=1
     rm -f "/tmp/$file" /tmp/node-sums.txt
-    node_ok || die "Node.js 安裝後仍無法使用"
+    node_ok || die "$(t "Node.js 安裝後仍無法使用" "Node.js still does not work after install")"
   fi
 
   # ── 4. build 前端 ───────────────────────────────────────────
-  say "build 前端（Node $(node --version)）"
+  say "$(t "build 前端" "Building the frontend") (Node $(node --version))"
   # --ignore-scripts：以 root 跑，不讓任何套件執行安裝腳本
   (cd "$DIR/web" && npm ci --ignore-scripts --no-audit --no-fund --loglevel=error </dev/null >/dev/null \
-                 && npm run build --silent </dev/null >/dev/null) || die "前端 build 失敗"
+                 && npm run build --silent </dev/null >/dev/null) || die "$(t "前端 build 失敗" "Frontend build failed")"
 
   # ── 5. 安裝 / 更新返圖站 ────────────────────────────────────
   SNAPPIPE_SRC="$DIR" bash "$DIR/deploy/install.sh" "$@"
 
   # ── 6. 這台有裝 worker 就一起更新（金鑰設定不變）──────────────
-  bash "$DIR/deploy/install-worker.sh" --update </dev/null || say "⚠ worker 更新失敗：journalctl -u snappipe-worker -n 50"
+  bash "$DIR/deploy/install-worker.sh" --update </dev/null || say "⚠ $(t "worker 更新失敗：" "Worker update failed: ")journalctl -u snappipe-worker -n 50"
 }
 
 main "$@"
