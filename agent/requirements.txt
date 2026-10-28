@@ -1,0 +1,4 @@
+requests==2.34.2
+# ftp 模式才需要
+pyftpdlib==2.1.0
+# gphoto2 模式：用 apt 裝 python3-gphoto2（venv 建立時加 --system-site-packages 才看得到）

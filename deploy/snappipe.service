@@ -1,0 +1,16 @@
+[Unit]
+Description=SnapPipe 返圖站
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+User=snappipe
+Group=snappipe
+WorkingDirectory=/opt/snappipe/server
+EnvironmentFile=/etc/snappipe.env
+# 不信任 X-Forwarded-For：上傳的區網限制要看真正的連線來源
+ExecStart=/opt/snappipe/server/.venv/bin/uvicorn app.main:app --host 0.0.0.0 --port ${SNAPPIPE_PORT} --workers 2 --no-proxy-headers
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target

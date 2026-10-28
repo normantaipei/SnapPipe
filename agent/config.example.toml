@@ -1,0 +1,40 @@
+# snap-agent 設定（複製到 /etc/snap-agent.toml）
+
+[server]
+url = "http://<伺服器IP>:8080"      # SnapPipe 伺服器；在外面拍就填 WireGuard / Tailscale 的位址
+token = ""                           # 這台 Pi 的裝置 token（伺服器 /etc/snappipe.env 的 SNAPPIPE_DEVICE_TOKENS）
+chunk_mb = 1                         # 分塊大小；網路差就小一點
+heartbeat_sec = 15
+timeout_sec = 30
+
+[device]
+name = "cage-a"                      # 顯示用；身分由 token 決定
+album = ""                           # 預設相簿：空 = 用拍攝日期（2026_10_30）；伺服器指定的相簿優先
+newest_first = true                  # 斷線後恢復時最新的先傳
+state_dir = "/var/lib/snap-agent"    # 待傳清單（SQLite，幾 KB）
+battery_cmd = ""                     # 讀電量的指令（印出百分比），例 PiSugar："echo 'get battery' | nc -q 0 127.0.0.1 8423"
+
+[source]
+# gphoto2：相機 USB 接 Pi，聽 FILE_ADDED 直接從相機讀（相機設 PC 遙控 / PTP、capturetarget = 記憶卡）
+# watch  ：看一個資料夾（相機自己的 FTP / Wi-Fi 傳進來、或其他程式丟進來）
+# ftp    ：Pi 自己開 FTP 給相機連，收到就轉送（相機的 FTP 設定指向 Pi）
+mode = "watch"
+dir = "/var/lib/snap-agent/inbox"    # watch / ftp 模式的資料夾
+delete_after = false                 # 上傳成功後刪掉資料夾裡的檔（ftp 模式預設 true）
+send_raw = false                     # true = RAW 也傳（附件性質：所有 JPG 之後、安靜期才傳）；false = RAW 留在卡上，回家插卡再補
+raw_idle_sec = 30                    # 最近幾秒沒有新 JPG 才開始傳 RAW（0 = 不等）；傳到一半有新 JPG 會讓路
+settle_sec = 1.0                     # 檔案大小不再變動幾秒後才算寫完
+spool_min_free_mb = 500              # gphoto2 模式：Pi 暫存區（SD 卡）剩不到這麼多 MB 就不收 RAW（JPG 照收）
+
+[display]                            # 0.96 吋 SSD1306 I2C OLED（選用）；沒接螢幕也照常跑
+enabled = "auto"                     # auto = 有就用；true = 一定要有（失敗會警告）；false = 關
+i2c_port = 1
+address = "0x3c"                     # i2cdetect -y 1 看到的位址，有些模組是 0x3d
+rotate = 0                           # 螢幕倒著裝就填 2
+button_gpio = 0                      # 切頁 / 長按 3 秒關機的按鍵接哪個 GPIO（BCM 編號，例 17）；0 = 沒有按鍵
+
+[ftp]                                # 只有 mode = "ftp" 用到
+listen = "0.0.0.0"
+port = 2121
+user = "camera"
+password = ""

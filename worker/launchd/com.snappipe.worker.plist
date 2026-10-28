@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- 讓 worker 開機常駐：把 __REPO__ 換成 SnapPipe 的路徑，複製到 ~/Library/LaunchAgents/ 後
+       launchctl load ~/Library/LaunchAgents/com.snappipe.worker.plist
+     停止：launchctl unload …；記錄在 ~/Library/Logs/snappipe-worker.log -->
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+  <key>Label</key><string>com.snappipe.worker</string>
+  <key>ProgramArguments</key>
+  <array>
+    <string>/bin/bash</string>
+    <string>__REPO__/worker/worker.sh</string>
+  </array>
+  <key>WorkingDirectory</key><string>__REPO__/worker</string>
+  <key>RunAtLoad</key><true/>
+  <key>KeepAlive</key><true/>
+  <key>ThrottleInterval</key><integer>5</integer>
+  <key>StandardOutPath</key><string>/Users/__USER__/Library/Logs/snappipe-worker.log</string>
+  <key>StandardErrorPath</key><string>/Users/__USER__/Library/Logs/snappipe-worker.log</string>
+  <key>EnvironmentVariables</key>
+  <dict>
+    <key>PATH</key><string>/opt/homebrew/bin:/usr/local/bin:/usr/bin:/bin</string>
+  </dict>
+</dict>
+</plist>

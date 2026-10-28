@@ -1,0 +1,33 @@
+# 比賽資料範本。複製成 games/<相簿名稱>.toml（例 games/2026_10_30.toml），名單放同名的 .csv。
+# 找不到該相簿的檔案時用 games/default.toml。比賽中改檔案會自動重新載入。
+# 相簿名稱：Pi 沒指定時是拍攝日期 2026_10_30；也可以用 ./worker.sh --set-album <Pi> <相簿> 指定
+
+[game]
+sport = "basketball"                 # 英文：basketball / baseball / volleyball / soccer…（給模型看）
+event = "2026 城市聯賽"
+home = "台北雄鷹"
+away = "新竹獵豹"
+home_color = "白底紅字"               # 球衣顏色，模型靠這個分主客隊
+away_color = "深藍底白字"
+venue = "台北體育館"
+city = "台北"
+country = "台灣"
+date = "2026-10-30"                  # 照片沒有拍攝時間時才用
+lang = "zh"                          # 圖說語言：zh / en
+# person = "一名球員"                 # 認不出名字的人怎麼稱呼；沒寫時有主客隊叫「一名球員」，否則「一名人物」
+creator = "攝影師署名"                # 預設署名（[cameras] 對不到時用）
+credit = "SnapPipe"
+copyright = ""                       # 空 = © 年份 署名
+# caption_template = "{CITY}，{DATE_LONG} — {ACTION}。此為{EVENT}{HOME}與{AWAY}之戰，地點為{VENUE}。（攝影：{CREATOR}／{CREDIT}）"
+
+# 每台相機本場由誰拍：機身序號（完整或末幾碼）= 署名。同型號兩台機身也分得開
+[cameras]
+# "5530" = "李攝影"
+# "7781" = "王攝影"
+
+# 名單可以寫在這裡，或放同名 .csv（team,jersey,name,position；有 .csv 時以 .csv 為準）
+# [[roster]]
+# team = "home"
+# jersey = 23
+# name = "王小明"
+# position = "F"

@@ -1,0 +1,197 @@
+<script setup>
+import { computed, onBeforeUnmount, onMounted, ref, watch } from "vue";
+import { pageTitle } from "../lib/site.js";
+import { fetchAlbum, fetchPerson, personName } from "../lib/api.js";
+import { sharePerson } from "../lib/share.js";
+import { justify } from "../lib/justify.js";
+import { errorText, lang, t } from "../lib/i18n.js";
+import PhotoTile from "./PhotoTile.vue";
+import Lightbox from "./Lightbox.vue";
+import AlbumDownload from "./AlbumDownload.vue";
+
+// scope.type：a = 整本相簿，f = 某一位球員的照片（球衣號碼 + 名單分組）
+const props = defineProps({ scope: { type: Object, required: true } });
+
+const album = ref(null);
+const error = ref(null);
+const minStars = ref(0);
+const tag = ref(null);
+const personKey = ref(null);
+const lbIndex = ref(-1);
+
+const galleryEl = ref(null);
+const width = ref(0);
+let ro;
+
+const load = () => (props.scope.type === "f" ? fetchPerson : fetchAlbum)(props.scope.key);
+
+// 即時上傳中（伺服器回 live: true）：每隔幾秒重抓，新照片與分析結果會自己出現
+let timer;
+const LIVE_POLL_MS = 8000;
+async function refresh() {
+  try {
+    const next = await load();
+    if (JSON.stringify(next.photos) !== JSON.stringify(album.value?.photos) || next.people?.length !== people.value.length) {
+      album.value = next;
+    } else {
+      album.value.live = next.live;
+      album.value.pending = next.pending;
+    }
+  } catch {}
+  schedule();
+}
+function schedule() {
+  clearTimeout(timer);
+  if (album.value?.live && !document.hidden) timer = setTimeout(refresh, LIVE_POLL_MS);
+}
+const onVisible = () => !document.hidden && album.value?.live && refresh();
+
+onMounted(async () => {
+  ro = new ResizeObserver(([e]) => (width.value = e.contentRect.width));
+  ro.observe(galleryEl.value);
+  document.addEventListener("visibilitychange", onVisible);
+  try {
+    album.value = await load();
+    document.title = pageTitle(album.value.title);
+    schedule();
+  } catch (e) {
+    error.value = e;
+  }
+});
+onBeforeUnmount(() => {
+  ro?.disconnect();
+  clearTimeout(timer);
+  document.removeEventListener("visibilitychange", onVisible);
+});
+
+const photos = computed(() => album.value?.photos ?? []);
+const people = computed(() => album.value?.people ?? []);
+const person = computed(() => album.value?.person || people.value.find((p) => p.key === personKey.value));
+// 選了某個人時，整本下載改用那個人的 zip
+const dlScope = computed(() => (personKey.value ? { type: "f", key: personKey.value } : props.scope));
+
+// 星等篩選：全部 / ★5 / ★4 以上 / ★3 以上（數量和上一級相同的選項不顯示）
+const starOptions = computed(() => {
+  const counts = [0, 0, 0, 0, 0, 0];
+  for (const p of photos.value) counts[p.stars || 0]++;
+  const atLeast = (n) => counts.slice(n).reduce((a, b) => a + b, 0);
+  const opts = [{ value: 0, label: t("all"), count: photos.value.length }];
+  if (counts[5]) opts.push({ value: 5, label: "★5", count: counts[5] });
+  for (const n of [4, 3]) {
+    if (atLeast(n) && atLeast(n) !== atLeast(n + 1)) opts.push({ value: n, label: t("starsAtLeast", { n }), count: atLeast(n) });
+  }
+  return opts;
+});
+
+// 標籤：AI 精選、動作類型、球員、關鍵字；中文介面取中文、英日文介面取英文；出現 2 次以上的前 14 個
+const topTags = computed(() => {
+  const wantCjk = lang.value === "zh";
+  const freq = new Map();
+  for (const p of photos.value) {
+    for (const tg of p.tags) if (/[^\x00-\x7f]/.test(tg) === wantCjk) freq.set(tg, (freq.get(tg) || 0) + 1);
+  }
+  return [...freq].filter(([, c]) => c >= 2).sort((a, b) => b[1] - a[1]).slice(0, 14);
+});
+
+const visible = computed(() =>
+  photos.value.filter((p) => (p.stars || 0) >= minStars.value && (!tag.value || p.tags.includes(tag.value))
+    && (!personKey.value || p.people?.includes(personKey.value))),
+);
+
+const totalMB = computed(() => Math.round(visible.value.reduce((a, p) => a + (p.bytes || 0), 0) / 1e6));
+
+const layout = computed(() => {
+  const mobile = width.value < 600;
+  return { target: mobile ? 150 : width.value < 1100 ? 220 : 280, gap: mobile ? 3 : 6 };
+});
+
+// 依星等分段，每段各自排成 justified rows；index 是在 visible 裡的位置（燈箱用）
+const groups = computed(() => {
+  if (!width.value) return [];
+  const out = [];
+  visible.value.forEach((photo, index) => {
+    const stars = photo.stars || 0;
+    if (!out.length || out.at(-1).stars !== stars) out.push({ stars, items: [] });
+    out.at(-1).items.push({ photo, index });
+  });
+  const { target, gap } = layout.value;
+  return out.map((g) => ({ ...g, rows: justify(g.items, width.value, target, gap) }));
+});
+
+watch([minStars, tag, personKey], () => (lbIndex.value = -1));
+watch(lang, () => (tag.value = null)); // 換語言後標籤清單不同
+
+const toggleTag = (t) => (tag.value = tag.value === t ? null : t);
+const togglePerson = (k) => (personKey.value = personKey.value === k ? null : k);
+</script>
+
+<template>
+  <header class="top">
+    <div>
+      <h1>{{ error ? errorText(error) : album?.title || t("loading") }}</h1>
+      <p v-if="album" class="muted">
+        {{ [album.shoot_date, t("photos", { n: visible.length }), totalMB ? `${totalMB} MB` : ""].filter(Boolean).join(" · ") }}
+        <span v-if="album.live" class="live" :title="t('liveHint')">● {{ album.pending ? t("livePending", { n: album.pending }) : t("live") }}</span>
+      </p>
+      <p v-if="person" class="person-head">
+        <img v-if="person.face" :src="person.face" alt="" class="avatar">
+        <span>{{ personName(person) }}</span>
+        <button v-if="scope.type === 'a'" class="btn small" @click="sharePerson(person.key, album.title)">
+          ↗ {{ t("sharePerson") }}
+        </button>
+      </p>
+    </div>
+    <AlbumDownload v-if="album && visible.length" :scope="dlScope" :photos="visible" :min-stars="minStars" />
+  </header>
+
+  <nav v-if="album" class="filters" :aria-label="t('filters')">
+    <div class="chips" role="group" :aria-label="t('byStars')">
+      <button
+        v-for="o in starOptions" :key="o.value" class="chip"
+        :aria-pressed="minStars === o.value" @click="minStars = o.value"
+      >
+        {{ o.label }}<span class="n">{{ o.count }}</span>
+      </button>
+    </div>
+    <div v-if="people.length" class="chips people" role="group" :aria-label="t('byPeople')">
+      <button
+        v-for="p in people" :key="p.key" class="chip person"
+        :aria-pressed="personKey === p.key" :aria-label="personName(p)" :title="personName(p)"
+        @click="togglePerson(p.key)"
+      >
+        <img v-if="p.face" :src="p.face" alt="" class="avatar" loading="lazy">
+        <span v-if="p.label || !p.face">{{ personName(p) }}</span><span class="n">{{ p.count }}</span>
+      </button>
+    </div>
+    <div v-if="topTags.length" class="chips tags" role="group" :aria-label="t('byTags')">
+      <button
+        v-for="[t, c] in topTags" :key="t" class="chip"
+        :aria-pressed="tag === t" @click="toggleTag(t)"
+      >
+        {{ t }}<span class="n">{{ c }}</span>
+      </button>
+    </div>
+  </nav>
+
+  <main>
+    <div ref="galleryEl" class="gallery">
+      <section v-for="g in groups" :key="g.stars">
+        <h2 class="group-head">
+          <span v-if="g.stars" class="stars">{{ "★".repeat(g.stars) }}</span>
+          <span v-else>{{ t("unrated") }} ·</span>
+          {{ t("photos", { n: g.items.length }) }}
+        </h2>
+        <div v-for="(row, ri) in g.rows" :key="ri" class="row" :style="{ gap: `${layout.gap}px`, marginBottom: `${layout.gap}px` }">
+          <PhotoTile
+            v-for="cell in row" :key="cell.item.photo.sha"
+            :scope="scope" :photo="cell.item.photo" :w="cell.w" :h="cell.h"
+            @open="lbIndex = cell.item.index"
+          />
+        </div>
+      </section>
+    </div>
+    <p v-if="album && !visible.length" class="muted center">{{ t("noMatch") }}</p>
+  </main>
+
+  <Lightbox v-model:index="lbIndex" :photos="visible" :scope="scope" :album-title="album?.title" />
+</template>

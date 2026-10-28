@@ -1,0 +1,20 @@
+# Linux 開機常駐（systemd）：把 __REPO__ 換成 SnapPipe 的路徑、__USER__ 換成執行的帳號，然後
+#   sudo cp worker/snappipe-worker.service /etc/systemd/system/
+#   sudo systemctl daemon-reload && sudo systemctl enable --now snappipe-worker
+# 看記錄：journalctl -u snappipe-worker -f
+# 和伺服器裝在同一台（LXC）也可以：SERVER_URL 填 http://127.0.0.1:8080
+[Unit]
+Description=SnapPipe worker (Meta AI)
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+User=__USER__
+WorkingDirectory=__REPO__/worker
+ExecStart=/bin/bash __REPO__/worker/worker.sh
+Restart=always
+RestartSec=5
+Environment=PYTHONUNBUFFERED=1
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,801 @@
+#!/usr/bin/env python3
+"""
+SnapPipe ingest — 賽後插卡匯入（Meta AI 版：Mac 與 Linux 都能跑）
+
+  1. 複製：記憶卡 → 暫存區（邊複製邊算 SHA-256），完成後自動退出記憶卡（Mac）、跳通知「可以拔卡」
+  2. 準備：讀 EXIF（拍攝時間、機身序號、相機內星等）；只有 RAW 的照片用 exiftool 抽出內嵌的 JPG 預覽
+  3. 上傳：JPG 上傳到伺服器，並請伺服器排進分析佇列 → worker 用 Meta AI 連拍選片、寫圖說（和現場即時一樣）
+           現場已經經 Pi 傳過的同一張（SHA-256 相同）不會重傳、也不會重新分析；RAW 一併補上
+  4. 備份：rsync 整個相簿（JPG + RAW）到 NAS，並再跑一次比對確認
+
+每一步的進度都記在暫存區的 state.db，中斷後用 --resume 接著跑。
+
+用法（在 SnapPipe 資料夾執行）:
+  ingest/ingest.sh --servers                             # 列出伺服器設定（不同場次的返圖站）
+  ingest/ingest.sh --profile cwt67                       # 插卡，上傳到伺服器設定「cwt67」
+  ingest/ingest.sh --profile cwt67 --album 2026_10_25_CWT67 --title "CWT67 Day1"
+  ingest/ingest.sh --resume 2026_10_25_CWT67             # 不讀卡，繼續沒做完的步驟（沿用上次的伺服器）
+  ingest/ingest.sh --list                                # 暫存區的相簿、進度與各自的伺服器
+"""
+
+import argparse
+import concurrent.futures as cf
+import datetime as dt
+import hashlib
+import json
+import os
+import re
+import shutil
+import sqlite3
+import subprocess
+import sys
+import time
+from pathlib import Path
+from urllib.parse import quote, unquote, urlsplit
+
+import requests
+
+HERE = Path(__file__).resolve().parent
+sys.path.insert(0, str(HERE.parent / "shared"))  # 與 worker 共用的小工具
+VIDEO_SKIP = {".mp4", ".mov", ".mts", ".m2ts", ".avi", ".xml", ".thm", ".lrv", ".bin", ".dat"}
+
+
+# ---------- 設定 ----------
+
+def load_env(path: Path) -> dict:
+    env = {}
+    if path.exists():
+        for line in path.read_text(encoding="utf-8").splitlines():
+            line = line.strip()
+            if line and not line.startswith("#") and "=" in line:
+                k, v = line.split("=", 1)
+                env[k.strip()] = v.strip().strip('"').strip("'")
+    env.update({k: v for k, v in os.environ.items() if k.startswith("SP_")})
+    return env
+
+
+ENV_FILE = Path(os.environ.get("SP_ENV_FILE", HERE / ".env"))
+ENV = load_env(ENV_FILE)
+
+
+def save_env(updates: dict):
+    """把指定的設定寫回 .env（已有的 key 就地更新，沒有的加在最後）。"""
+    lines = ENV_FILE.read_text(encoding="utf-8").splitlines() if ENV_FILE.exists() else []
+    left = dict(updates)
+    for i, line in enumerate(lines):
+        k = line.split("=", 1)[0].strip()
+        if not line.lstrip().startswith("#") and k in left:
+            lines[i] = f"{k}={left.pop(k)}"
+    lines += [f"{k}={v}" for k, v in left.items()]
+    ENV_FILE.write_text("\n".join(lines) + "\n", encoding="utf-8")
+    ENV_FILE.chmod(0o600)  # 有 token
+
+
+# 伺服器設定檔：不同場次 / 活動用不同伺服器，每個一個檔 servers/<名稱>.env（只存在這台電腦、不進 git）
+# 優先順序：.env（這台電腦的共用設定）< 伺服器設定檔 < 指令列參數
+SERVERS_DIR = Path(os.environ.get("SP_SERVERS_DIR", HERE / "servers"))
+PROFILE_RE = re.compile(r"^[\w.\-]{1,40}$")
+PROFILE_KEYS = ("SERVER_URL", "UPLOAD_TOKEN", "NAS_SMB")
+
+
+def profile_path(name: str) -> Path:
+    if not PROFILE_RE.match(name):
+        sys.exit(f"伺服器名稱只能用文字、數字、. _ -：{name}")
+    return SERVERS_DIR / f"{name}.env"
+
+
+def use_profile(name: str):
+    path = profile_path(name)
+    if not path.exists():
+        sys.exit(f"沒有名為「{name}」的伺服器設定（--servers 列出全部；新增：--profile {name} --server 網址 --token … --save-only）")
+    ENV.update({k: v for k, v in load_env(path).items() if k in PROFILE_KEYS})
+
+
+def save_profile(name: str, data: dict):
+    SERVERS_DIR.mkdir(mode=0o700, exist_ok=True)
+    path = profile_path(name)
+    old = load_env(path) if path.exists() else {}
+    old.update({k: v for k, v in data.items() if v})
+    path.write_text("".join(f"{k}={old[k]}\n" for k in PROFILE_KEYS if old.get(k)), encoding="utf-8")
+    path.chmod(0o600)  # 有 token
+
+
+def show_servers():
+    """列出伺服器設定（不顯示 token），順便測連線。"""
+    files = sorted(SERVERS_DIR.glob("*.env")) if SERVERS_DIR.exists() else []
+    if not files:
+        log("還沒有伺服器設定。新增：ingest/ingest.sh --profile <名稱> --server http://<IP>:8080 --token <token> --save-only")
+    for f in files:
+        e = load_env(f)
+        url = e.get("SERVER_URL", "").rstrip("/")
+        try:
+            r = requests.get(f"{url}/healthz", timeout=4)
+            state = f"連線正常，剩 {r.json().get('free_gb')} GB" if r.ok else f"回應 {r.status_code}"
+        except requests.RequestException as ex:
+            state = "連不到" + ("（可能是 macOS 本機網路權限）" if "Errno 65" in str(ex) else "")
+        log(f"{f.stem:<20} {url:<34} token {'已設定' if e.get('UPLOAD_TOKEN') else '❌ 缺'}"
+            f"  NAS {e.get('NAS_SMB') or '—'}  {state}")
+
+
+def cfg(key, default=""):
+    return ENV.get(key, default)
+
+
+def cfg_path(key, default=""):
+    v = cfg(key, default)
+    return Path(os.path.expandvars(v)).expanduser() if v else None
+
+
+def notify(msg: str, sound: str = "Glass"):
+    """通知 + 音效，拔卡時不用盯著終端機（macOS 用系統通知；Linux 有 notify-send 就用）。"""
+    if sys.platform != "darwin":
+        if shutil.which("notify-send"):
+            subprocess.run(["notify-send", "SnapPipe", msg], capture_output=True)
+        return
+    subprocess.run(["osascript", "-e", f'display notification "{msg}" with title "SnapPipe"'],
+                   capture_output=True)
+    snd = Path(f"/System/Library/Sounds/{sound}.aiff")
+    if snd.exists():
+        subprocess.Popen(["afplay", str(snd)], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+
+
+def log(msg=""):
+    print(msg, flush=True)
+
+
+# ---------- 檔案種類 ----------
+
+IMAGE_EXT = {".jpg", ".jpeg"}
+RAW_EXT = {".arw", ".cr2", ".cr3", ".nef", ".nrw", ".raf", ".orf", ".rw2", ".dng", ".pef", ".srw"}
+
+
+# ---------- 狀態 ----------
+
+SCHEMA = """
+CREATE TABLE IF NOT EXISTS albums (
+    name TEXT PRIMARY KEY,
+    title TEXT,
+    shoot_date TEXT,
+    created REAL,
+    share_url TEXT,
+    copy_done INTEGER DEFAULT 0,
+    tag_done INTEGER DEFAULT 0,
+    upload_done INTEGER DEFAULT 0,
+    nas_done INTEGER DEFAULT 0
+);
+CREATE TABLE IF NOT EXISTS files (
+    id INTEGER PRIMARY KEY,
+    album TEXT NOT NULL,
+    rel TEXT NOT NULL,            -- 相對於相簿資料夾
+    src_key TEXT NOT NULL,        -- 卡上路徑+大小+時間，重插同一張卡不重複複製
+    size INTEGER,
+    sha256 TEXT,                  -- 卡上原始檔的 hash（= 返圖站的 photo_id）
+    kind TEXT,                    -- img / raw
+    tagged INTEGER DEFAULT 0,     -- 已準備好可以上傳（讀完 EXIF；RAW-only 已抽出 JPG）
+    stars INTEGER,
+    aesthetic REAL,
+    tags TEXT,
+    taken_at TEXT,
+    web_rel TEXT,                 -- 要上傳的 JPG（RAW-only 時是轉出來的那張）
+    uploaded INTEGER DEFAULT 0,
+    raw_uploaded INTEGER DEFAULT 0,   -- 對應的 RAW 是否已上傳（記在主檔那一列）
+    UNIQUE (album, src_key)
+);
+"""
+
+
+def open_db(staging: Path):
+    staging.mkdir(parents=True, exist_ok=True)
+    con = sqlite3.connect(staging / "state.db")
+    con.row_factory = sqlite3.Row
+    con.executescript(SCHEMA)
+    if "profile" not in {r["name"] for r in con.execute("PRAGMA table_info(albums)")}:
+        con.execute("ALTER TABLE albums ADD COLUMN profile TEXT")  # 這本相簿上傳到哪個伺服器設定
+    file_cols = {r["name"] for r in con.execute("PRAGMA table_info(files)")}
+    if "raw_uploaded" not in file_cols:
+        con.execute("ALTER TABLE files ADD COLUMN raw_uploaded INTEGER DEFAULT 0")  # 記在主檔那一列
+    if "camera" not in file_cols:
+        con.execute("ALTER TABLE files ADD COLUMN camera TEXT")   # 機身序號：worker 依相機分連拍組
+    return con
+
+
+# ---------- 1. 複製 ----------
+
+def find_cards():
+    """有 DCIM 的磁碟：Mac 在 /Volumes，Linux 桌面在 /media/<使用者> 或 /run/media/<使用者>。"""
+    user = os.environ.get("USER", "")
+    roots = [Path("/Volumes"), Path("/media") / user, Path("/run/media") / user, Path("/media"), Path("/mnt")]
+    found = set()
+    for vols in roots:
+        if vols.is_dir():
+            for v in vols.iterdir():
+                try:
+                    if (v / "DCIM").is_dir():
+                        found.add(v)
+                except PermissionError:
+                    pass
+    return sorted(found)
+
+
+def wait_for_card() -> Path:
+    shown = False
+    while True:
+        cards = find_cards()
+        if len(cards) == 1:
+            return cards[0]
+        if len(cards) > 1:
+            sys.exit("偵測到多張記憶卡，請用 --card 指定：\n  " + "\n  ".join(map(str, cards)))
+        if not shown:
+            log("等待插入記憶卡…（Ctrl-C 取消）")
+            shown = True
+        time.sleep(2)
+
+
+def list_card_files(card: Path):
+    exts = IMAGE_EXT | RAW_EXT
+    out = []
+    for root, dirs, files in os.walk(card / "DCIM"):
+        dirs[:] = sorted(d for d in dirs if not d.startswith("."))
+        for name in sorted(files):
+            if name.startswith("."):
+                continue
+            ext = os.path.splitext(name)[1].lower()
+            if ext in exts:
+                p = Path(root) / name
+                out.append((p, p.stat()))
+    return out
+
+
+def copy_hash(src: Path, dst: Path) -> str:
+    h = hashlib.sha256()
+    tmp = dst.with_name(dst.name + ".part")
+    with open(src, "rb") as fi, open(tmp, "wb") as fo:
+        for chunk in iter(lambda: fi.read(4 << 20), b""):
+            h.update(chunk)
+            fo.write(chunk)
+        fo.flush()
+        os.fsync(fo.fileno())
+    shutil.copystat(src, tmp)   # 保留修改時間（沒有 EXIF 時的拍攝時間依據）
+    os.replace(tmp, dst)
+    return h.hexdigest()
+
+
+ALBUM_RE = re.compile(r"^[\w.\-]{1,100}$")  # 和返圖站後端的規則一致（會出現在網址裡）
+
+
+def step_copy(con, staging: Path, card: Path, album: str, title: str, eject: bool):
+    files = list_card_files(card)
+    if not files:
+        sys.exit(f"{card} 裡沒有照片")
+    shoot_date = dt.date.fromtimestamp(min(st.st_mtime for _, st in files)).isoformat()
+    # 沒給 --album 就直接用拍攝當天的日期，不再詢問；日期一律用底線：2026_10_23
+    album = re.sub(r"\s+", "_", album.strip()) if album else shoot_date.replace("-", "_")
+    if not ALBUM_RE.match(album):
+        sys.exit(f"相簿名稱只能用文字、數字、. _ -（不能有空白）：{album}")
+    con.execute("INSERT OR IGNORE INTO albums (name, title, shoot_date, created) VALUES (?,?,?,?)",
+                (album, title or album, shoot_date, time.time()))
+    if title:
+        con.execute("UPDATE albums SET title=? WHERE name=?", (title, album))
+    con.commit()
+
+    # 每張卡一個子資料夾：兩台同型號相機都是 DSC01234.JPG，分開放就不會撞名
+    run_dir = f"{card.name}_{dt.datetime.now():%Y%m%d-%H%M%S}"
+    album_dir = staging / album
+    todo = []
+    for p, st in files:
+        key = f"{p.relative_to(card)}|{st.st_size}|{int(st.st_mtime)}"
+        if not con.execute("SELECT 1 FROM files WHERE album=? AND src_key=?", (album, key)).fetchone():
+            todo.append((p, st, key))
+
+    total = sum(st.st_size for _, st, _ in todo)
+    log(f"\n[1/4 複製] {card} → {album_dir}")
+    log(f"  卡上 {len(files)} 個檔案，需複製 {len(todo)} 個（{total / 1e9:.2f} GB）")
+    done_bytes, t0, last = 0, time.time(), 0.0
+    for i, (p, st, key) in enumerate(todo, 1):
+        rel = Path(run_dir) / p.relative_to(card / "DCIM")
+        dst = album_dir / rel
+        dst.parent.mkdir(parents=True, exist_ok=True)
+        sha = copy_hash(p, dst)
+        if dst.stat().st_size != st.st_size:
+            sys.exit(f"複製後大小不符：{p}（請勿拔卡，重新執行）")
+        kind = "raw" if p.suffix.lower() in RAW_EXT else "img"
+        con.execute("INSERT INTO files (album, rel, src_key, size, sha256, kind) VALUES (?,?,?,?,?,?)",
+                    (album, str(rel), key, st.st_size, sha, kind))
+        con.commit()
+        done_bytes += st.st_size
+        if time.time() - last > 1 or i == len(todo):
+            speed = done_bytes / max(time.time() - t0, 1e-6) / 1e6
+            log(f"  {i}/{len(todo)}  {done_bytes / 1e9:.2f}/{total / 1e9:.2f} GB  {speed:.0f} MB/s")
+            last = time.time()
+    con.execute("UPDATE albums SET copy_done=1, tag_done=0, upload_done=0, nas_done=0 WHERE name=?", (album,))
+    con.commit()
+
+    if eject and sys.platform == "darwin":
+        r = subprocess.run(["diskutil", "eject", str(card)], capture_output=True, text=True)
+        ejected = r.returncode == 0
+    elif eject and shutil.which("udisksctl"):
+        r = subprocess.run(["udisksctl", "unmount", "--no-user-interaction", "-p", str(card)], capture_output=True)
+        ejected = False   # Linux 只卸載，不斷電；顯示「可以退出並拔卡」
+    else:
+        ejected = False
+    msg = "複製完成，記憶卡已退出，可以拔卡了" if ejected else "複製完成，可以退出並拔卡了"
+    log(f"\n  ✅ {msg}\n")
+    notify(msg)
+    return album
+
+
+# ---------- 2. 標籤 ----------
+
+def exif_batch(paths):
+    """一次讀出所有檔案的拍攝時間與相機內星等（比每張開一次 exiftool 快很多）。"""
+    out = {}
+    for i in range(0, len(paths), 500):
+        chunk = [str(p) for p in paths[i:i + 500]]
+        r = subprocess.run(["exiftool", "-json", "-q", "-DateTimeOriginal", "-SubSecTimeOriginal",
+                            "-Rating", "-BodySerialNumber", "-SerialNumber", "-@", "-"], input="\n".join(chunk),
+                           capture_output=True, text=True)
+        for d in json.loads(r.stdout or "[]"):
+            out[d["SourceFile"]] = d
+    return out
+
+
+def taken_at_iso(d: dict):
+    v = d.get("DateTimeOriginal")
+    if not v or v.startswith("0000"):
+        return None
+    try:
+        t = dt.datetime.strptime(v[:19], "%Y:%m:%d %H:%M:%S")
+    except ValueError:
+        return None
+    sub = str(d.get("SubSecTimeOriginal", "") or "")
+    return t.isoformat() + (f".{sub[:3].ljust(3, '0')}" if sub.isdigit() else "")
+
+
+def raw_preview(raw: Path, out: Path) -> bool:
+    """從 RAW 抽出相機內嵌的全尺寸 JPG（exiftool，跨平台），並帶上 RAW 的拍攝時間、方向與機身資訊。
+    抽不到時 Mac 改用 sips 轉檔。"""
+    out.parent.mkdir(parents=True, exist_ok=True)
+    for tag in ("JpgFromRaw", "PreviewImage", "OtherImage"):
+        r = subprocess.run(["exiftool", "-b", f"-{tag}", str(raw)], capture_output=True)
+        if r.returncode == 0 and r.stdout[:2] == b"\xff\xd8" and len(r.stdout) > 100_000:
+            out.write_bytes(r.stdout)
+            subprocess.run(["exiftool", "-q", "-m", "-overwrite_original", "-TagsFromFile", str(raw),
+                            "-exif:all", "-Orientation", str(out)], capture_output=True)
+            return True
+    if sys.platform == "darwin":
+        r = subprocess.run(["sips", "-s", "format", "jpeg", "-s", "formatOptions", "92", str(raw), "--out", str(out)],
+                           capture_output=True, text=True)
+        return r.returncode == 0
+    return False
+
+
+def step_prepare(con, staging: Path, album: str):
+    """讀 EXIF、決定每張要上傳的 JPG。分析（選片、評分、圖說）交給伺服器佇列 → worker → Meta AI。"""
+    rows = con.execute("SELECT * FROM files WHERE album=?", (album,)).fetchall()
+    album_dir = staging / album
+
+    # 同目錄同檔名：JPG 為主（上傳、分析），RAW 跟著；只有 RAW 時以 RAW 為主
+    groups = {}
+    for r in rows:
+        stem = str(Path(r["rel"]).with_suffix("")).lower()
+        groups.setdefault(stem, []).append(r)
+    primaries = []
+    for items in groups.values():
+        imgs = [r for r in items if r["kind"] == "img"]
+        primaries.append((imgs[0] if imgs else items[0], [r for r in items if r["kind"] == "raw"]))
+    todo = [(p, raws) for p, raws in primaries if not p["tagged"]]
+    log(f"[2/4 準備] 讀 EXIF：{len(todo)} 張待處理（共 {len(primaries)} 張）")
+    if not todo:
+        con.execute("UPDATE albums SET tag_done=1 WHERE name=?", (album,))
+        con.commit()
+        return
+    exif = exif_batch([album_dir / p["rel"] for p, _ in todo])
+    for p, raws in todo:
+        path = album_dir / p["rel"]
+        meta = exif.get(str(path), {})
+        if p["kind"] == "img":
+            web_rel = p["rel"]
+        else:
+            web = album_dir / ".web" / Path(p["rel"]).with_suffix(".jpg")
+            if not (web.exists() or raw_preview(path, web)):
+                log(f"  ⚠ {p['rel']}：RAW 裡抽不到 JPG 預覽，略過（RAW 仍會備份到 NAS）")
+                continue
+            web_rel = str(web.relative_to(album_dir))
+        rating = meta.get("Rating")
+        stars = int(rating) if str(rating or "").isdigit() and int(rating) > 0 else None   # 相機內評的星等
+        camera = str(meta.get("BodySerialNumber") or meta.get("SerialNumber") or "") or None
+        con.execute("UPDATE files SET tagged=1, stars=?, tags='[]', taken_at=?, web_rel=?, camera=? WHERE id=?",
+                    (stars, taken_at_iso(meta), web_rel, camera, p["id"]))
+        for raw in raws:
+            con.execute("UPDATE files SET tagged=1, stars=? WHERE id=?", (stars, raw["id"]))
+    con.commit()
+    left = sum(1 for p, _ in primaries
+               if not con.execute("SELECT tagged FROM files WHERE id=?", (p["id"],)).fetchone()[0])
+    con.execute("UPDATE albums SET tag_done=? WHERE name=?", (int(left == 0), album))
+    con.commit()
+
+
+# ---------- 3. 上傳 ----------
+
+def sha256_file(path: Path) -> str:
+    h = hashlib.sha256()
+    with open(path, "rb") as f:
+        for chunk in iter(lambda: f.read(4 << 20), b""):
+            h.update(chunk)
+    return h.hexdigest()
+
+
+def step_upload(con, staging: Path, album: str, force: bool = False):
+    server = cfg("SERVER_URL").rstrip("/")
+    token = cfg("UPLOAD_TOKEN")
+    if not server or not token:
+        log("[3/4 上傳] 略過：沒有指定伺服器（--profile <名稱>，用 --servers 查看已設定的伺服器）")
+        return
+    a = con.execute("SELECT * FROM albums WHERE name=?", (album,)).fetchone()
+    s = requests.Session()
+    s.headers["Authorization"] = f"Bearer {token}"
+
+    r = s.post(f"{server}/api/albums", json={"slug": album, "title": a["title"], "shoot_date": a["shoot_date"]},
+               timeout=30)
+    if r.status_code in (401, 403):
+        try:
+            why = r.json().get("detail")
+        except ValueError:
+            why = r.text
+        log(f"[3/4 上傳] ⚠ 後端拒絕（{r.status_code}）：{why}")
+        log("  401 = token 錯；403 = 這台電腦不在允許上傳的網段（伺服器 /etc/snappipe.env 的 SNAPPIPE_UPLOAD_NETS）")
+        return
+    r.raise_for_status()
+    share = r.json()["share_url"]
+    if share.startswith("/"):
+        share = server + share
+    con.execute("UPDATE albums SET share_url=? WHERE name=?", (share, album))
+    con.commit()
+
+    remote = s.get(f"{server}/api/albums/{album}/photo-ids", timeout=30).json()
+    have, have_raw = set(remote["photo_ids"]), set(remote["with_raw"])
+    upload_raw = cfg("UPLOAD_RAW", "1") == "1"
+    analyze = cfg("ANALYZE", "1") == "1"   # 請伺服器排進 Meta AI 分析（worker 處理）
+
+    all_rows = con.execute("SELECT * FROM files WHERE album=?", (album,)).fetchall()
+    stem = lambda rel: str(Path(rel).with_suffix("")).lower()
+    raw_by_stem = {stem(r["rel"]): r for r in all_rows if r["kind"] == "raw"}
+
+    def raw_of(row):
+        """這張照片對應的 RAW：本身就是 RAW（RAW-only），或同目錄同檔名的 RAW。"""
+        return row if row["kind"] == "raw" else raw_by_stem.get(stem(row["rel"]))
+
+    rows = [r for r in all_rows if r["tagged"] and r["web_rel"]]
+    jobs = []
+    skipped = 0
+    for r in rows:
+        # 伺服器已經有同一張（現場經 Pi 傳過、已經分析好）就不重傳：重傳會蓋掉現場寫好的圖說、再花一次 API 費用
+        need_jpg = r["sha256"] not in have or (force and not r["uploaded"])
+        if not need_jpg and not r["uploaded"]:
+            con.execute("UPDATE files SET uploaded=1 WHERE id=?", (r["id"],))
+            skipped += 1
+        raw = raw_of(r) if upload_raw else None
+        need_raw = bool(raw) and (r["sha256"] not in have_raw or not r["raw_uploaded"])
+        if need_jpg or need_raw:
+            jobs.append((r, need_jpg, raw if need_raw else None))
+    con.commit()
+    if skipped:
+        log(f"  {skipped} 張現場已經傳過（內容相同），不重傳、不重新分析")
+    n_raw = sum(1 for _, _, raw in jobs if raw)
+    log(f"[3/4 上傳] {server}：{sum(1 for _, j, _ in jobs if j)} 張 JPG、{n_raw} 個 RAW 待上傳"
+        f"（共 {len(rows)} 張）" + ("" if upload_raw else "，RAW 不上傳"))
+
+    def put(url, path: Path, meta: dict, mime: str):
+        meta = {**meta, "sha256": sha256_file(path), "filename": path.name}
+        for attempt in range(4):
+            try:
+                with open(path, "rb") as f:
+                    resp = s.put(url, files={"file": (path.name, f, mime)},
+                                 data={"meta": json.dumps(meta, ensure_ascii=False)}, timeout=900)
+                if resp.status_code < 500:
+                    resp.raise_for_status()
+                    return
+            except requests.RequestException as e:
+                if attempt == 3 or (getattr(e, "response", None) is not None and e.response.status_code < 500):
+                    raise
+            time.sleep(2 ** attempt)
+        raise RuntimeError(f"{path.name} 上傳失敗")
+
+    def upload(job):
+        row, need_jpg, raw = job
+        if need_jpg:
+            put(f"{server}/api/albums/{album}/photos", staging / album / row["web_rel"],
+                {"photo_id": row["sha256"], "stars": row["stars"], "tags": json.loads(row["tags"] or "[]"),
+                 "taken_at": row["taken_at"], "camera": row["camera"], "analyze": analyze}, "image/jpeg")
+            con_w.append(("UPDATE files SET uploaded=1 WHERE id=?", row["id"]))
+        if raw:
+            put(f"{server}/api/albums/{album}/photos/{row['sha256']}/raw", staging / album / raw["rel"],
+                {}, "application/octet-stream")
+            con_w.append(("UPDATE files SET raw_uploaded=1 WHERE id=?", row["id"]))
+
+    failed = 0
+    t0 = time.time()
+    con_w = []  # 執行緒裡不碰 SQLite，結果交回主執行緒寫入
+    with cf.ThreadPoolExecutor(max_workers=int(cfg("UPLOAD_WORKERS", "3"))) as ex:
+        futs = {ex.submit(upload, j): j for j in jobs}
+        for i, fut in enumerate(cf.as_completed(futs), 1):
+            try:
+                fut.result()
+            except Exception as e:
+                failed += 1
+                log(f"  ⚠ {futs[fut][0]['web_rel']}：{e}")
+            while con_w:
+                sql, rid = con_w.pop()
+                con.execute(sql, (rid,))
+            con.commit()
+            if i % 20 == 0 or i == len(jobs):
+                log(f"  {i}/{len(jobs)}  {(time.time() - t0) / i:.2f} 秒/張")
+    con.execute("UPDATE albums SET upload_done=? WHERE name=?", (int(failed == 0), album))
+    con.commit()
+    if analyze and jobs:
+        log("  已排進分析佇列：worker（Meta AI）會接著選片、評分、寫圖說，結果直接更新到返圖站")
+    log(f"  返圖網址：{share}" + (f"（{failed} 張失敗，可 --resume 重試）" if failed else ""))
+
+
+# ---------- 4. NAS 備份 ----------
+
+def parse_smb(url: str):
+    """smb://帳號@主機/共用資料夾/子資料夾 → (帳號, 主機, 共用資料夾, [子資料夾...])"""
+    u = urlsplit(url)
+    parts = [unquote(p) for p in u.path.split("/") if p]
+    if u.scheme != "smb" or not u.hostname or not parts:
+        raise RuntimeError(f"NAS 位址格式應為 smb://帳號@NAS_IP/共用資料夾/子資料夾，收到：{url}")
+    return u.username, u.hostname, parts[0], parts[1:]
+
+
+def find_smb_mount(host: str, parts):
+    """這個位置已經掛載（Finder 掛過，可能掛的是子資料夾）就直接用，不重複掛。"""
+    norm = lambda h: h.lower().removesuffix(".local")
+    want = [p.lower() for p in parts]
+    for line in subprocess.run(["mount"], capture_output=True, text=True).stdout.splitlines():
+        if "(smbfs" not in line:
+            continue
+        src, _, rest = line.partition(" on ")
+        mp = rest.rsplit(" (", 1)[0]
+        h, _, path = unquote(src.lstrip("/").rpartition("@")[2]).partition("/")
+        have = [p.lower() for p in path.split("/") if p]
+        if norm(h) == norm(host) and have and want[:len(have)] == have:
+            return Path(mp).joinpath(*parts[len(have):])
+    return None
+
+
+def nas_root():
+    """回傳 NAS 備份根目錄（需要時自動 mount_smbfs）；沒設定則回傳 None。
+    NAS_SMB 也可以直接寫本機路徑（例如已掛載的 /Volumes/xxx），方便測試。"""
+    nas = cfg("NAS_SMB")
+    if not nas:
+        return None
+    if not nas.startswith("smb://"):
+        return Path(os.path.expandvars(nas)).expanduser()
+    user, host, share, sub = parse_smb(nas)
+    found = find_smb_mount(host, [share] + sub)
+    if found:
+        return found
+    mp = cfg_path("NAS_MOUNT", "~/mnt/SnapPipeNAS")
+    mp.mkdir(parents=True, exist_ok=True)
+    if sys.platform != "darwin":
+        raise RuntimeError("Linux 不會自動掛 SMB：請先 mount -t cifs 掛好，NAS_SMB 改填掛載後的路徑")
+    src = f"//{quote(user) + '@' if user else ''}{host}/{quote(share)}"
+    # 密碼從 ~/Library/Preferences/nsmb.conf 或鑰匙圈讀；都沒有時 mount_smbfs 會在終端機問
+    r = subprocess.run(["mount_smbfs", src, str(mp)], stderr=subprocess.PIPE, text=True)
+    if r.returncode != 0:
+        raise RuntimeError(f"NAS 掛載失敗（{src}）：{r.stderr.strip()}")
+    return mp.joinpath(*sub)
+
+
+def step_nas(con, staging: Path, album: str):
+    try:
+        root = nas_root()
+    except RuntimeError as e:
+        log(f"[4/4 NAS] ⚠ {e}")
+        return
+    if not root:
+        log("[4/4 NAS] 略過：沒有設定 NAS 位址（--nas 或 .env 的 NAS_SMB）")
+        return
+    src = staging / album
+    dst = root / album
+    dst.mkdir(parents=True, exist_ok=True)
+    log(f"[4/4 NAS] {src} → {dst}")
+    # -rt：SMB 上不同步權限/擁有者，只同步內容與修改時間
+    base = ["rsync", "-rt", "--exclude", ".web", "--exclude", "*.part", f"{src}/", f"{dst}/"]
+    r = subprocess.run(base[:1] + ["--partial"] + base[1:])
+    if r.returncode != 0:
+        log(f"  ⚠ rsync 失敗（exit {r.returncode}），可 --resume 重試")
+        return
+    # 驗證：再比一次，大小或時間不同的檔案會被列出來
+    chk = subprocess.run(base[:1] + ["-n", "--itemize-changes"] + base[1:], capture_output=True, text=True)
+    diff = [l for l in chk.stdout.splitlines() if l.strip() and not l.startswith(("cd", ".d"))]
+    if chk.returncode != 0 or diff:
+        log(f"  ⚠ 比對後仍有 {len(diff)} 個檔案不一致，可 --resume 重試")
+        return
+    n = sum(1 for f in src.rglob("*") if f.is_file() and ".web" not in f.parts)
+    con.execute("UPDATE albums SET nas_done=1 WHERE name=?", (album,))
+    con.commit()
+    log(f"  ✅ NAS 備份完成並比對一致（{n} 個檔案）")
+    prune_live_copies(con, album, dst)
+
+
+LIVE_MANIFEST = ".snappipe-live.json"
+
+
+def prune_live_copies(con, album: str, nas_album: Path):
+    """現場經 Pi 即時傳回、worker 抄到 NAS live/ 的副本：記憶卡這次備份已經有同一張（原始檔 SHA-256 相同）就刪掉，
+    只留卡上沒有的（例如卡格式化了、或 Pi 收到卡上找不到的）。群暉相簿不比對內容，不刪會同一張出現兩次。"""
+    live = nas_album / "live"
+    if not live.is_dir():
+        return
+    card = {r["sha256"] for r in con.execute("SELECT sha256 FROM files WHERE album=?", (album,))}
+    removed = kept = 0
+    for mf in live.glob(f"*/{LIVE_MANIFEST}"):
+        try:
+            data = json.loads(mf.read_text(encoding="utf-8"))
+        except ValueError:
+            continue
+        for name, info in list(data.items()):
+            f = mf.parent / name
+            # JPG：photo_id 就是卡上原始檔的 SHA-256；RAW：sha 是 RAW 本身的 SHA-256（RAW 不會被改寫）
+            key = info.get("sha") if info.get("kind") == "raw" else info.get("photo_id")
+            if key in card:
+                f.unlink(missing_ok=True)
+                data.pop(name)
+                removed += 1
+            elif f.exists():
+                kept += 1
+        if data:
+            mf.write_text(json.dumps(data, ensure_ascii=False, indent=0), encoding="utf-8")
+        else:
+            mf.unlink(missing_ok=True)
+            try:
+                mf.parent.rmdir()
+            except OSError:
+                pass
+    try:
+        live.rmdir()
+    except OSError:
+        pass
+    if removed or kept:
+        log(f"  現場副本（live/）：記憶卡已有的 {removed} 個已刪除" + (f"，卡上沒有的 {kept} 個保留" if kept else ""))
+
+
+# ---------- main ----------
+
+def show_list(con):
+    rows = con.execute("SELECT a.*, (SELECT COUNT(*) FROM files f WHERE f.album=a.name) n "
+                       "FROM albums a ORDER BY created DESC").fetchall()
+    if not rows:
+        log("暫存區沒有相簿")
+    mark = lambda v: "✅" if v else "⬜"
+    for r in rows:
+        log(f"{r['name']:<32} {r['n']:>5} 檔  複製{mark(r['copy_done'])} 準備{mark(r['tag_done'])} "
+            f"上傳{mark(r['upload_done'])} NAS{mark(r['nas_done'])}  [{r['profile'] or '預設'}] {r['share_url'] or ''}")
+
+
+def main():
+    ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
+    ap.add_argument("--card", help="記憶卡掛載點（預設自動找 /Volumes、/media 下有 DCIM 的）")
+    ap.add_argument("--album", help="相簿名稱（文字、數字、. _ -），沒給就用拍攝日期，如 2026_10_23")
+    ap.add_argument("--title", help="返圖頁顯示的標題（預設同相簿名稱）")
+    ap.add_argument("--resume", metavar="ALBUM", help="不讀卡，繼續處理暫存區裡的相簿")
+    ap.add_argument("--list", action="store_true", help="列出暫存區相簿與進度")
+    ap.add_argument("--no-eject", action="store_true", help="複製完不要自動退出記憶卡")
+    ap.add_argument("--retag", action="store_true", help="重新讀 EXIF 並重新上傳（會再排一次 Meta AI 分析）")
+    ap.add_argument("--no-analyze", action="store_true", help="這次上傳的照片不排進 Meta AI 分析")
+    ap.add_argument("--skip-upload", action="store_true")
+    ap.add_argument("--no-raw", action="store_true", help="這次不上傳 RAW 到返圖站（NAS 仍會備份 RAW）")
+    ap.add_argument("--skip-nas", action="store_true")
+    ap.add_argument("--cleanup", action="store_true", help="上傳與 NAS 都成功後刪除暫存區的這本相簿")
+    g = ap.add_argument_group("伺服器（不同場次可用不同返圖站，各存成一個伺服器設定）")
+    g.add_argument("--profile", metavar="名稱", help="這次上傳到哪個伺服器設定（--servers 列出）")
+    g.add_argument("--servers", action="store_true", help="列出所有伺服器設定與連線狀態（不顯示 token）")
+    g.add_argument("--server", help="返圖站後端網址，例：http://<伺服器IP>:8080")
+    g.add_argument("--token", help="上傳 token")
+    g.add_argument("--nas", help="NAS 備份位置，例：smb://帳號@<NAS位址>/photo/返圖備份")
+    g.add_argument("--staging", help="暫存資料夾（這台電腦共用）")
+    g.add_argument("--save", action="store_true",
+                   help="記住設定：有 --profile 存進該伺服器設定，否則存進 .env")
+    g.add_argument("--save-only", action="store_true", help="只存設定，不讀卡也不上傳")
+    g.add_argument("--force-profile", action="store_true", help="--resume 時改傳到跟上次不同的伺服器")
+    args = ap.parse_args()
+    if args.save_only:
+        args.save = True
+
+    if args.servers:
+        return show_servers()
+    if args.staging:
+        ENV["STAGING_DIR"] = args.staging
+    staging = cfg_path("STAGING_DIR", "~/SnapPipeStaging")
+    con = open_db(staging)
+    if args.list:
+        return show_list(con)
+
+    # 決定這次上傳到哪個伺服器：--resume 時沿用這本相簿上次的伺服器，避免傳錯台
+    profile = args.profile
+    if args.resume:
+        row = con.execute("SELECT * FROM albums WHERE name=?", (args.resume,)).fetchone()
+        if not row:
+            sys.exit(f"暫存區沒有相簿 {args.resume}（用 --list 查看）")
+        bound = row["profile"]
+        if profile and bound and profile != bound and not args.force_profile:
+            sys.exit(f"「{args.resume}」之前上傳到伺服器「{bound}」。確定要改傳到「{profile}」請加 --force-profile")
+        profile = profile or bound
+    # 已存在的設定就載入；--save 到新名稱 = 新增（網址與 token 取自參數，或沿用 .env 裡的）
+    if profile and (profile_path(profile).exists() or not args.save):
+        use_profile(profile)
+
+    overrides = {k: v for k, v in (("SERVER_URL", args.server), ("UPLOAD_TOKEN", args.token),
+                                   ("NAS_SMB", args.nas)) if v}
+    ENV.update(overrides)
+    if args.no_raw:
+        ENV["UPLOAD_RAW"] = "0"
+    if args.no_analyze:
+        ENV["ANALYZE"] = "0"
+    if args.nas and args.nas.startswith("smb://"):
+        try:
+            parse_smb(args.nas)  # 格式錯就在讀卡前先停
+        except RuntimeError as e:
+            sys.exit(str(e))
+    if args.save:
+        if profile:
+            if not cfg("SERVER_URL") or not cfg("UPLOAD_TOKEN"):
+                sys.exit("新增伺服器設定需要 --server 與 --token")
+            save_profile(profile, {k: cfg(k) for k in PROFILE_KEYS})
+            log(f"已存成伺服器設定「{profile}」：{cfg('SERVER_URL')}（token 已存，不顯示）")
+        if args.staging or (not profile and overrides):
+            save_env({**({"STAGING_DIR": args.staging} if args.staging else {}),
+                      **({} if profile else overrides)})
+            log(f"已存進 {ENV_FILE}")
+        if args.save_only:
+            return
+
+    if args.resume:
+        album = args.resume
+        if args.title:
+            con.execute("UPDATE albums SET title=? WHERE name=?", (args.title, album))
+            con.commit()
+    else:
+        card = Path(args.card) if args.card else wait_for_card()
+        album = step_copy(con, staging, card, args.album, args.title, eject=not args.no_eject)
+
+    if args.retag:
+        con.execute("UPDATE files SET tagged=0, uploaded=0 WHERE album=?", (album,))
+        con.commit()
+
+    step_prepare(con, staging, album)
+    if profile and not args.skip_upload:
+        con.execute("UPDATE albums SET profile=? WHERE name=?", (profile, album))  # 記住這本傳到哪台
+        con.commit()
+    if not args.skip_upload:
+        try:
+            step_upload(con, staging, album, force=args.retag)
+        except requests.RequestException as e:
+            log(f"  ⚠ 上傳失敗：{e}（可 ingest/ingest.sh --resume {album} 重試）")
+            if sys.platform == "darwin" and ("Errno 65" in str(e) or "No route to host" in str(e)):
+                # macOS 15+ 的「本機網路」權限：沒允許的 App（及其啟動的 Python）連區網會得到 errno 65
+                log("  👉 很可能是 macOS 的「本機網路」權限擋住了：系統設定 → 隱私權與安全性 → 本機網路，\n"
+                    "     打開你用來執行的 App（終端機 / iTerm / VS Code…）。清單裡沒有的話，從該 App 再跑一次會跳出詢問。")
+    if not args.skip_nas:
+        step_nas(con, staging, album)
+
+    a = con.execute("SELECT * FROM albums WHERE name=?", (album,)).fetchone()
+    all_ok = a["tag_done"] and a["upload_done"] and a["nas_done"]
+    log("")
+    if all_ok:
+        notify(f"{album} 全部完成", "Hero")
+        if args.cleanup:
+            shutil.rmtree(staging / album)
+            con.execute("DELETE FROM files WHERE album=?", (album,))
+            con.commit()
+            log("已清除暫存區")
+        log(f"🎉 完成：{a['share_url'] or album}")
+    else:
+        notify(f"{album} 有步驟未完成，請看終端機", "Basso")
+        log(f"⚠ 有步驟未完成，修正後在 SnapPipe 資料夾執行：ingest/ingest.sh --resume {album}")
+
+
+if __name__ == "__main__":
+    main()

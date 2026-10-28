@@ -1,0 +1,17 @@
+[Unit]
+Description=SnapPipe snap-agent（相機旁的轉送器）
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+User=snap
+Group=snap
+SupplementaryGroups=plugdev
+WorkingDirectory=/opt/snap-agent
+ExecStart=/opt/snap-agent/.venv/bin/python /opt/snap-agent/snap_agent.py -c /etc/snap-agent.toml run
+Restart=always
+RestartSec=3
+Environment=PYTHONUNBUFFERED=1
+
+[Install]
+WantedBy=multi-user.target

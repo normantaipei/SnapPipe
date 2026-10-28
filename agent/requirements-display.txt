@@ -1,0 +1,2 @@
+# 0.96 吋 SSD1306 OLED（選用）；Pillow 與 gpiozero 由 apt 裝（python3-pil、python3-gpiozero）
+luma.oled==3.14.0
