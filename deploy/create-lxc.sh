@@ -234,8 +234,13 @@ if [ -n "$INSTALL" ]; then
   if [ -z "$NO_WORKER" ]; then
     push_worker "$CTID" || die "worker 安裝失敗，看記錄：pct exec $CTID -- journalctl -u snappipe-worker -n 50"
   fi
+  # 安裝摘要（Pi 指令、token）放在最後印，才不會被上面的安裝輸出蓋過
+  echo
+  echo "════════════════════ ✅ SnapPipe 安裝完成 ════════════════════"
+  pct exec "$CTID" -- snappipe-cmd </dev/null || true
   echo
   echo "  容器編號：$CTID   主機名稱：$HOST   IP：$IP"
+  echo "  以上設定忘了：pct exec $CTID -- snappipe-cmd"
   if [ -z "$NO_WORKER" ]; then
     echo "  worker：$([ -n "$META_KEY" ] && echo "Meta AI 開啟" || echo "不用 AI（普通相簿）")；記錄：pct exec $CTID -- journalctl -u snappipe-worker -f"
     echo "  換金鑰 / 開 AI：curl -fsSL $(raw_url main deploy/create-lxc.sh) | bash -s -- --set-key --id $CTID"
@@ -243,6 +248,7 @@ if [ -n "$INSTALL" ]; then
   echo "  之後更新（返圖站與 worker 一起）：pct exec $CTID -- bash -c 'curl -fsSL $(raw_url main bootstrap.sh) | bash -s -- --no-prompt'"
   echo "  即時上傳開關（容器沒設密碼，從 Proxmox 這裡免密碼執行）：pct exec $CTID -- snappipe-live off | on | status"
   echo "  進容器：pct enter $CTID"
+  echo "═════════════════════════════════════════════════════════════════"
   return
 fi
 

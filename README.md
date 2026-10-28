@@ -161,7 +161,7 @@ Proxmox 上的容器可以 `pct exec <CTID> -- snappipe-live off`；也可以在
 
 ## 2. 樹莓派 snap-agent
 
-一行安裝（`<裝置token>` 是伺服器印出的 `pi-1:…` 那組的 token）：
+伺服器裝完最後會印出每台 Pi 的一行安裝指令（網址與裝置 token 都填好了），直接貼到 Pi 上執行；忘了就在伺服器執行 `snappipe-cmd`（Proxmox：`pct exec <容器編號> -- snappipe-cmd`）。指令長這樣：
 
 ```bash
 curl -fsSL https://raw.githubusercontent.com/normantaipei/SnapPipe/main/agent/bootstrap.sh | sudo bash -s -- \

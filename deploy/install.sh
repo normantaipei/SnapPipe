@@ -162,29 +162,38 @@ ENV
   cat > /usr/local/bin/snappipe-cmd <<'CMD'
 #!/bin/bash
 set -a; source /etc/snappipe.env; set +a
+RAW=https://raw.githubusercontent.com/normantaipei/SnapPipe/main
+echo "返圖站：$SNAPPIPE_HINT_SERVER"
+echo
+echo "樹莓派（在 Pi 上貼這行；--mode：gphoto2 = 相機 USB 接 Pi、ftp = 相機用 FTP 傳給 Pi、watch = 看資料夾）："
+IFS=',' read -ra _devs <<< "$SNAPPIPE_DEVICE_TOKENS"
+for _d in "${_devs[@]}"; do
+  _d="${_d// /}"; [ -n "$_d" ] || continue
+  printf '  curl -fsSL %s/agent/bootstrap.sh | sudo bash -s -- \\\n    --url %s --token %s --name %s --mode gphoto2\n' \
+    "$RAW" "$SNAPPIPE_HINT_SERVER" "${_d#*:}" "${_d%%:*}"
+done
+echo "  （要加 Pi：在 /etc/snappipe.env 的 SNAPPIPE_DEVICE_TOKENS 多寫一組 名稱:token，再 systemctl restart snappipe）"
+echo
 echo "賽後插卡匯入（Mac 或 Linux；--save 會記住連線設定，之後只要打 ingest.sh 本身）："
 case "$SNAPPIPE_HINT_INGEST" in
   /*|~*) ;;
   *) echo "（先 git clone https://github.com/normantaipei/SnapPipe ，在 SnapPipe 資料夾裡執行）" ;;
 esac
-echo
 printf '  %s \\\n    --server %s \\\n    --token %s \\\n    --save\n' \
   "$SNAPPIPE_HINT_INGEST" "$SNAPPIPE_HINT_SERVER" "$SNAPPIPE_UPLOAD_TOKEN"
+echo "  其他選項：--staging <暫存資料夾>（預設 ~/SnapPipeStaging）、--nas smb://帳號@NAS位址/共用資料夾/子資料夾、--album <相簿名稱>"
 echo
-echo "插卡電腦的其他設定（第一次可一起加在上面那行，--save 會記住）："
-echo "  --staging <資料夾>    暫存資料夾，預設 ~/SnapPipeStaging"
-echo "  --nas smb://帳號@NAS位址/共用資料夾/子資料夾    NAS 備份（不加就不備份；Linux 填已掛載的路徑）"
-echo "  --album <名稱>        相簿名稱（不加就用拍攝日期，如 2026_10_23）"
-echo
-echo "worker（Meta AI 處理端；worker/.env，可以裝在這台伺服器、Mac 或任何 Linux）："
-echo "  SERVER_URL=$SNAPPIPE_HINT_SERVER        （裝在這台伺服器上就填 http://127.0.0.1:$SNAPPIPE_PORT）"
-[ -z "$SNAPPIPE_WORKER_TOKEN" ] || echo "  WORKER_TOKEN=$SNAPPIPE_WORKER_TOKEN"
-echo "  Meta API 金鑰：執行 worker/setup.sh 時會問並驗證（留空 = 不用 AI，只當普通相簿）"
-echo "  比賽資料與名單放 worker/games/<相簿名稱>.toml / .csv（範本 worker/games/example.toml）"
-echo
-echo "樹莓派（/etc/snap-agent.toml 的 [server]；裝置 token 驗身分、不限來源網段）："
-echo "  url = \"$SNAPPIPE_HINT_SERVER\""
-echo "  裝置 token：$SNAPPIPE_DEVICE_TOKENS"
+_unit=/etc/systemd/system/snappipe-worker.service
+if [ -f "$_unit" ]; then
+  _w=$(sed -n 's/^WorkingDirectory=//p' "$_unit")
+  _a=$(sed -n 's/^ANALYZER=//p' "$_w/.env" 2>/dev/null | tail -1)
+  echo "worker：已裝在這台（$([ "$_a" = meta_ai ] && echo "Meta AI 開啟" || echo "不用 AI，普通相簿")；$(systemctl is-active snappipe-worker)）"
+  echo "  記錄：journalctl -u snappipe-worker -f    比賽資料：$_w/games/<相簿名稱>.toml / .csv"
+else
+  echo "worker（Meta AI 處理端；可以裝在這台、Mac 或任何 Linux）："
+  echo "  worker/setup.sh 會問並驗證 Meta API 金鑰（留空 = 不用 AI）；worker/.env 填 SERVER_URL=$SNAPPIPE_HINT_SERVER"
+  [ -z "$SNAPPIPE_WORKER_TOKEN" ] || echo "  WORKER_TOKEN=$SNAPPIPE_WORKER_TOKEN"
+fi
 CMD
   chmod 700 /usr/local/bin/snappipe-cmd
 
