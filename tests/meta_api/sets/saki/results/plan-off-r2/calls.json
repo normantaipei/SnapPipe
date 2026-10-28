@@ -1,0 +1,146 @@
+[
+  {
+    "name": "burst_selection",
+    "images": 3,
+    "sec": 4.65,
+    "in": 1234,
+    "out": 950,
+    "raw": "{\"best\": [0], \"frames\": [{\"composition\": 5, \"focus\": 6, \"index\": 0, \"issues\": [\"under_exposed\"], \"overall\": 5, \"peak\": 5}, {\"composition\": 3, \"focus\": 3, \"index\": 1, \"issues\": [\"under_exposed\", \"face_blocked\"], \"overall\": 3, \"peak\": 3}, {\"composition\": 4, \"focus\": 4, \"index\": 2, \"issues\": [\"under_exposed\", \"face_blocked\"], \"overall\": 3, \"peak\": 3}], \"moment\": \"portrait\"}"
+  },
+  {
+    "name": "photo_caption",
+    "images": 1,
+    "sec": 3.58,
+    "in": 2499,
+    "out": 678,
+    "raw": "{\"action_sentence\": \"{P0}身穿黑紅配色的長袍、手持紅色紙扇，站在昏暗的古式拱門迴廊中側頭望向遠方。\",\"headline\": \"{P0}持紅扇佇立昏暗古廊\",\"keywords\": [\"藍色長髮\", \"黑色長袍\", \"紅色紙扇\", \"古式迴廊\", \"拱門\", \"昏暗\", \"光影對比\", \"神秘氛圍\"], \"needs_review\": false,\"people\": [{\"box\": [0.73, 0.25, 0.18, 0.3], \"confidence\": 0.88, \"plan\": null, \"role_in_frame\": \"primary\"}],\"review_reasons\": []}"
+  },
+  {
+    "name": "burst_selection",
+    "images": 4,
+    "sec": 4.83,
+    "in": 1469,
+    "out": 1242,
+    "raw": "{\"best\": [0, 3], \"frames\": [{\"composition\": 5, \"focus\": 3, \"index\": 0, \"issues\": [\"motion_blur_subject\", \"out_of_focus\"], \"overall\": 4, \"peak\": 4}, {\"composition\": 1, \"focus\": 2, \"index\": 1, \"issues\": [\"subject_cropped\", \"face_blocked\"], \"overall\": 1, \"peak\": 1}, {\"composition\": 4, \"focus\": 2, \"index\": 2, \"issues\": [\"motion_blur_subject\", \"out_of_focus\"], \"overall\": 3, \"peak\": 3}, {\"composition\": 4, \"focus\": 5, \"index\": 3, \"issues\": [\"face_blocked\"], \"overall\": 3, \"peak\": 2}], \"moment\": \"portrait\"}"
+  },
+  {
+    "name": "photo_caption",
+    "images": 1,
+    "sec": 5.27,
+    "in": 2499,
+    "out": 945,
+    "raw": "{\"action_sentence\": \"{P0}身穿黑底紅色點綴的傳統服裝、手持紅色油紙傘，站在戶外古建築迴廊懸掛的黃色燈籠旁。\", \"headline\": \"{P0}在古建築燈籠旁的藍髮身影\", \"keywords\": [\"藍色假髮\", \"黑色傳統服裝\", \"紅色油紙傘\", \"黃色燈籠\", \"古建築\", \"迴廊\", \"戶外\", \"動態模糊\"], \"needs_review\": true, \"people\": [{\"box\": [0.579, 0.313, 0.18, 0.55], \"confidence\": 0.65, \"plan\": null, \"role_in_frame\": \"primary\"}], \"review_reasons\": [\"影像有明顯動態模糊\"]}"
+  },
+  {
+    "name": "burst_selection",
+    "images": 8,
+    "sec": 3.24,
+    "in": 2409,
+    "out": 798,
+    "raw": "{\"best\": [7, 6, 5], \"frames\": [{\"composition\": 5, \"focus\": 7, \"index\": 0, \"issues\": [], \"overall\": 4, \"peak\": 4}, {\"composition\": 6, \"focus\": 7, \"index\": 1, \"issues\": [], \"overall\": 5, \"peak\": 5}, {\"composition\": 6, \"focus\": 7, \"index\": 2, \"issues\": [], \"overall\": 5, \"peak\": 5}, {\"composition\": 6, \"focus\": 5, \"index\": 3, \"issues\": [\"out_of_focus\"], \"overall\": 6, \"peak\": 6}, {\"composition\": 6, \"focus\": 5, \"index\": 4, \"issues\": [\"out_of_focus\"], \"overall\": 6, \"peak\": 6}, {\"composition\": 7, \"focus\": 8, \"index\": 5, \"issues\": [], \"overall\": 7, \"peak\": 7}, {\"composition\": 8, \"focus\": 9, \"index\": 6, \"issues\": [], \"overall\": 8, \"peak\": 8}, {\"composition\": 8, \"focus\": 9, \"index\": 7, \"issues\": [], \"overall\": 9, \"peak\": 9}], \"moment\": \"portrait\"}"
+  },
+  {
+    "name": "photo_caption",
+    "images": 1,
+    "sec": 4.05,
+    "in": 2499,
+    "out": 707,
+    "raw": "{\"action_sentence\": \"{P0}頂著淺藍色長髮、身穿黑紅配色的長袍，表情冷峻地走在戶外公園的石橋上，身後有大榕樹與中式涼亭。\", \"headline\": \"{P0}古風石橋上的藍髮身影\", \"keywords\": [\"藍色假髮\", \"黑色長袍\", \"紅色漸層\", \"石橋\", \"涼亭\", \"大樹\", \"戶外公園\", \"池塘\", \"古風\"], \"needs_review\": false, \"people\": [{\"box\": [0.365, 0.444, 0.3, 0.2], \"confidence\": 0.96, \"plan\": null, \"role_in_frame\": \"primary\"}], \"review_reasons\": []}"
+  },
+  {
+    "name": "photo_caption",
+    "images": 1,
+    "sec": 4.15,
+    "in": 2499,
+    "out": 712,
+    "raw": "{\"action_sentence\": \"{P0}頂著水藍色長髮、身穿黑紅相間的華麗長袍，正神情冷峻地走下戶外公園石橋的階梯，背景有大榕樹和中式涼亭。\",\"headline\": \"{P0}漫步戶外石橋的黑紅古裝造型\",\"keywords\": [\"藍色長髮\", \"黑色長袍\", \"紅色點綴\", \"戶外公園\", \"石橋\", \"涼亭\", \"大樹\", \"角色扮演\", \"全身照\"],\"needs_review\": false,\"people\": [{\"box\": [0.366, 0.44, 0.29, 0.23], \"confidence\": 0.96, \"plan\": null, \"role_in_frame\": \"primary\"}],\"review_reasons\": []}"
+  },
+  {
+    "name": "photo_caption",
+    "images": 1,
+    "sec": 5.51,
+    "in": 2499,
+    "out": 998,
+    "raw": "{\"action_sentence\": \"{P0}頂著淺藍色假髮、身穿黑底紅裡長袍，正神情嚴肅地走在戶外公園的石橋上。\",\"headline\": \"{P0}戶外石橋上的藍髮帥氣裝扮\",\"keywords\": [\"藍色假髮\", \"黑色長袍\", \"紅色內襯\", \"紅色流蘇\", \"石橋\", \"涼亭\", \"大樹\", \"戶外公園\", \"長靴\", \"cosplay\"],\"needs_review\": false,\"people\": [{\"box\": [0.345, 0.44, 0.31, 0.27], \"confidence\": 0.98, \"plan\": null, \"role_in_frame\": \"primary\"}],\"review_reasons\": []}"
+  },
+  {
+    "name": "burst_selection",
+    "images": 7,
+    "sec": 5.3,
+    "in": 2174,
+    "out": 1072,
+    "raw": "{\"best\": [5, 6, 4], \"frames\": [{\"composition\": 7, \"focus\": 7, \"index\": 0, \"issues\": [], \"overall\": 6, \"peak\": 6}, {\"composition\": 7, \"focus\": 7, \"index\": 1, \"issues\": [], \"overall\": 6, \"peak\": 6}, {\"composition\": 7, \"focus\": 7, \"index\": 2, \"issues\": [], \"overall\": 7, \"peak\": 7}, {\"composition\": 8, \"focus\": 8, \"index\": 3, \"issues\": [], \"overall\": 7, \"peak\": 7}, {\"composition\": 8, \"focus\": 8, \"index\": 4, \"issues\": [], \"overall\": 8, \"peak\": 8}, {\"composition\": 8, \"focus\": 8, \"index\": 5, \"issues\": [], \"overall\": 8, \"peak\": 8}, {\"composition\": 8, \"focus\": 7, \"index\": 6, \"issues\": [], \"overall\": 8, \"peak\": 9}], \"moment\": \"portrait\"}"
+  },
+  {
+    "name": "photo_caption",
+    "images": 1,
+    "sec": 3.88,
+    "in": 2499,
+    "out": 681,
+    "raw": "{\"action_sentence\": \"{P0}頂著藍色長髮、身穿黑紅漸層古風長袍，正表情嚴肅地走在戶外的石橋上。\",\"headline\": \"{P0}漫步古風庭園石橋\",\"keywords\": [\"藍色長髮\", \"古風服裝\", \"黑色長袍\", \"紅色漸層\", \"流蘇飾品\", \"石橋\", \"涼亭\", \"池塘\", \"老樹\", \"戶外日間\"], \"needs_review\": false,\"people\": [{\"box\": [0.375, 0.238, 0.27, 0.27], \"confidence\": 0.96, \"plan\": null, \"role_in_frame\": \"primary\"}],\"review_reasons\": []}"
+  },
+  {
+    "name": "photo_caption",
+    "images": 1,
+    "sec": 4.29,
+    "in": 2499,
+    "out": 793,
+    "raw": "{\"action_sentence\": \"{P0}頂著淺藍色長髮、身穿黑紅相間的古風服裝，正神情嚴肅地走在戶外公園的石橋上。\", \"headline\": \"{P0}古風裝扮漫步公園石橋\", \"keywords\": [\"藍色長髮\", \"黑紅古裝\", \"流蘇裝飾\", \"石橋\", \"池塘\", \"涼亭\", \"老樹\", \"戶外寫真\", \"嚴肅表情\"], \"needs_review\": false, \"people\": [{\"box\": [0.395, 0.376, 0.405, 0.235], \"confidence\": 0.95, \"plan\": null, \"role_in_frame\": \"primary\"}], \"review_reasons\": []}"
+  },
+  {
+    "name": "photo_caption",
+    "images": 1,
+    "sec": 4.61,
+    "in": 2499,
+    "out": 940,
+    "raw": "{\"action_sentence\": \"{P0}身穿黑紅相間的華麗長袍、頂著淺藍色長髮，表情嚴肅地走在戶外公園石橋的階梯上。\", \"headline\": \"{P0}在古亭石橋上的英氣漫步\", \"keywords\": [\"藍色長髮\", \"黑色長袍\", \"紅色披風\", \"戶外\", \"石橋\", \"涼亭\", \"池塘\", \"大樹\", \"日間\"], \"needs_review\": false, \"people\": [{\"box\": [0.385, 0.325, 0.29, 0.22], \"confidence\": 0.96, \"plan\": null, \"role_in_frame\": \"primary\"}], \"review_reasons\": []}"
+  },
+  {
+    "name": "burst_selection",
+    "images": 3,
+    "sec": 3.99,
+    "in": 1234,
+    "out": 982,
+    "raw": "{\"best\": [1], \"frames\": [{\"composition\": 7, \"focus\": 7, \"index\": 0, \"issues\": [\"out_of_focus\"], \"overall\": 7, \"peak\": 7}, {\"composition\": 9, \"focus\": 10, \"index\": 1, \"issues\": [], \"overall\": 9, \"peak\": 9}, {\"composition\": 9, \"focus\": 9, \"index\": 2, \"issues\": [], \"overall\": 8, \"peak\": 8}], \"moment\": \"portrait\"}"
+  },
+  {
+    "name": "photo_caption",
+    "images": 1,
+    "sec": 3.35,
+    "in": 2499,
+    "out": 668,
+    "raw": "{\"action_sentence\": \"{P0}側身站在金色龍紋圓形雕飾前，穿著黑色和風圖騰外袍並輕扶紅色墨鏡。\",\"headline\": \"藍髮側顏映襯金色龍紋的室內肖像\",\"keywords\": [\"藍色假髮\", \"紅色墨鏡\", \"和風外袍\", \"圖騰服飾\", \"金色雕飾\", \"龍紋背景\", \"側面肖像\", \"室內拍攝\", \"時尚氛圍\"],\"needs_review\": false,\"people\": [{\"box\": [0.224, 0.276, 0.567, 0.724], \"confidence\": 0.98, \"plan\": null, \"role_in_frame\": \"primary\"}],\"review_reasons\": []}"
+  },
+  {
+    "name": "burst_selection",
+    "images": 5,
+    "sec": 4.79,
+    "in": 1704,
+    "out": 1051,
+    "raw": "{\"best\": [3, 2, 4], \"frames\": [{\"composition\": 7, \"focus\": 5, \"index\": 0, \"issues\": [\"out_of_focus\"], \"overall\": 6, \"peak\": 6}, {\"composition\": 6, \"focus\": 7, \"index\": 1, \"issues\": [\"subject_cropped\"], \"overall\": 6.5, \"peak\": 6}, {\"composition\": 7, \"focus\": 9, \"index\": 2, \"issues\": [\"subject_cropped\"], \"overall\": 8.5, \"peak\": 8}, {\"composition\": 9, \"focus\": 8.5, \"index\": 3, \"issues\": [], \"overall\": 9, \"peak\": 8.5}, {\"composition\": 8.5, \"focus\": 8, \"index\": 4, \"issues\": [], \"overall\": 8.5, \"peak\": 8}], \"moment\": \"portrait\"}"
+  },
+  {
+    "name": "photo_caption",
+    "images": 1,
+    "sec": 2.93,
+    "in": 2499,
+    "out": 714,
+    "raw": "{\"action_sentence\":\"{P0}戴著紅色圓形墨鏡、頂著水藍色長假髮，身穿綴有紅色流蘇的黑色中式服裝，慵懶地靠坐在室內的雕花木椅上，身後是金色龍紋圓雕與暖黃燈籠。\",\"headline\":\"{P0}慵懶靠椅的龍紋燈籠肖像\",\"keywords\":[\"藍色假髮\",\"紅色墨鏡\",\"黑色中式服裝\",\"紅色流蘇\",\"金色龍紋雕刻\",\"紙燈籠\",\"木椅\",\"室內佈景\",\"慵懶姿態\",\"復古氛圍\"],\"needs_review\":false,\"people\":[{\"box\":[0.0,0.212,0.67,0.788],\"confidence\":0.96,\"plan\":null,\"role_in_frame\":\"primary\"}],\"review_reasons\":[]}"
+  },
+  {
+    "name": "photo_caption",
+    "images": 1,
+    "sec": 4.71,
+    "in": 2499,
+    "out": 839,
+    "raw": "{\"action_sentence\": \"{P0}戴著紅色墨鏡、頂著水藍色假髮身穿黑色中式服飾，慵懶地靠坐在室內木椅上單手拿著長煙管，身後是金色龍紋圓雕與暖黃燈籠。\",\"headline\": \"{P0}藍髮紅鏡的中式慵懶肖像\",\"keywords\": [\"藍色假髮\", \"紅色墨鏡\", \"黑色中式服\", \"紅色流蘇\", \"長煙管\", \"金色龍紋浮雕\", \"紙燈籠\", \"木雕椅\", \"室內拍攝\", \"復古東方風\"],\"needs_review\": false,\"people\": [{\"box\": [0.0, 0.246, 0.705, 0.59], \"confidence\": 0.96, \"plan\": null, \"role_in_frame\": \"primary\"}],\"review_reasons\": []}"
+  },
+  {
+    "name": "photo_caption",
+    "images": 1,
+    "sec": 4.75,
+    "in": 2499,
+    "out": 842,
+    "raw": "{\"action_sentence\": \"{P0}戴著紅色圓形墨鏡、頂著藍色長髮，身穿黑色中式服裝配紅色流蘇，手持長煙管慵懶靠坐在室內金龍雕飾前的木椅上。\",\"headline\": \"藍髮紅鏡的中式室內霸氣肖像\",\"keywords\": [\"藍色長髮\", \"紅色墨鏡\", \"黑色中式服裝\", \"紅色流蘇\", \"長煙管\", \"金龍浮雕\", \"紙燈籠\", \"木雕椅\", \"室內場景\", \"華麗氛圍\"], \"needs_review\": false, \"people\": [{\"box\": [0.07, 0.32, 0.6, 0.5], \"confidence\": 0.98, \"plan\": null, \"role_in_frame\": \"primary\"}], \"review_reasons\": []}"
+  }
+]

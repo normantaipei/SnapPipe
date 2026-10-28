@@ -1,0 +1,772 @@
+{
+  "model": "muse-spark-1.3",
+  "reasoning": "low",
+  "frames": [
+    {
+      "group": "g01",
+      "file": "g01_01.jpg",
+      "ref_stars": 1,
+      "human_pick": false,
+      "score": 4.1,
+      "stars": 2,
+      "pick": true,
+      "rank": 1,
+      "issues": [
+        "under_exposed"
+      ],
+      "moment": "portrait",
+      "caption": "示範Coser（飾示範角色甲）身穿黑底紅邊中式服裝、留著藍色長髮，手持紅色油紙傘站在戶外古宅迴廊中側頭望向一旁。（攝影：測試／SnapPipe）",
+      "headline": "示範Coser手持紅傘佇立古宅迴廊",
+      "needs_review": false,
+      "review": [],
+      "group_sec": 10.04,
+      "players": [
+        {
+          "team": "plan",
+          "jersey": 0,
+          "name": "示範Coser",
+          "confidence": 0.92,
+          "role": "primary",
+          "box": [
+            0.732,
+            0.222,
+            0.205,
+            0.35
+          ],
+          "verified": true
+        }
+      ]
+    },
+    {
+      "group": "g01",
+      "file": "g01_02.jpg",
+      "ref_stars": 1,
+      "human_pick": false,
+      "score": 1.0,
+      "stars": 1,
+      "pick": false,
+      "rank": null,
+      "issues": [
+        "under_exposed",
+        "out_of_focus",
+        "face_blocked"
+      ],
+      "moment": "portrait",
+      "caption": null,
+      "headline": null,
+      "needs_review": null,
+      "review": null,
+      "group_sec": 10.04,
+      "players": null
+    },
+    {
+      "group": "g01",
+      "file": "g01_03.jpg",
+      "ref_stars": 1,
+      "human_pick": false,
+      "score": 1.6,
+      "stars": 1,
+      "pick": false,
+      "rank": null,
+      "issues": [
+        "under_exposed",
+        "face_blocked"
+      ],
+      "moment": "portrait",
+      "caption": null,
+      "headline": null,
+      "needs_review": null,
+      "review": null,
+      "group_sec": 10.04,
+      "players": null
+    },
+    {
+      "group": "g02",
+      "file": "g02_01.jpg",
+      "ref_stars": 2,
+      "human_pick": false,
+      "score": 1.0,
+      "stars": 1,
+      "pick": true,
+      "rank": 1,
+      "issues": [
+        "motion_blur_subject",
+        "out_of_focus"
+      ],
+      "moment": "portrait",
+      "caption": "一名Coser頂著藍色假髮、身穿黑底紅邊中式服裝，手持紅色摺扇站在戶外古宅迴廊發光燈籠旁，身影略顯模糊。（攝影：測試／SnapPipe）",
+      "headline": "藍髮古裝迴廊燈籠下持扇留影",
+      "needs_review": true,
+      "review": [
+        "影像有動態模糊",
+        "未見紅色圓形墨鏡，妝髮與計畫不完全相符"
+      ],
+      "group_sec": 11.1,
+      "players": [
+        {
+          "team": "plan",
+          "jersey": null,
+          "name": null,
+          "confidence": 0.75,
+          "role": "primary",
+          "box": [
+            0.6,
+            0.314,
+            0.18,
+            0.55
+          ],
+          "verified": false
+        }
+      ]
+    },
+    {
+      "group": "g02",
+      "file": "g02_02.jpg",
+      "ref_stars": 2,
+      "human_pick": false,
+      "score": 1.0,
+      "stars": 1,
+      "pick": false,
+      "rank": null,
+      "issues": [
+        "subject_cropped",
+        "face_blocked",
+        "motion_blur_subject",
+        "out_of_focus"
+      ],
+      "moment": "portrait",
+      "caption": null,
+      "headline": null,
+      "needs_review": null,
+      "review": null,
+      "group_sec": 11.1,
+      "players": null
+    },
+    {
+      "group": "g02",
+      "file": "g02_03.jpg",
+      "ref_stars": 1,
+      "human_pick": false,
+      "score": 1.0,
+      "stars": 1,
+      "pick": false,
+      "rank": null,
+      "issues": [
+        "motion_blur_subject",
+        "out_of_focus"
+      ],
+      "moment": "portrait",
+      "caption": null,
+      "headline": null,
+      "needs_review": null,
+      "review": null,
+      "group_sec": 11.1,
+      "players": null
+    },
+    {
+      "group": "g02",
+      "file": "g02_04.jpg",
+      "ref_stars": 3,
+      "human_pick": false,
+      "score": 2.6,
+      "stars": 1,
+      "pick": false,
+      "rank": null,
+      "issues": [
+        "face_blocked"
+      ],
+      "moment": "portrait",
+      "caption": null,
+      "headline": null,
+      "needs_review": null,
+      "review": null,
+      "group_sec": 11.1,
+      "players": null
+    },
+    {
+      "group": "g03",
+      "file": "g03_01.jpg",
+      "ref_stars": 3,
+      "human_pick": false,
+      "score": 4.59,
+      "stars": 2,
+      "pick": false,
+      "rank": null,
+      "issues": [],
+      "moment": "portrait",
+      "caption": null,
+      "headline": null,
+      "needs_review": null,
+      "review": null,
+      "group_sec": 11.97,
+      "players": null
+    },
+    {
+      "group": "g03",
+      "file": "g03_02.jpg",
+      "ref_stars": 3,
+      "human_pick": false,
+      "score": 5.48,
+      "stars": 2,
+      "pick": false,
+      "rank": null,
+      "issues": [],
+      "moment": "portrait",
+      "caption": null,
+      "headline": null,
+      "needs_review": null,
+      "review": null,
+      "group_sec": 11.97,
+      "players": null
+    },
+    {
+      "group": "g03",
+      "file": "g03_03.jpg",
+      "ref_stars": 3,
+      "human_pick": false,
+      "score": 6.38,
+      "stars": 3,
+      "pick": false,
+      "rank": null,
+      "issues": [],
+      "moment": "portrait",
+      "caption": null,
+      "headline": null,
+      "needs_review": null,
+      "review": null,
+      "group_sec": 11.97,
+      "players": null
+    },
+    {
+      "group": "g03",
+      "file": "g03_04.jpg",
+      "ref_stars": 3,
+      "human_pick": false,
+      "score": 2.82,
+      "stars": 1,
+      "pick": false,
+      "rank": null,
+      "issues": [
+        "out_of_focus"
+      ],
+      "moment": "portrait",
+      "caption": null,
+      "headline": null,
+      "needs_review": null,
+      "review": null,
+      "group_sec": 11.97,
+      "players": null
+    },
+    {
+      "group": "g03",
+      "file": "g03_05.jpg",
+      "ref_stars": 3,
+      "human_pick": false,
+      "score": 2.81,
+      "stars": 1,
+      "pick": false,
+      "rank": null,
+      "issues": [
+        "out_of_focus"
+      ],
+      "moment": "portrait",
+      "caption": null,
+      "headline": null,
+      "needs_review": null,
+      "review": null,
+      "group_sec": 11.97,
+      "players": null
+    },
+    {
+      "group": "g03",
+      "file": "g03_06.jpg",
+      "ref_stars": 4,
+      "human_pick": false,
+      "score": 7.29,
+      "stars": 4,
+      "pick": true,
+      "rank": 3,
+      "issues": [],
+      "moment": "portrait",
+      "caption": "示範Coser（飾示範角色甲）頂著藍色假髮、身穿黑底紅邊中式服裝，神情嚴肅地走在戶外中式庭園的池塘石橋上，背景有涼亭與大樹。（攝影：測試／SnapPipe）",
+      "headline": "藍髮裝扮佇立庭園石橋上",
+      "needs_review": false,
+      "review": [],
+      "group_sec": 11.97,
+      "players": [
+        {
+          "team": "plan",
+          "jersey": 0,
+          "name": "示範Coser",
+          "confidence": 0.95,
+          "role": "primary",
+          "box": [
+            0.398,
+            0.431,
+            0.242,
+            0.227
+          ],
+          "verified": true
+        }
+      ]
+    },
+    {
+      "group": "g03",
+      "file": "g03_07.jpg",
+      "ref_stars": 4,
+      "human_pick": false,
+      "score": 8.19,
+      "stars": 4,
+      "pick": true,
+      "rank": 2,
+      "issues": [],
+      "moment": "portrait",
+      "caption": "示範Coser（飾示範角色甲）身穿黑底紅邊中式服裝、頂著藍色長髮，在戶外中式庭園的石橋階梯上迎面朝鏡頭走來，神情冷峻。（攝影：測試／SnapPipe）",
+      "headline": "示範Coser藍髮黑紅裝走下庭園石橋",
+      "needs_review": false,
+      "review": [],
+      "group_sec": 11.97,
+      "players": [
+        {
+          "team": "plan",
+          "jersey": 0,
+          "name": "示範Coser",
+          "confidence": 0.95,
+          "role": "primary",
+          "box": [
+            0.34,
+            0.43,
+            0.32,
+            0.28
+          ],
+          "verified": true
+        }
+      ]
+    },
+    {
+      "group": "g03",
+      "file": "g03_08.jpg",
+      "ref_stars": 4,
+      "human_pick": false,
+      "score": 9.1,
+      "stars": 5,
+      "pick": true,
+      "rank": 1,
+      "issues": [],
+      "moment": "portrait",
+      "caption": "示範Coser（飾示範角色甲）頂著藍色假髮、身穿黑底紅邊中式服裝，神情冷峻地走在戶外中式庭園的池塘石橋上。（攝影：測試／SnapPipe）",
+      "headline": "示範Coser漫步庭園石橋的颯爽身影",
+      "needs_review": false,
+      "review": [],
+      "group_sec": 11.97,
+      "players": [
+        {
+          "team": "plan",
+          "jersey": 0,
+          "name": "示範Coser",
+          "confidence": 0.96,
+          "role": "primary",
+          "box": [
+            0.32,
+            0.42,
+            0.36,
+            0.28
+          ],
+          "verified": true
+        }
+      ]
+    },
+    {
+      "group": "g04",
+      "file": "g04_01.jpg",
+      "ref_stars": 3,
+      "human_pick": false,
+      "score": 4.59,
+      "stars": 2,
+      "pick": false,
+      "rank": null,
+      "issues": [],
+      "moment": "portrait",
+      "caption": null,
+      "headline": null,
+      "needs_review": null,
+      "review": null,
+      "group_sec": 14.81,
+      "players": null
+    },
+    {
+      "group": "g04",
+      "file": "g04_02.jpg",
+      "ref_stars": 3,
+      "human_pick": false,
+      "score": 5.5,
+      "stars": 3,
+      "pick": false,
+      "rank": null,
+      "issues": [],
+      "moment": "portrait",
+      "caption": null,
+      "headline": null,
+      "needs_review": null,
+      "review": null,
+      "group_sec": 14.81,
+      "players": null
+    },
+    {
+      "group": "g04",
+      "file": "g04_03.jpg",
+      "ref_stars": 3,
+      "human_pick": false,
+      "score": 5.45,
+      "stars": 2,
+      "pick": false,
+      "rank": null,
+      "issues": [],
+      "moment": "portrait",
+      "caption": null,
+      "headline": null,
+      "needs_review": null,
+      "review": null,
+      "group_sec": 14.81,
+      "players": null
+    },
+    {
+      "group": "g04",
+      "file": "g04_04.jpg",
+      "ref_stars": 3,
+      "human_pick": false,
+      "score": 6.35,
+      "stars": 3,
+      "pick": false,
+      "rank": null,
+      "issues": [],
+      "moment": "portrait",
+      "caption": null,
+      "headline": null,
+      "needs_review": null,
+      "review": null,
+      "group_sec": 14.81,
+      "players": null
+    },
+    {
+      "group": "g04",
+      "file": "g04_05.jpg",
+      "ref_stars": 3,
+      "human_pick": false,
+      "score": 7.24,
+      "stars": 4,
+      "pick": true,
+      "rank": 3,
+      "issues": [],
+      "moment": "portrait",
+      "caption": "示範Coser（飾示範角色甲）頂著藍色長髮、身穿黑底紅邊中式服裝，表情嚴肅地走在戶外中式庭園的池塘石橋上。（攝影：測試／SnapPipe）",
+      "headline": "示範Coser漫步中式庭園池畔石橋",
+      "needs_review": false,
+      "review": [],
+      "group_sec": 14.81,
+      "players": [
+        {
+          "team": "plan",
+          "jersey": 0,
+          "name": "示範Coser",
+          "confidence": 0.95,
+          "role": "primary",
+          "box": [
+            0.37,
+            0.24,
+            0.3,
+            0.27
+          ],
+          "verified": true
+        }
+      ]
+    },
+    {
+      "group": "g04",
+      "file": "g04_06.jpg",
+      "ref_stars": 3,
+      "human_pick": false,
+      "score": 8.17,
+      "stars": 4,
+      "pick": true,
+      "rank": 1,
+      "issues": [],
+      "moment": "portrait",
+      "caption": "示範Coser（飾示範角色甲）頂著藍色假髮、身穿黑底紅邊中式服裝，神情嚴肅地走下戶外中式庭園的池塘石橋。（攝影：測試／SnapPipe）",
+      "headline": "示範Coser漫步中式庭園池塘石橋",
+      "needs_review": false,
+      "review": [],
+      "group_sec": 14.81,
+      "players": [
+        {
+          "team": "plan",
+          "jersey": 0,
+          "name": "示範Coser",
+          "confidence": 0.95,
+          "role": "primary",
+          "box": [
+            0.39,
+            0.305,
+            0.31,
+            0.25
+          ],
+          "verified": true
+        }
+      ]
+    },
+    {
+      "group": "g04",
+      "file": "g04_07.jpg",
+      "ref_stars": 3,
+      "human_pick": false,
+      "score": 8.08,
+      "stars": 4,
+      "pick": true,
+      "rank": 2,
+      "issues": [],
+      "moment": "portrait",
+      "caption": "示範Coser（飾示範角色甲）身穿黑底紅邊中式服裝、留著藍色假髮，正神情嚴肅地走在戶外中式庭園的池塘石橋上。（攝影：測試／SnapPipe）",
+      "headline": "示範Coser漫步中式庭園池畔石橋",
+      "needs_review": false,
+      "review": [],
+      "group_sec": 14.81,
+      "players": [
+        {
+          "team": "plan",
+          "jersey": 0,
+          "name": "示範Coser",
+          "confidence": 0.95,
+          "role": "primary",
+          "box": [
+            0.393,
+            0.356,
+            0.415,
+            0.27
+          ],
+          "verified": true
+        }
+      ]
+    },
+    {
+      "group": "g05",
+      "file": "g05_01.jpg",
+      "ref_stars": 5,
+      "human_pick": false,
+      "score": 7.18,
+      "stars": 4,
+      "pick": false,
+      "rank": null,
+      "issues": [],
+      "moment": "portrait",
+      "caption": null,
+      "headline": null,
+      "needs_review": null,
+      "review": null,
+      "group_sec": 8.72,
+      "players": null
+    },
+    {
+      "group": "g05",
+      "file": "g05_02.jpg",
+      "ref_stars": 3,
+      "human_pick": false,
+      "score": 8.98,
+      "stars": 5,
+      "pick": true,
+      "rank": 1,
+      "issues": [],
+      "moment": "portrait",
+      "caption": "示範Coser（飾示範角色甲）側身站在室內中式攝影棚的金色龍紋圓雕前，穿著黑底紅邊中式服裝、戴著藍色假髮與紅色圓形墨鏡，輕手扶著眼鏡擺拍。（攝影：測試／SnapPipe）",
+      "headline": "示範Coser在金色龍紋圓雕前的藍髮側顏",
+      "needs_review": false,
+      "review": [],
+      "group_sec": 8.72,
+      "players": [
+        {
+          "team": "plan",
+          "jersey": 0,
+          "name": "示範Coser",
+          "confidence": 0.96,
+          "role": "primary",
+          "box": [
+            0.225,
+            0.245,
+            0.65,
+            0.755
+          ],
+          "verified": true
+        }
+      ]
+    },
+    {
+      "group": "g05",
+      "file": "g05_03.jpg",
+      "ref_stars": 3,
+      "human_pick": false,
+      "score": 8.61,
+      "stars": 5,
+      "pick": true,
+      "rank": 2,
+      "issues": [],
+      "moment": "portrait",
+      "caption": "示範Coser（飾示範角色甲）側身站在室內金色龍紋圓雕前，戴著紅色圓形墨鏡並以手輕扶鏡框，身穿黑底紅邊中式服裝搭配藍色假髮。（攝影：測試／SnapPipe）",
+      "headline": "示範Coser扶墨鏡側身立於金色龍紋圓雕前",
+      "needs_review": false,
+      "review": [],
+      "group_sec": 8.72,
+      "players": [
+        {
+          "team": "plan",
+          "jersey": 0,
+          "name": "示範Coser",
+          "confidence": 0.96,
+          "role": "primary",
+          "box": [
+            0.229,
+            0.22,
+            0.623,
+            0.78
+          ],
+          "verified": true
+        }
+      ]
+    },
+    {
+      "group": "g06",
+      "file": "g06_01.jpg",
+      "ref_stars": 3,
+      "human_pick": false,
+      "score": 3.32,
+      "stars": 1,
+      "pick": false,
+      "rank": null,
+      "issues": [
+        "out_of_focus"
+      ],
+      "moment": "portrait",
+      "caption": null,
+      "headline": null,
+      "needs_review": null,
+      "review": null,
+      "group_sec": 9.09,
+      "players": null
+    },
+    {
+      "group": "g06",
+      "file": "g06_02.jpg",
+      "ref_stars": 4,
+      "human_pick": false,
+      "score": 7.0,
+      "stars": 4,
+      "pick": false,
+      "rank": null,
+      "issues": [],
+      "moment": "portrait",
+      "caption": null,
+      "headline": null,
+      "needs_review": null,
+      "review": null,
+      "group_sec": 9.09,
+      "players": null
+    },
+    {
+      "group": "g06",
+      "file": "g06_03.jpg",
+      "ref_stars": 4,
+      "human_pick": false,
+      "score": 8.2,
+      "stars": 4,
+      "pick": true,
+      "rank": 3,
+      "issues": [],
+      "moment": "portrait",
+      "caption": "示範Coser（飾示範角色甲）戴著紅色圓形墨鏡、身穿黑底紅邊中式服裝，慵懶地靠坐在室內中式攝影棚的雕花木椅上，背景是金色龍紋圓雕與燈籠，手持長煙管。（攝影：測試／SnapPipe）",
+      "headline": "示範Coser慵懶靠坐金色龍紋圓雕前",
+      "needs_review": false,
+      "review": [],
+      "group_sec": 9.09,
+      "players": [
+        {
+          "team": "plan",
+          "jersey": 0,
+          "name": "示範Coser",
+          "confidence": 0.96,
+          "role": "primary",
+          "box": [
+            0.0,
+            0.21,
+            0.67,
+            0.77
+          ],
+          "verified": true
+        }
+      ]
+    },
+    {
+      "group": "g06",
+      "file": "g06_04.jpg",
+      "ref_stars": 4,
+      "human_pick": false,
+      "score": 8.96,
+      "stars": 5,
+      "pick": true,
+      "rank": 1,
+      "issues": [],
+      "moment": "portrait",
+      "caption": "示範Coser（飾示範角色甲）戴著紅色圓形墨鏡、身穿黑底紅邊中式服裝，手持長煙管慵懶地斜靠在室內中式攝影棚的雕花木椅上，身後是金色龍紋圓雕與燈籠。（攝影：測試／SnapPipe）",
+      "headline": "示範Coser在龍紋金雕前的慵懶倚坐",
+      "needs_review": false,
+      "review": [],
+      "group_sec": 9.09,
+      "players": [
+        {
+          "team": "plan",
+          "jersey": 0,
+          "name": "示範Coser",
+          "confidence": 0.98,
+          "role": "primary",
+          "box": [
+            0.0,
+            0.285,
+            0.675,
+            0.56
+          ],
+          "verified": true
+        }
+      ]
+    },
+    {
+      "group": "g06",
+      "file": "g06_05.jpg",
+      "ref_stars": 5,
+      "human_pick": false,
+      "score": 7.98,
+      "stars": 4,
+      "pick": true,
+      "rank": 2,
+      "issues": [],
+      "moment": "portrait",
+      "caption": "示範Coser（飾示範角色甲）頂著藍色假髮、戴著紅色圓形墨鏡、身穿黑底紅邊中式服裝，手持長煙管慵懶地靠坐在室內中式攝影棚的雕花木椅上，身後是金色龍紋圓雕與燈籠。（攝影：測試／SnapPipe）",
+      "headline": "示範Coser在龍紋金雕前的慵懶倚坐",
+      "needs_review": false,
+      "review": [],
+      "group_sec": 9.09,
+      "players": [
+        {
+          "team": "plan",
+          "jersey": 0,
+          "name": "示範Coser",
+          "confidence": 0.96,
+          "role": "primary",
+          "box": [
+            0.095,
+            0.292,
+            0.59,
+            0.52
+          ],
+          "verified": true
+        }
+      ]
+    }
+  ]
+}

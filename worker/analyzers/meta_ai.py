@@ -154,6 +154,50 @@ DESCRIBE_SCHEMA = {
         "review_reasons": {"type": "array", "items": {"type": "string"}, "maxItems": 5},
     },
 }
+# 一般攝影的圖說（cosplay、人像、活動）：拍攝計劃只當參考，人名由系統依計劃填入
+DESCRIBE_SYSTEM_GENERAL = """You write captions for a photo album (cosplay, portraits, events). Describe the photo in one natural sentence.
+
+Strict rules:
+- List every clearly visible person in "people". If the shoot plan describes people, set "plan" to the index of the
+  person whose costume / look clearly matches; otherwise null. Never guess: similar but not clearly matching = null.
+- NEVER write a person's real name or character name anywhere. In action_sentence and headline refer to people only with
+  placeholders {P0}, {P1}, ... where the number is the index in your people array. The system fills in names.
+- Use words from the shoot plan (props, location, theme) only for things you can actually see in THIS photo.
+  Do not mention anything from the plan that is not visible.
+- Describe pose, expression, costume, props and setting. Decide indoor / outdoor from what you see.
+- box is the person's head and upper body: [x, y, width, height], fractions 0-1 of the image as shown, origin top-left.
+- keywords: visual terms only (costume, props, setting, mood), no names. Up to 10.
+- Set needs_review when you are unsure about anything an editor must check.
+Write action_sentence, headline and keywords in {LANG}.
+Output only JSON that matches the schema."""
+
+DESCRIBE_SCHEMA_GENERAL = {
+    "type": "object",
+    "additionalProperties": False,
+    "required": ["people", "action_sentence", "headline", "keywords", "needs_review", "review_reasons"],
+    "properties": {
+        "people": {
+            "type": "array",
+            "maxItems": 6,
+            "items": {
+                "type": "object",
+                "additionalProperties": False,
+                "required": ["plan", "confidence", "role_in_frame", "box"],
+                "properties": {
+                    "plan": {"type": ["integer", "null"]},
+                    "confidence": {"type": "number", "minimum": 0, "maximum": 1},
+                    "role_in_frame": {"type": "string", "enum": ["primary", "secondary", "background"]},
+                    "box": {"type": "array", "items": {"type": "number"}, "minItems": 4, "maxItems": 4},
+                },
+            },
+        },
+        "action_sentence": {"type": "string", "maxLength": 200},
+        "headline": {"type": "string", "maxLength": 80},
+        "keywords": {"type": "array", "items": {"type": "string"}, "maxItems": 10},
+        "needs_review": {"type": "boolean"},
+        "review_reasons": {"type": "array", "items": {"type": "string"}, "maxItems": 5},
+    },
+}
 LANG_NAME = {"zh": "Traditional Chinese as used in Taiwan", "en": "English (AP style)", "ja": "Japanese"}
 PLACEHOLDER = re.compile(r"\{P(\d+)\}")
 
@@ -187,6 +231,8 @@ class MetaAIAnalyzer(Analyzer):
         self.caption_on = c("CAPTION", "1") == "1"
         self.max_picks = max(1, min(int(c("MAX_PICKS", "3")), 3))
         self.pick_min = float(c("PICK_MIN_SCORE", "4"))
+        # 只替這個星等以上的精選寫圖說（圖說是主要開銷：每張約選片的 5 倍）；0 = 每張精選都寫
+        self.caption_min_stars = int(c("CAPTION_MIN_STARS", "4"))
         self.thresholds = sorted(float(x) for x in c("STAR_THRESHOLDS", "4,5.5,7,8.5").split(","))
         self.review_conf = float(c("REVIEW_CONF", "0.8"))
         self.player_min_conf = float(c("PLAYER_MIN_CONF", "0.7"))
@@ -242,9 +288,10 @@ class MetaAIAnalyzer(Analyzer):
 
         # 階段二：只做選中的幾張，同時送出
         described = {}
-        if self.caption_on and game.captions and not ai_failed:   # 一般攝影預設不寫圖說
-            with cf.ThreadPoolExecutor(max_workers=len(best)) as ex:
-                futs = {ex.submit(self.describe, items[i][0], items[i][1], game, moment): i for i in best}
+        to_describe = [i for i in best if self.stars_of(finals[i]) >= self.caption_min_stars]
+        if self.caption_on and game.captions and not ai_failed and to_describe:   # 一般攝影預設不寫圖說
+            with cf.ThreadPoolExecutor(max_workers=len(to_describe)) as ex:
+                futs = {ex.submit(self.describe, items[i][0], items[i][1], game, moment): i for i in to_describe}
                 for fut in cf.as_completed(futs):
                     i = futs[fut]
                     try:
@@ -312,12 +359,40 @@ class MetaAIAnalyzer(Analyzer):
     def describe(self, path: Path, job: dict, game: Game, moment: str):
         img = load_rgb(path, self.detail_edge)
         lang = LANG_NAME.get(game.lang, LANG_NAME["zh"])
+        if not game.is_sports:
+            facts = [game.subject, f"captured at: {job.get('taken_at') or 'unknown'}",
+                     f"moment type from burst selection: {moment}", "shoot plan:", game.plan_text()]
+            content = [{"type": "text", "text": "\n".join(facts)},
+                       {"type": "image_url", "image_url": {"url": data_url(img, 88)}}]
+            return self.client.chat_json(DESCRIBE_SYSTEM_GENERAL.replace("{LANG}", lang), content,
+                                         DESCRIBE_SCHEMA_GENERAL, "photo_caption", max_tokens=2500)
         facts = [game.context_text() or f"sport: {game.sport}", f"captured at: {job.get('taken_at') or 'unknown'}",
                  f"moment type from burst selection: {moment}", "roster:", game.roster_text()]
         content = [{"type": "text", "text": "Game data:\n" + "\n".join(facts)},
                    {"type": "image_url", "image_url": {"url": data_url(img, 88)}}]
         return self.client.chat_json(DESCRIBE_SYSTEM.replace("{LANG}", lang), content, DESCRIBE_SCHEMA,
                                      "photo_caption", max_tokens=2500)
+
+    def resolve_people(self, d: dict, game: Game, lang: str):
+        """一般攝影：模型回報的計劃編號 → 名字（飾 角色）。回傳格式同 resolve_players。"""
+        refs, players, reasons = [], [], []
+        for n, p in enumerate(d.get("people") or []):
+            if not isinstance(p, dict):
+                refs.append(None)
+                continue
+            idx = p.get("plan") if isinstance(p.get("plan"), int) else None
+            ref = game.plan_ref(idx, lang)
+            conf = float(p.get("confidence") or 0)
+            hit = game.people[idx] if ref else None
+            if hit and conf < self.review_conf and p.get("role_in_frame") != "background":
+                reasons.append(f"{ref} 信心 {conf:.2f}" if lang == "zh" else f"{ref} confidence {conf:.2f}")
+            box = p.get("box")
+            box = tuple(min(max(float(v), 0.0), 1.0) for v in box[:4]) if isinstance(box, list) and len(box) >= 4 else None
+            refs.append(ref)
+            players.append({"n": n, "team": "plan", "jersey": idx if hit else None,
+                            "name": (hit.get("name") or hit.get("character")) if hit else None,
+                            "confidence": round(conf, 2), "role": p.get("role_in_frame"), "box": box, "verified": bool(hit)})
+        return refs, players, reasons
 
     def resolve_players(self, d: dict, game: Game, lang: str):
         """模型回報的 (隊伍, 號碼) → 名單上的姓名。回傳 (顯示用的稱呼, 球員清單, 需人工確認的原因)。"""
@@ -386,11 +461,12 @@ class MetaAIAnalyzer(Analyzer):
         headline = caption = None
         players, people_names, reasons = [], [], []
         if desc and "error" not in desc:
-            refs, plist, reasons = self.resolve_players(desc, game, lang)
+            refs, plist, reasons = (self.resolve_players if game.is_sports else self.resolve_people)(desc, game, lang)
             short = {p["n"]: p["name"] for p in plist if p["name"]}
             action = self.fill(desc.get("action_sentence", ""), refs, lang, person=game.person())
             # 模型違規直接寫了名單上的人名（沒用 {P0} 佔位）→ 要人工確認
-            leaked = [r["name"] for r in game.roster if r["name"] in (desc.get("action_sentence") or "")]
+            known = [r["name"] for r in game.roster] + [v for p in game.people for v in (p.get("name"), p.get("character")) if v]
+            leaked = [x for x in known if x in (desc.get("action_sentence") or "")]
             if leaked:
                 reasons.append(("描述裡出現未經號碼確認的人名：" if lang == "zh" else "name written without jersey check: ")
                                + "、".join(leaked))
@@ -400,8 +476,8 @@ class MetaAIAnalyzer(Analyzer):
             people_names = [p["name"] for p in plist if p["name"]]
             for p in plist:
                 if p["name"] and p["confidence"] >= self.player_min_conf:
-                    players.append(Player(f"{p['team']}:{p['jersey']}", f"#{p['jersey']} {p['name']}", p["box"],
-                                          p["confidence"]))
+                    label = p["name"] if p["team"] == "plan" else f"#{p['jersey']} {p['name']}"
+                    players.append(Player(f"{p['team']}:{p['jersey']}", label, p["box"], p["confidence"]))
             tags += people_names + [str(k) for k in desc.get("keywords") or []][:8]
             reasons += [str(r) for r in desc.get("review_reasons") or []]
             needs_review = bool(desc.get("needs_review")) or bool(reasons)

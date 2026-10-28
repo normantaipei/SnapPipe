@@ -60,7 +60,7 @@ worker 的 `meta_ai` 分析器（`worker/analyzers/meta_ai.py`）呼叫 [Meta Mo
 
 **隱私**：預設用一般方案 `muse-spark-1.3`。**不要用 `-contributor` 方案**：那個方案下 Meta 可以拿你送出的照片與圖說訓練模型（worker 啟動時會警告）。送出的是縮小後的圖（512px / 1536px），不是原圖。
 
-**成本**：依 Meta 公開牌價（每百萬 token 輸入 $1.25、輸出 $4.25），一場籃球約 3,000 張、200 組連拍、300 張精選，實測每場約 US$6（2026-10 用 `muse-spark-1.3` 實測：選片每張約 $0.0013、圖說每張精選約 $0.0066；跨模型比較見 `tests/meta_api/compare.py`）。worker 會把每組的 token 用量記在伺服器的工作結果上，實測後可調 `META_REASONING`、`MAX_PICKS`、`BURST_THUMB_EDGE`。
+**成本**（2026-10 用 `muse-spark-1.3` 實測，Meta 公開牌價每百萬 token 輸入 $1.25、輸出 $4.25）：選片每張約 US$0.0012，圖說每張約 US$0.0075。圖說只替 4、5 星的精選寫（`CAPTION_MIN_STARS`），一般攝影沒寫拍攝計劃就不寫。以一場 3,000 張、300 張精選、其中一半 4 星以上估算：不寫圖說約 US$3.7，寫圖說約 US$4.8，每張精選都寫約 US$6。worker 會把每組的 token 用量記在伺服器的工作結果上；跨模型比較見 `tests/meta_api/compare.py`，可再調 `META_REASONING`、`MAX_PICKS`、`BURST_THUMB_EDGE`。
 
 ## 需求
 
@@ -227,6 +227,7 @@ nano .env                              # SERVER_URL
 | `BURST_GAP_SEC` / `BURST_IDLE_SEC` / `BURST_MAX` | 0.5 / 1.5 / 40 | 連拍分組：間隔、幾秒沒新照片就送出、一組最多幾張 |
 | `CAPTION` / `MAX_PICKS` | 1 / 3 | 是否做階段二；每組最多選幾張 |
 | `PICK_MIN_SCORE` | 4 | 第二、三名精選的最低分；整組都不好時只留第一名 |
+| `CAPTION_MIN_STARS` | 4 | 只替這個星等以上的精選寫圖說（0 = 每張精選都寫） |
 | `REVIEW_CONF` / `PLAYER_MIN_CONF` | 0.8 / 0.7 | 低於前者要人工確認；達到後者才放進「依球員」分組 |
 | `SCORE_WEIGHTS` / `STAR_THRESHOLDS` | `0.65,0.25,0.10` / `4,5.5,7,8.5` | 分數融合權重；1–10 分換成 1–5 星的門檻 |
 | `RATING_OVERWRITE` | 0 | 0 = 相機內評過的星等優先 |
@@ -240,7 +241,8 @@ nano .env                              # SERVER_URL
 
 **兩種模式（自動判斷）**：
 
-- **一般攝影**（預設）：相簿沒有自己的設定檔時用 `default.toml`，裡面沒有賽事、主客隊與名單。AI 依對焦、表情、構圖選片、評星等，**不寫圖說**（也省下圖說的費用）。`setup.sh` 會從 `games/general.toml` 建這份；`[game] subject` 可以寫拍攝題材給 AI 參考，`captions = true` 可以打開一句描述。
+- **一般攝影**（預設）：相簿沒有自己的設定檔時用 `default.toml`，裡面沒有賽事、主客隊與名單。AI 依對焦、表情、構圖選片、評星等，**預設不寫圖說**（省錢）。`setup.sh` 會從 `games/general.toml` 建這份；`[game] subject` 可以寫拍攝題材給 AI 參考。
+- **一般攝影 + 拍攝計劃**（選用）：把 `general.toml` 複製成 `games/<相簿名稱>.toml`，寫 `notes`（道具、場景）與 `[[people]]`（名字、角色、外觀），那本相簿就會寫圖說。AI 只回報「畫面裡的人符合第幾個人的外觀」，名字由系統填入（和體育名單同一個原則，名字不送給 AI）。實測（Saki 30 張）：名字正確 25/26、不會硬套沒出現的人、中式服裝不再被寫成「和風」；道具細節仍要人工確認。
 - **體育**：把 `example.toml` 複製成 `games/<相簿名稱>.toml`、填好賽事（`event`）、主客隊或名單，那本相簿才用體育新聞的標準選片並寫圖說。
 
 舊版安裝把籃球範本直接當成 `default.toml`，導致每本相簿都被寫成那場比賽的圖說；更新時若 `default.toml` 還是範本原樣，會自動換成一般攝影。

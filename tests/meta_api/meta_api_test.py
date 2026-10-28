@@ -261,11 +261,14 @@ def cmd_run(a):
     games = Path(tempfile.mkdtemp(prefix="snappipe-games-"))
     (games / "default.toml").write_text(
         f'[game]\nsport = "{a.sport}"\nlang = "{a.lang}"\ncreator = "測試"\ncredit = "SnapPipe"\ncaptions = true\n'
-        + (f'person = "{a.person}"\n' if a.person else ""), encoding="utf-8")
+        + (f'person = "{a.person}"\n' if a.person else "")
+        + (Path(a.plan).read_text(encoding="utf-8") if a.plan else ""), encoding="utf-8")
     cfg = {"META_API_KEY": key, "META_MODEL": a.model, "META_REASONING": a.reasoning, "GAMES_DIR": str(games),
            "WRITE_IPTC": "0", "CAPTION": "0" if a.stage1_only else "1", "META_TIMEOUT": "180"}
     if a.base:
         cfg["META_API_BASE"] = a.base
+    if a.caption_min_stars != "":
+        cfg["CAPTION_MIN_STARS"] = a.caption_min_stars
     from analyzers.meta_ai import MetaAIAnalyzer
     an = MetaAIAnalyzer(cfg, log=lambda m: log(m))
 
@@ -320,7 +323,8 @@ def cmd_run(a):
     per = [{"group": g["id"], "file": f["file"], "ref_stars": f["ref_stars"], "human_pick": f["file"] in g.get("human_pick", []),
             "score": r.aesthetic, "stars": r.stars, "pick": bool(r.ai.get("pick")), "rank": r.ai.get("rank"),
             "issues": r.ai.get("issues", []), "moment": r.ai.get("moment"), "caption": r.caption, "headline": r.headline,
-            "needs_review": r.ai.get("needs_review"), "review": r.ai.get("review_reasons"), "group_sec": round(sec, 2)}
+            "needs_review": r.ai.get("needs_review"), "review": r.ai.get("review_reasons"), "group_sec": round(sec, 2),
+            "players": r.ai.get("players")}
            for g, res, sec in rows for f, r in zip(g["frames"], res)]
     (out / "results.json").write_text(json.dumps({"model": a.model, "reasoning": a.reasoning, "frames": per},
                                                  ensure_ascii=False, indent=2), encoding="utf-8")
@@ -416,6 +420,8 @@ def main():
     r.add_argument("--sport", default="cosplay portrait photoshoot (one cosplayer)",
                    help="給模型的題材描述（體育照片就填 basketball 之類）")
     r.add_argument("--lang", default="zh")
+    r.add_argument("--caption-min-stars", default="", help="只替這個星等以上的精選寫圖說（預設同 worker：4；0 = 全寫）")
+    r.add_argument("--plan", default="", help="拍攝計劃（TOML 片段：[game] 的 notes 與 [[people]]），接在比賽資料後面")
     r.add_argument("--person", default="", help="認不出名字的人怎麼稱呼（例 \"一名 Coser\"；預設：一名人物）")
     r.add_argument("--max-groups", type=int, default=0)
     r.add_argument("--label", help="這次結果的資料夾名稱（預設時間戳）")

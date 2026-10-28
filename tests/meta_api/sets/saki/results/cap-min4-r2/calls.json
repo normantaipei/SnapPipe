@@ -1,0 +1,130 @@
+[
+  {
+    "name": "burst_selection",
+    "images": 3,
+    "sec": 4.94,
+    "in": 1234,
+    "out": 937,
+    "raw": "{\"best\": [0], \"frames\": [{\"composition\": 4, \"focus\": 6, \"index\": 0, \"issues\": [\"under_exposed\"], \"overall\": 4, \"peak\": 4}, {\"composition\": 3, \"focus\": 4, \"index\": 1, \"issues\": [\"under_exposed\", \"out_of_focus\", \"motion_blur_subject\"], \"overall\": 3, \"peak\": 3}, {\"composition\": 4, \"focus\": 5, \"index\": 2, \"issues\": [\"under_exposed\"], \"overall\": 3, \"peak\": 3}], \"moment\": \"portrait\"}"
+  },
+  {
+    "name": "burst_selection",
+    "images": 4,
+    "sec": 5.45,
+    "in": 1469,
+    "out": 1012,
+    "raw": "{\"best\": [0], \"frames\": [{\"composition\": 5, \"focus\": 3, \"index\": 0, \"issues\": [\"motion_blur_subject\", \"out_of_focus\"], \"overall\": 3, \"peak\": 3}, {\"composition\": 1, \"focus\": 2, \"index\": 1, \"issues\": [\"subject_cropped\", \"face_blocked\"], \"overall\": 1, \"peak\": 1}, {\"composition\": 3, \"focus\": 2, \"index\": 2, \"issues\": [\"motion_blur_subject\", \"out_of_focus\"], \"overall\": 2, \"peak\": 3}, {\"composition\": 4, \"focus\": 4, \"index\": 3, \"issues\": [\"face_blocked\", \"motion_blur_subject\"], \"overall\": 2, \"peak\": 2}], \"moment\": \"portrait\"}"
+  },
+  {
+    "name": "burst_selection",
+    "images": 8,
+    "sec": 5.69,
+    "in": 2409,
+    "out": 1137,
+    "raw": "{\"best\": [7, 6, 5], \"frames\": [{\"composition\": 5.0, \"focus\": 6.0, \"index\": 0, \"issues\": [], \"overall\": 4.0, \"peak\": 4.0}, {\"composition\": 6.0, \"focus\": 6.0, \"index\": 1, \"issues\": [], \"overall\": 5.0, \"peak\": 5.0}, {\"composition\": 6.0, \"focus\": 6.0, \"index\": 2, \"issues\": [], \"overall\": 5.0, \"peak\": 5.0}, {\"composition\": 7.0, \"focus\": 5.0, \"index\": 3, \"issues\": [\"out_of_focus\"], \"overall\": 6.0, \"peak\": 6.0}, {\"composition\": 7.0, \"focus\": 5.0, \"index\": 4, \"issues\": [\"out_of_focus\"], \"overall\": 6.0, \"peak\": 6.0}, {\"composition\": 7.0, \"focus\": 8.0, \"index\": 5, \"issues\": [], \"overall\": 7.0, \"peak\": 7.0}, {\"composition\": 8.0, \"focus\": 8.0, \"index\": 6, \"issues\": [], \"overall\": 8.0, \"peak\": 8.0}, {\"composition\": 9.0, \"focus\": 9.0, \"index\": 7, \"issues\": [], \"overall\": 9.0, \"peak\": 9.0}], \"moment\": \"portrait\"}"
+  },
+  {
+    "name": "photo_caption",
+    "images": 1,
+    "sec": 5.67,
+    "in": 2632,
+    "out": 986,
+    "raw": "{\"action_sentence\":\"{P0}身穿黑底紅邊中式服裝搭配藍色假髮，正神情嚴肅地走在戶外中式庭園的石橋上，身後有涼亭、大樹與池塘。\",\"headline\":\"藍髮古裝漫步庭園石橋\",\"keywords\":[\"藍色假髮\",\"黑底紅邊中式服\",\"石橋\",\"池塘\",\"涼亭\",\"大樹\",\"戶外\",\"古風\"],\"needs_review\":false,\"people\":[{\"box\":[0.34,0.43,0.33,0.25],\"confidence\":0.95,\"plan\":0,\"role_in_frame\":\"primary\"}],\"review_reasons\":[]}"
+  },
+  {
+    "name": "photo_caption",
+    "images": 1,
+    "sec": 6.27,
+    "in": 2632,
+    "out": 1333,
+    "raw": "{\"action_sentence\":\"{P0}頂著藍色假髮、身穿黑底紅邊中式服裝，神情嚴肅地走在戶外中式庭園的池塘石橋上。\",\"headline\":\"藍髮俠客漫步庭園石橋\",\"keywords\":[\"藍色假髮\",\"黑底紅邊中式服裝\",\"池塘石橋\",\"中式庭園\",\"涼亭\",\"老樹\",\"戶外\",\"全身人像\"],\"needs_review\":false,\"people\":[{\"box\":[0.38,0.425,0.27,0.22],\"confidence\":0.95,\"plan\":0,\"role_in_frame\":\"primary\"}],\"review_reasons\":[]}"
+  },
+  {
+    "name": "photo_caption",
+    "images": 1,
+    "sec": 7.92,
+    "in": 2632,
+    "out": 1253,
+    "raw": "{\"action_sentence\": \"{P0}頂著藍色假髮、身穿黑底紅邊中式服裝，神情冷峻地走在戶外中式庭園的池塘石橋上。\",\"headline\": \"{P0}漫步中式庭園石橋的颯爽身姿\",\"keywords\": [\"藍色假髮\", \"黑底紅邊中式服裝\", \"紅色流蘇\", \"石橋\", \"池塘\", \"中式涼亭\", \"老樹\", \"戶外\", \"嚴肅\", \"人像\"],\"needs_review\": false,\"people\": [{\"box\": [0.305, 0.44, 0.395, 0.3], \"confidence\": 0.96, \"plan\": 0, \"role_in_frame\": \"primary\"}],\"review_reasons\": []}"
+  },
+  {
+    "name": "burst_selection",
+    "images": 7,
+    "sec": 6.0,
+    "in": 2174,
+    "out": 1281,
+    "raw": "{\"best\": [5, 4, 6], \"frames\": [{\"composition\": 7.0, \"focus\": 7.0, \"index\": 0, \"issues\": [], \"overall\": 6.0, \"peak\": 6.0}, {\"composition\": 7.0, \"focus\": 7.0, \"index\": 1, \"issues\": [], \"overall\": 6.0, \"peak\": 6.0}, {\"composition\": 7.0, \"focus\": 7.0, \"index\": 2, \"issues\": [], \"overall\": 6.5, \"peak\": 6.0}, {\"composition\": 7.5, \"focus\": 7.0, \"index\": 3, \"issues\": [], \"overall\": 7.0, \"peak\": 7.0}, {\"composition\": 8.0, \"focus\": 7.5, \"index\": 4, \"issues\": [], \"overall\": 7.5, \"peak\": 7.5}, {\"composition\": 8.5, \"focus\": 8.5, \"index\": 5, \"issues\": [], \"overall\": 8.5, \"peak\": 8.0}, {\"composition\": 8.5, \"focus\": 7.0, \"index\": 6, \"issues\": [\"out_of_focus\"], \"overall\": 8.0, \"peak\": 8.0}], \"moment\": \"portrait\"}"
+  },
+  {
+    "name": "photo_caption",
+    "images": 1,
+    "sec": 5.99,
+    "in": 2632,
+    "out": 1206,
+    "raw": "{\"action_sentence\": \"{P0}頂著藍色長髮、身穿黑底紅邊中式服裝，神情冷峻地走下戶外中式庭園的池塘石橋。\",\"headline\": \"{P0}漫步池塘石橋的古風身影\",\"keywords\": [\"藍色假髮\", \"黑底紅邊中式服裝\", \"池塘石橋\", \"中式庭園\", \"涼亭\", \"戶外\", \"古風\", \"老樹\"],\"needs_review\": false,\"people\": [{\"box\": [0.385, 0.335, 0.295, 0.26], \"confidence\": 0.95, \"plan\": 0, \"role_in_frame\": \"primary\"}],\"review_reasons\": []}"
+  },
+  {
+    "name": "photo_caption",
+    "images": 1,
+    "sec": 8.2,
+    "in": 2632,
+    "out": 1656,
+    "raw": "{\"action_sentence\":\"{P0}留著藍色假髮、穿著黑底紅邊的中式服裝，表情嚴肅地走在戶外中式庭園的池塘石橋上。\",\"headline\":\"藍髮 coser 漫步庭園石橋\",\"keywords\":[\"藍色假髮\",\"黑底紅邊中式服裝\",\"石橋\",\"池塘\",\"中式庭園\",\"涼亭\",\"老樹\",\"戶外寫真\"],\"needs_review\":true,\"people\":[{\"box\":[0.375,0.235,0.29,0.25],\"confidence\":0.95,\"plan\":null,\"role_in_frame\":\"primary\"}],\"review_reasons\":[\"未配戴紅色圓形墨鏡，無法完全確認與企劃人物對應\"]}"
+  },
+  {
+    "name": "burst_selection",
+    "images": 3,
+    "sec": 5.29,
+    "in": 1234,
+    "out": 1025,
+    "raw": "{\"best\": [1, 2], \"frames\": [{\"composition\": 6, \"focus\": 7, \"index\": 0, \"issues\": [\"subject_cropped\"], \"overall\": 7, \"peak\": 7}, {\"composition\": 9, \"focus\": 9, \"index\": 1, \"issues\": [], \"overall\": 9, \"peak\": 8}, {\"composition\": 9, \"focus\": 8, \"index\": 2, \"issues\": [], \"overall\": 8, \"peak\": 8}], \"moment\": \"portrait\"}"
+  },
+  {
+    "name": "photo_caption",
+    "images": 1,
+    "sec": 4.57,
+    "in": 2632,
+    "out": 781,
+    "raw": "{\"action_sentence\":\"{P0}頂著藍色假髮、身穿黑底紅邊中式服裝，側身站在室內金色龍紋圓雕前輕扶紅色圓形墨鏡。\",\"headline\":\"藍髮墨鏡室內龍紋前側身肖像\",\"keywords\":[\"藍色假髮\",\"紅色圓形墨鏡\",\"黑底紅邊中式服裝\",\"金色龍紋圓雕\",\"室內攝影棚\",\"側身\",\"耳飾\",\"中式風格\"],\"needs_review\":false,\"people\":[{\"box\":[0.23,0.22,0.57,0.65],\"confidence\":0.96,\"plan\":0,\"role_in_frame\":\"primary\"}],\"review_reasons\":[]}"
+  },
+  {
+    "name": "photo_caption",
+    "images": 1,
+    "sec": 6.18,
+    "in": 2632,
+    "out": 1203,
+    "raw": "{\"action_sentence\": \"{P0}側身站在室內中式攝影棚的金色龍紋圓雕前，戴著紅色圓形墨鏡並輕扶鏡框，身穿黑底圖紋中式服裝、頂著藍色假髮擺拍。\",\"headline\": \"{P0}於金色龍紋圓雕前扶墨鏡側身擺拍\",\"keywords\": [\"藍色假髮\", \"紅色圓形墨鏡\", \"黑底中式服裝\", \"金色龍紋圓雕\", \"室內攝影棚\", \"側身肖像\", \"時尚冷豔\"],\"needs_review\": false,\"people\": [{\"box\": [0.225, 0.243, 0.63, 0.55], \"confidence\": 0.97, \"plan\": 0, \"role_in_frame\": \"primary\"}],\"review_reasons\": []}"
+  },
+  {
+    "name": "burst_selection",
+    "images": 5,
+    "sec": 4.89,
+    "in": 1704,
+    "out": 943,
+    "raw": "{\"best\": [3, 4, 2], \"frames\": [{\"composition\": 7, \"focus\": 5, \"index\": 0, \"issues\": [\"out_of_focus\"], \"overall\": 6, \"peak\": 6}, {\"composition\": 6, \"focus\": 7, \"index\": 1, \"issues\": [], \"overall\": 7, \"peak\": 6}, {\"composition\": 7, \"focus\": 9, \"index\": 2, \"issues\": [\"subject_cropped\"], \"overall\": 8, \"peak\": 8}, {\"composition\": 9, \"focus\": 8, \"index\": 3, \"issues\": [], \"overall\": 9, \"peak\": 9}, {\"composition\": 8, \"focus\": 7, \"index\": 4, \"issues\": [], \"overall\": 8, \"peak\": 8}], \"moment\": \"portrait\"}"
+  },
+  {
+    "name": "photo_caption",
+    "images": 1,
+    "sec": 4.51,
+    "in": 2632,
+    "out": 1007,
+    "raw": "{\"action_sentence\": \"{P0}戴著藍色假髮與紅色圓形墨鏡、身穿黑底紅邊中式服裝，手持長煙管慵懶地靠坐在室內中式攝影棚的雕花木椅上，身後是金色龍紋圓雕與兩盞燈籠。\",\"headline\": \"{P0}室內中式棚景手持煙管的慵懶坐姿\",\"keywords\": [\"藍色假髮\", \"紅色圓形墨鏡\", \"黑色中式服裝\", \"長煙管\", \"金色龍紋圓雕\", \"燈籠\", \"雕花木椅\", \"室內攝影棚\", \"慵懶\", \"中式復古風\"], \"needs_review\": false, \"people\": [{\"box\": [0.09, 0.288, 0.576, 0.49], \"confidence\": 0.96, \"plan\": 0, \"role_in_frame\": \"primary\"}], \"review_reasons\": []}"
+  },
+  {
+    "name": "photo_caption",
+    "images": 1,
+    "sec": 4.52,
+    "in": 2632,
+    "out": 897,
+    "raw": "{\"action_sentence\":\"{P0}頂著藍色假髮、戴著紅色圓形墨鏡，身穿黑底配紅色流蘇的中式服裝，慵懶地靠坐在室內中式攝影棚的雕花木椅上，背景是金色龍紋圓雕與燈籠，手邊拿著長煙管。\",\"headline\":\"{P0}在金色龍紋圓雕前的慵懶倚坐\",\"keywords\":[\"藍色假髮\",\"紅色圓形墨鏡\",\"黑色中式服裝\",\"紅色流蘇\",\"金色龍紋圓雕\",\"燈籠\",\"雕花木椅\",\"室內攝影棚\",\"長煙管\",\"慵懶\"],\"needs_review\":false,\"people\":[{\"box\":[0.0,0.187,0.669,0.813],\"confidence\":0.96,\"plan\":0,\"role_in_frame\":\"primary\"}],\"review_reasons\":[]}"
+  },
+  {
+    "name": "photo_caption",
+    "images": 1,
+    "sec": 5.51,
+    "in": 2632,
+    "out": 1039,
+    "raw": "{\"action_sentence\": \"{P0}戴著紅色圓形墨鏡、穿著黑底紅邊中式服裝，手持長煙管慵懶地靠坐在室內中式攝影棚的雕花木椅上，身後是金色龍紋圓雕與燈籠。\", \"headline\": \"{P0}靠坐龍紋圓雕前手持煙管\", \"keywords\": [\"藍色假髮\", \"紅色圓形墨鏡\", \"黑色中式服裝\", \"長煙管\", \"雕花木椅\", \"金色龍紋圓雕\", \"燈籠\", \"室內攝影棚\", \"中式復古風\", \"慵懶姿態\"], \"needs_review\": false, \"people\": [{\"box\": [0.0, 0.287, 0.653, 0.58], \"confidence\": 0.96, \"plan\": 0, \"role_in_frame\": \"primary\"}], \"review_reasons\": []}"
+  }
+]

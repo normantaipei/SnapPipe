@@ -13,6 +13,11 @@
   - 體育：有寫賽事（event）、主客隊（home / away）或名單 → 用體育新聞的標準選片，並寫圖說
   - 一般攝影：都沒寫（例如 default.toml 只有署名）→ 依對焦、表情、構圖選片、評星等，不寫圖說
     [game] subject 可以描述拍攝題材給 AI 參考（例 "cosplay portrait"）；captions = true 強制寫圖說
+
+拍攝計劃（一般攝影寫圖說時用）：
+  [game] notes = "道具：紅色油紙傘…；地點：中式庭園、室內攝影棚"   ← 只當參考，畫面看得到才會寫
+  [[people]]  name = "Saki"  character = "角色名"  look = "藍色短髮、黑底紅邊中式服裝、紅色圓形墨鏡"
+  模型只回報「畫面裡的人符合第幾個人的外觀」，名字由這裡填入（同名單查表的原則，模型不寫人名）
 """
 
 import csv
@@ -35,8 +40,9 @@ AP_MONTHS = ["Jan.", "Feb.", "March", "April", "May", "June", "July", "Aug.", "S
 
 
 class Game:
-    def __init__(self, album: str, info: dict, roster: list, cameras: dict):
+    def __init__(self, album: str, info: dict, roster: list, cameras: dict, people: list | None = None):
         self.album = album
+        self.people = people or []      # 拍攝計劃裡的人：[{"name", "character", "look"}]
         self.info = info
         self.roster = roster            # [{"team", "jersey", "name", "position"}]
         self.cameras = cameras          # 機身序號（或末幾碼）→ 攝影師
@@ -55,9 +61,12 @@ class Game:
 
     @property
     def captions(self) -> bool:
-        """要不要寫圖說：體育模式預設寫；一般攝影預設不寫（[game] captions = true / false 可以改）。"""
+        """要不要寫圖說：體育模式、或一般攝影有寫拍攝計劃（notes / [[people]]）就寫；
+        其他一般攝影不寫（省錢）。[game] captions = true / false 可以強制。"""
         v = self.info.get("captions")
-        return self.is_sports if v is None else bool(v)
+        if v is not None:
+            return bool(v)
+        return self.is_sports or bool(self.people or self.get("notes"))
 
     @property
     def subject(self) -> str:
@@ -106,6 +115,26 @@ class Game:
                              ", ".join(f"#{p['jersey']} {p['name']}" + (f" ({p['position']})" if p["position"] else "")
                                        for p in ps))
         return "\n".join(lines)
+
+    def plan_text(self) -> str:
+        """給模型的拍攝計劃：人只給角色與外觀（不給本名，避免模型直接寫出來）。"""
+        lines = []
+        if self.get("notes"):
+            lines.append("notes: " + self.get("notes"))
+        for i, p in enumerate(self.people):
+            bits = [f"character: {p['character']}" if p.get("character") else "", f"look: {p['look']}" if p.get("look") else ""]
+            lines.append(f"person {i}: " + "; ".join(b for b in bits if b))
+        return "\n".join(lines) or "(no shoot plan)"
+
+    def plan_ref(self, i: int, lang: str) -> str | None:
+        """計劃裡第 i 個人在圖說裡的寫法：名字（飾 角色）。"""
+        if not isinstance(i, int) or not 0 <= i < len(self.people):
+            return None
+        p = self.people[i]
+        name, ch = p.get("name", ""), p.get("character", "")
+        if lang == "zh":
+            return f"{name}（飾{ch}）" if name and ch else (name or ch or None)
+        return f"{name} as {ch}" if name and ch else (name or ch or None)
 
     def context_text(self) -> str:
         keys = ("sport", "event", "venue", "city", "country", "date", "home", "away", "home_color", "away_color")
@@ -183,7 +212,7 @@ class Games:
         hit = self._cache.get(album)
         if hit and hit[0] == sig:
             return hit[1]
-        info, cameras, roster = {}, {}, []
+        info, cameras, roster, people = {}, {}, [], []
         try:
             if toml:
                 with open(toml, "rb") as f:
@@ -193,11 +222,13 @@ class Games:
                 roster = [{"team": str(p.get("team", "")).lower(), "jersey": int(p["jersey"]), "name": str(p["name"]),
                            "position": str(p.get("position", ""))} for p in d.get("roster", [])
                           if str(p.get("jersey", "")).isdigit() and p.get("name")]
+                people = [{k: str(p.get(k, "")) for k in ("name", "character", "look")}
+                          for p in d.get("people", []) if isinstance(p, dict) and (p.get("name") or p.get("character"))]
             if csv_path.exists():
                 roster = read_roster(csv_path)
         except (OSError, ValueError, KeyError, tomllib.TOMLDecodeError) as e:
             self.log(f"  ⚠ 比賽資料 {toml or csv_path} 讀取失敗：{e}（先用空白資料）")
-        g = Game(album, info, roster, cameras)
+        g = Game(album, info, roster, cameras, people)
         if sig and (not hit or hit[0] != sig):
             self.log(f"  比賽資料 {album}：{g.get('event') or '（無賽事名稱）'}  名單 {len(roster)} 人  "
                      f"相機 {len(cameras)} 台" + ("" if toml is None or toml.stem == album else "（用 default）"))
