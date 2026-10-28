@@ -7,7 +7,7 @@ cd "$(dirname "$0")"
 
 if ! command -v exiftool >/dev/null; then
   if command -v brew >/dev/null; then brew install exiftool
-  elif command -v apt-get >/dev/null; then sudo apt-get install -y libimage-exiftool-perl
+  elif command -v apt-get >/dev/null; then $([ "$(id -u)" = 0 ] || echo sudo) apt-get install -y libimage-exiftool-perl
   else echo "⚠ 找不到 exiftool：無法讀 EXIF。請自行安裝 https://exiftool.org"; fi
 fi
 
