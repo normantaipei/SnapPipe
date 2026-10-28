@@ -102,9 +102,11 @@ class KeySetup:
                 return "meta_ai"
             self.out("  請再輸入一次（直接按 Enter = 不用 AI）")
 
-    def run(self, given: str = "", force_ask: bool = False, no_ai: bool = False):
+    def run(self, given: str = "", force_ask: bool = False, no_ai: bool = False, no_check: bool = False):
         if no_ai:
             return self.disable("指定 --no-ai")
+        if given and no_check:                       # 呼叫端已經驗證過（例：PVE 主機上的 create-lxc.sh）
+            return self.save(given)
         if given:                                    # 自己帶了金鑰
             if self.try_key(given):
                 return "meta_ai"
@@ -140,9 +142,10 @@ def main():
     ap.add_argument("--api-key", default="", help="直接帶金鑰（也可以用環境變數 META_API_KEY）")
     ap.add_argument("--ask", action="store_true", help="不管原本有沒有設，重新詢問")
     ap.add_argument("--no-ai", action="store_true", help="不用 AI，只當普通相簿")
+    ap.add_argument("--no-check", action="store_true", help="帶入的金鑰已經驗證過，直接存")
     a = ap.parse_args()
     given = a.api_key or os.environ.get("META_API_KEY") or os.environ.get("SP_META_API_KEY") or ""
-    KeySetup(Path(a.env), interactive=sys.stdin.isatty()).run(given.strip(), a.ask, a.no_ai)
+    KeySetup(Path(a.env), interactive=sys.stdin.isatty()).run(given.strip(), a.ask, a.no_ai, a.no_check)
 
 
 if __name__ == "__main__":

@@ -19,6 +19,7 @@ while [ $# -gt 0 ]; do
     --api-key=*) export META_API_KEY="${1#*=}"; shift ;;
     --ask-key) KEY_ARGS+=(--ask); shift ;;
     --no-ai) KEY_ARGS+=(--no-ai); shift ;;
+    --no-check) KEY_ARGS+=(--no-check); shift ;;
     -h|--help) sed -n '2,11p' "$(basename "$0")"; exit 0 ;;
     *) echo "不認得的參數：$1（--api-key / --ask-key / --no-ai）"; exit 1 ;;
   esac

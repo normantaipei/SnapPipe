@@ -85,7 +85,7 @@ cd SnapPipe
 | 步驟 | 裝置 | 做什麼 | 確認方式 |
 |---|---|---|---|
 | 1 | 伺服器 | 安裝（§1）；記下印出的上傳 token、裝置 token | 瀏覽器開 `http://<伺服器IP>:8080` 看到首頁；`snappipe-live status` 顯示「即時上傳：開啟」 |
-| 2 | worker | `worker/setup.sh`（會問 Meta API 金鑰並驗證；留空 = 不用 AI），填 `worker/.env` 的 `SERVER_URL`；寫比賽資料（§3） | `worker/worker.sh --status` 印出佇列；`tests/e2e/run.sh` 全部通過 |
+| 2 | worker | 用 §1 安裝法 A 的話已經裝好在同一個 LXC（安裝時就問了 Meta API 金鑰）；裝在 Mac 或別台就跑 `worker/setup.sh`（§3）。寫比賽資料（§3） | `worker/worker.sh --status` 印出佇列；`tests/e2e/run.sh` 全部通過 |
 | 3 | 插卡電腦（選用） | 貼上伺服器印出的 `ingest.sh … --save` 指令（§4） | `ingest/ingest.sh --servers` 顯示連線正常 |
 | 4 | 樹莓派 | 一行安裝（§2），填伺服器網址與裝置 token | `snap_agent.py test` 回 OK；`worker.sh --status` 看得到這台裝置的心跳 |
 | 5 | 全線 | 拍一組連拍 | `/live/<即時碼>` 幾秒內出現照片，再過幾秒補上 ◆ 精選與圖說 |
@@ -101,11 +101,27 @@ cd SnapPipe
 
 裝完會印出 token 與 worker、Pi、插卡電腦要用的設定。重跑即更新，照片、資料庫、token 都保留。設定在 `/etc/snappipe.env`，忘記時在伺服器執行 `snappipe-cmd`。
 
-**安裝法 A（Proxmox Shell 一行，建 LXC 並安裝）**
+**安裝法 A（Proxmox Shell 一行，建 LXC、裝好返圖站與 worker）**
 
 ```bash
 curl -fsSL https://raw.githubusercontent.com/normantaipei/SnapPipe/main/deploy/create-lxc.sh | bash -s -- --install
 ```
+
+一開始會問網站名稱、磁碟大小和 **Meta API 金鑰**（輸入時不顯示，當場向 Meta 驗證、不收費；沒通過會說原因並再問一次；**直接 Enter 留空 = 不用 AI，只當普通相簿**）。問完就不用守在旁邊：建容器、裝返圖站、在同一個容器裝好 worker 並設成開機常駐，全程不用進容器。
+
+不想裝 worker（worker 要放 Mac 或別台）加 `--no-worker`；自動化可以用 `--meta-key <金鑰>` 或 `--no-ai` 免詢問。之後換金鑰、或當初留空現在要開 AI，同樣在 Proxmox Shell 一行：
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/normantaipei/SnapPipe/main/deploy/create-lxc.sh | bash -s -- --set-key --id <容器編號>
+```
+
+更新（返圖站與 worker 一起，金鑰與照片都保留）：
+
+```bash
+pct exec <容器編號> -- bash -c 'curl -fsSL https://raw.githubusercontent.com/normantaipei/SnapPipe/main/bootstrap.sh | bash -s -- --no-prompt'
+```
+
+worker 的記錄：`pct exec <容器編號> -- journalctl -u snappipe-worker -f`。比賽資料放在容器裡的 `/opt/snappipe/src/worker/games/`。
 
 **安裝法 B（現有的 Debian / Ubuntu 機器，以 root 執行）**
 
@@ -167,6 +183,8 @@ curl -fsSL https://raw.githubusercontent.com/normantaipei/SnapPipe/main/agent/bo
 常用指令（`sudo -u snap /opt/snap-agent/.venv/bin/python /opt/snap-agent/snap_agent.py …`）：`status`、`album <相簿>` / `album --clear`、`retry`、`send a.jpg`、`test`。選用的 0.96 吋 SSD1306 OLED 狀態畫面與按鍵，接線見 `agent/display.py` 開頭。
 
 ## 3. worker（Meta AI 處理端）
+
+用 §1 安裝法 A 的話 worker 已經裝在同一個 LXC、設好開機常駐，這節的安裝步驟可以跳過（設定檔在容器裡的 `/opt/snappipe/src/worker/.env`）。worker 要裝在 Mac 或別台機器時：
 
 ```bash
 cd worker && ./setup.sh                # 建 venv、裝 exiftool；建立 .env 與 games/default.toml；問 Meta API 金鑰

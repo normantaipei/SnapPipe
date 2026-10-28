@@ -92,6 +92,9 @@ main() {
 
   # ── 5. 安裝 / 更新返圖站 ────────────────────────────────────
   SNAPPIPE_SRC="$DIR" bash "$DIR/deploy/install.sh" "$@"
+
+  # ── 6. 這台有裝 worker 就一起更新（金鑰設定不變）──────────────
+  bash "$DIR/deploy/install-worker.sh" --update </dev/null || say "⚠ worker 更新失敗：journalctl -u snappipe-worker -n 50"
 }
 
 main "$@"
