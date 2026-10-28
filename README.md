@@ -92,7 +92,7 @@ cd SnapPipe
 
 **比賽當天：**
 
-1. **賽前**：把這場的比賽資料與名單放進 `worker/games/<相簿名稱>.toml / .csv`（相簿名稱預設是拍攝日期，如 `2026_10_30`；或 `worker.sh --set-album pi-1 2026_10_30_hawks` 指定）。`[cameras]` 寫每台機身由誰拍，圖說署名會自動帶入。
+1. **賽前**：要自訂相簿名稱就 `snappipe-live album <名稱>`（不設 = 拍攝日期）。體育比賽把這場的比賽資料與名單放進 `worker/games/<相簿名稱>.toml / .csv`（相簿名稱預設是拍攝日期，如 `2026_10_30`；或 `worker.sh --set-album pi-1 2026_10_30_hawks` 指定）。`[cameras]` 寫每台機身由誰拍，圖說署名會自動帶入。
 2. **開賽**：worker 常駐（systemd / launchd）；Pi 開機自己連、自己傳；圖片編輯開 `/live/<即時碼>`，按「◆ 只看精選」。
 3. **比賽中**：點開精選看圖說草稿；⚠ 的照片先核對姓名；按「複製圖說」貼到發稿系統。下載的 JPG 已經帶 IPTC 圖說、標題、人名、星等。
 4. **賽後**：插卡跑 `ingest/ingest.sh` 補 RAW 與沒傳到的照片（已即時傳過的自動跳過、不重新分析）；`snappipe-live off` 關掉即時上傳。
@@ -146,7 +146,13 @@ fork 的人用環境變數 `SNAPPIPE_GIT`、`SNAPPIPE_REPO` 改成自己的 repo
 snappipe-live off      # Pi 暫停上傳（照片留在卡上）、/live 關閉；返圖頁與插卡上傳照常
 snappipe-live on
 snappipe-live status   # 開關、裝置、佇列、各相簿的返圖 / 即時監看網址
+snappipe-live links    # 固定連結（永遠導到最新相簿）與各相簿的連結
+snappipe-live album Saki外拍_1030        # 所有 Pi 之後拍的照片都進這本（不設 = 拍攝日期）
+snappipe-live album pi-1 Saki外拍_1030   # 只指定一台
+snappipe-live album -                    # 清除，改回拍攝日期；不帶參數 = 列出每台目前的相簿
 ```
+
+相簿名稱：沒指定時用拍攝日期（例 `2026_10_30`）。要自訂就在拍攝前用 `snappipe-live album`（Proxmox：`pct exec <容器編號> -- /usr/local/bin/snappipe-live album <名稱>`），Pi 幾秒內就會改傳到那本；已經在 Pi 上排隊的照片仍進原本的相簿。
 
 Proxmox 上的容器可以 `pct exec <CTID> -- /usr/local/bin/snappipe-live off`；也可以在 worker 那台 `worker/worker.sh --live off|on`。
 

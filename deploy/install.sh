@@ -190,6 +190,7 @@ echo
 echo "② 開拍：照片傳上來就自動建相簿（名稱預設是拍攝日期）。下面兩個連結現在就能用，永遠導到最新的相簿："
 /usr/local/bin/snappipe-live links 2>/dev/null | sed 's/^/ /'
 echo "   之後隨時查（含每本相簿各自的連結）：${P}snappipe-live links"
+echo "   自訂相簿名稱（不設 = 拍攝日期）：${P}snappipe-live album Saki外拍_1030　　改回日期：${P}snappipe-live album -"
 echo
 echo "③ 賽後插卡匯入（Mac 或 Linux，在 SnapPipe 資料夾裡執行；要和伺服器在同一個區網）："
 case "$SNAPPIPE_HINT_INGEST" in
