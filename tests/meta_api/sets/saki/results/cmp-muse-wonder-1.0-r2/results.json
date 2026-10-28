@@ -1,0 +1,610 @@
+{
+  "model": "muse-wonder-1.0",
+  "reasoning": "low",
+  "frames": [
+    {
+      "group": "g01",
+      "file": "g01_01.jpg",
+      "ref_stars": 1,
+      "human_pick": false,
+      "score": 3.65,
+      "stars": 1,
+      "pick": true,
+      "rank": 1,
+      "issues": [
+        "subject_cropped",
+        "eyes_closed",
+        "under_exposed",
+        "subject_cropped"
+      ],
+      "moment": "portrait",
+      "caption": "一名Coser手持紅色油紙傘，站在昏暗的迴廊中側身擺姿勢進行人像外拍。（攝影：測試／SnapPipe）",
+      "headline": "一名Coser迴廊人像外拍",
+      "needs_review": true,
+      "review": [
+        "未提供名單且非體育賽事，無球隊與球衣號碼可辨識"
+      ],
+      "group_sec": 13.63
+    },
+    {
+      "group": "g01",
+      "file": "g01_02.jpg",
+      "ref_stars": 1,
+      "human_pick": false,
+      "score": 1.3,
+      "stars": 1,
+      "pick": false,
+      "rank": null,
+      "issues": [
+        "subject_cropped",
+        "eyes_closed",
+        "under_exposed",
+        "subject_cropped"
+      ],
+      "moment": "portrait",
+      "caption": null,
+      "headline": null,
+      "needs_review": null,
+      "review": null,
+      "group_sec": 13.63
+    },
+    {
+      "group": "g01",
+      "file": "g01_03.jpg",
+      "ref_stars": 1,
+      "human_pick": false,
+      "score": 2.0,
+      "stars": 1,
+      "pick": false,
+      "rank": null,
+      "issues": [
+        "subject_cropped",
+        "eyes_closed",
+        "under_exposed",
+        "subject_cropped"
+      ],
+      "moment": "portrait",
+      "caption": null,
+      "headline": null,
+      "needs_review": null,
+      "review": null,
+      "group_sec": 13.63
+    },
+    {
+      "group": "g02",
+      "file": "g02_01.jpg",
+      "ref_stars": 2,
+      "human_pick": false,
+      "score": 1.24,
+      "stars": 1,
+      "pick": true,
+      "rank": 1,
+      "issues": [
+        "motion_blur_subject",
+        "face_blocked"
+      ],
+      "moment": "portrait",
+      "caption": "一名Coser手持紅色摺扇，站在傳統建築的黃色燈籠旁進行人像拍攝。（攝影：測試／SnapPipe）",
+      "headline": "一名Coser藍髮造型持紅扇於燈籠旁留影",
+      "needs_review": true,
+      "review": [
+        "畫面中的人物略為模糊，且無名單可供核對身分與造型資訊。",
+        "此為角色扮演人像拍攝，非體育賽事畫面，球隊與球衣號碼不適用。"
+      ],
+      "group_sec": 18.1
+    },
+    {
+      "group": "g02",
+      "file": "g02_02.jpg",
+      "ref_stars": 2,
+      "human_pick": false,
+      "score": 1.0,
+      "stars": 1,
+      "pick": false,
+      "rank": null,
+      "issues": [
+        "subject_cropped"
+      ],
+      "moment": "portrait",
+      "caption": null,
+      "headline": null,
+      "needs_review": null,
+      "review": null,
+      "group_sec": 18.1
+    },
+    {
+      "group": "g02",
+      "file": "g02_03.jpg",
+      "ref_stars": 1,
+      "human_pick": false,
+      "score": 1.0,
+      "stars": 1,
+      "pick": false,
+      "rank": null,
+      "issues": [
+        "motion_blur_subject",
+        "subject_cropped"
+      ],
+      "moment": "portrait",
+      "caption": null,
+      "headline": null,
+      "needs_review": null,
+      "review": null,
+      "group_sec": 18.1
+    },
+    {
+      "group": "g02",
+      "file": "g02_04.jpg",
+      "ref_stars": 3,
+      "human_pick": false,
+      "score": 3.45,
+      "stars": 1,
+      "pick": false,
+      "rank": null,
+      "issues": [],
+      "moment": "portrait",
+      "caption": null,
+      "headline": null,
+      "needs_review": null,
+      "review": null,
+      "group_sec": 18.1
+    },
+    {
+      "group": "g03",
+      "file": "g03_01.jpg",
+      "ref_stars": 3,
+      "human_pick": false,
+      "score": 3.34,
+      "stars": 1,
+      "pick": false,
+      "rank": null,
+      "issues": [
+        "subject_cropped"
+      ],
+      "moment": "peak_action",
+      "caption": null,
+      "headline": null,
+      "needs_review": null,
+      "review": null,
+      "group_sec": 15.83
+    },
+    {
+      "group": "g03",
+      "file": "g03_02.jpg",
+      "ref_stars": 3,
+      "human_pick": false,
+      "score": 4.23,
+      "stars": 2,
+      "pick": false,
+      "rank": null,
+      "issues": [
+        "subject_cropped"
+      ],
+      "moment": "peak_action",
+      "caption": null,
+      "headline": null,
+      "needs_review": null,
+      "review": null,
+      "group_sec": 15.83
+    },
+    {
+      "group": "g03",
+      "file": "g03_03.jpg",
+      "ref_stars": 3,
+      "human_pick": false,
+      "score": 4.48,
+      "stars": 2,
+      "pick": false,
+      "rank": null,
+      "issues": [
+        "subject_cropped"
+      ],
+      "moment": "peak_action",
+      "caption": null,
+      "headline": null,
+      "needs_review": null,
+      "review": null,
+      "group_sec": 15.83
+    },
+    {
+      "group": "g03",
+      "file": "g03_04.jpg",
+      "ref_stars": 3,
+      "human_pick": false,
+      "score": 5.22,
+      "stars": 2,
+      "pick": false,
+      "rank": null,
+      "issues": [
+        "subject_cropped"
+      ],
+      "moment": "peak_action",
+      "caption": null,
+      "headline": null,
+      "needs_review": null,
+      "review": null,
+      "group_sec": 15.83
+    },
+    {
+      "group": "g03",
+      "file": "g03_05.jpg",
+      "ref_stars": 3,
+      "human_pick": false,
+      "score": 5.21,
+      "stars": 2,
+      "pick": false,
+      "rank": null,
+      "issues": [
+        "subject_cropped"
+      ],
+      "moment": "peak_action",
+      "caption": null,
+      "headline": null,
+      "needs_review": null,
+      "review": null,
+      "group_sec": 15.83
+    },
+    {
+      "group": "g03",
+      "file": "g03_06.jpg",
+      "ref_stars": 4,
+      "human_pick": false,
+      "score": 6.29,
+      "stars": 3,
+      "pick": true,
+      "rank": 3,
+      "issues": [
+        "subject_cropped"
+      ],
+      "moment": "peak_action",
+      "caption": "一名Coser身穿黑紅漸層服裝站在涼亭旁的石橋階梯上擺姿勢拍照。（攝影：測試／SnapPipe）",
+      "headline": "一名Coser於庭園石橋上進行角色扮演人像外拍",
+      "needs_review": true,
+      "review": [
+        "No roster provided and the subject is a single cosplayer, not a sports player with a visible team or jersey number."
+      ],
+      "group_sec": 15.83
+    },
+    {
+      "group": "g03",
+      "file": "g03_07.jpg",
+      "ref_stars": 4,
+      "human_pick": false,
+      "score": 8.19,
+      "stars": 4,
+      "pick": true,
+      "rank": 2,
+      "issues": [],
+      "moment": "peak_action",
+      "caption": "一名Coser身穿黑紅服裝並戴著藍色假髮，走下涼亭旁的石橋階梯擺出姿勢。（攝影：測試／SnapPipe）",
+      "headline": "一名Coser於公園涼亭旁石橋進行角色扮演外拍",
+      "needs_review": true,
+      "review": [
+        "照片內容為角色扮演人像外拍而非體育賽事，無法判定主客隊與球衣號碼，且名單未提供，均需編輯確認"
+      ],
+      "group_sec": 15.83
+    },
+    {
+      "group": "g03",
+      "file": "g03_08.jpg",
+      "ref_stars": 4,
+      "human_pick": false,
+      "score": 9.1,
+      "stars": 5,
+      "pick": true,
+      "rank": 1,
+      "issues": [],
+      "moment": "peak_action",
+      "caption": "一名Coser身穿藍色假髮與黑紅色服裝走在石橋上進行角色扮演人像拍攝。（攝影：測試／SnapPipe）",
+      "headline": "一名Coser於戶外庭園石橋上進行角色扮演人像拍攝",
+      "needs_review": true,
+      "review": [
+        "Game data is cosplay not sports; no roster provided; person identity and character identity cannot be verified from the image."
+      ],
+      "group_sec": 15.83
+    },
+    {
+      "group": "g04",
+      "file": "g04_01.jpg",
+      "ref_stars": 3,
+      "human_pick": false,
+      "score": 1.0,
+      "stars": 1,
+      "pick": false,
+      "rank": null,
+      "issues": [
+        "subject_cropped",
+        "eyes_closed",
+        "face_blocked"
+      ],
+      "moment": "peak_action",
+      "caption": null,
+      "headline": null,
+      "needs_review": null,
+      "review": null,
+      "group_sec": 18.89
+    },
+    {
+      "group": "g04",
+      "file": "g04_02.jpg",
+      "ref_stars": 3,
+      "human_pick": false,
+      "score": 2.75,
+      "stars": 1,
+      "pick": false,
+      "rank": null,
+      "issues": [
+        "face_blocked",
+        "eyes_closed"
+      ],
+      "moment": "peak_action",
+      "caption": null,
+      "headline": null,
+      "needs_review": null,
+      "review": null,
+      "group_sec": 18.89
+    },
+    {
+      "group": "g04",
+      "file": "g04_03.jpg",
+      "ref_stars": 3,
+      "human_pick": false,
+      "score": 5.1,
+      "stars": 2,
+      "pick": false,
+      "rank": null,
+      "issues": [
+        "eyes_closed"
+      ],
+      "moment": "peak_action",
+      "caption": null,
+      "headline": null,
+      "needs_review": null,
+      "review": null,
+      "group_sec": 18.89
+    },
+    {
+      "group": "g04",
+      "file": "g04_04.jpg",
+      "ref_stars": 3,
+      "human_pick": false,
+      "score": 6.0,
+      "stars": 3,
+      "pick": false,
+      "rank": null,
+      "issues": [
+        "eyes_closed"
+      ],
+      "moment": "peak_action",
+      "caption": null,
+      "headline": null,
+      "needs_review": null,
+      "review": null,
+      "group_sec": 18.89
+    },
+    {
+      "group": "g04",
+      "file": "g04_05.jpg",
+      "ref_stars": 3,
+      "human_pick": false,
+      "score": 6.89,
+      "stars": 3,
+      "pick": true,
+      "rank": 2,
+      "issues": [
+        "eyes_closed"
+      ],
+      "moment": "peak_action",
+      "caption": "一名Coser站在池畔石橋上面對鏡頭擺出角色扮演造型。（攝影：測試／SnapPipe）",
+      "headline": "一名Coser於池畔石橋角色扮演外拍",
+      "needs_review": true,
+      "review": [
+        "非體育賽事畫面：無球隊、球衣號碼或名單可供辨識",
+        "僅能依畫面描述角色扮演外拍，需編輯確認人物與角色身分"
+      ],
+      "group_sec": 18.89
+    },
+    {
+      "group": "g04",
+      "file": "g04_06.jpg",
+      "ref_stars": 3,
+      "human_pick": false,
+      "score": 8.82,
+      "stars": 5,
+      "pick": true,
+      "rank": 1,
+      "issues": [],
+      "moment": "peak_action",
+      "caption": "一名Coser身穿黑紅服裝、頭戴藍色長髮，沿著池塘旁的石橋階梯向下走。（攝影：測試／SnapPipe）",
+      "headline": "一名Coser於涼亭石橋前進行角色扮演外拍",
+      "needs_review": true,
+      "review": [
+        "Game data indicates cosplay portrait photoshoot with no roster provided, so identity, character, and team/jersey information cannot be verified from the image.",
+        "team and jersey are not applicable or not visible; jersey set to null."
+      ],
+      "group_sec": 18.89
+    },
+    {
+      "group": "g04",
+      "file": "g04_07.jpg",
+      "ref_stars": 3,
+      "human_pick": false,
+      "score": 4.93,
+      "stars": 2,
+      "pick": true,
+      "rank": 3,
+      "issues": [
+        "motion_blur_subject",
+        "eyes_closed"
+      ],
+      "moment": "peak_action",
+      "caption": "一名Coser穿著黑紅服裝、戴著藍色假髮走下池畔石橋階梯擺姿勢。（攝影：測試／SnapPipe）",
+      "headline": "一名Coser戶外角色扮演人像外拍",
+      "needs_review": true,
+      "review": [
+        "非體育賽事畫面，無球衣號碼與主客隊資訊，且無選手名單可供對照"
+      ],
+      "group_sec": 18.89
+    },
+    {
+      "group": "g05",
+      "file": "g05_01.jpg",
+      "ref_stars": 5,
+      "human_pick": false,
+      "score": 4.93,
+      "stars": 2,
+      "pick": false,
+      "rank": null,
+      "issues": [
+        "subject_cropped",
+        "motion_blur_subject"
+      ],
+      "moment": "portrait",
+      "caption": null,
+      "headline": null,
+      "needs_review": null,
+      "review": null,
+      "group_sec": 15.66
+    },
+    {
+      "group": "g05",
+      "file": "g05_02.jpg",
+      "ref_stars": 3,
+      "human_pick": false,
+      "score": 9.1,
+      "stars": 5,
+      "pick": true,
+      "rank": 1,
+      "issues": [],
+      "moment": "portrait",
+      "caption": "一名Coser戴著紅色圓形眼鏡並以手輕觸鏡框，在金色龍紋圓形背景前側身擺姿勢。（攝影：測試／SnapPipe）",
+      "headline": "一名Coser藍髮造型側身人像",
+      "needs_review": true,
+      "review": [
+        "Game data indicates cosplay portrait photoshoot with no roster provided, so identity, team and jersey number cannot be determined from the image.",
+        "The subject is not in a sports uniform and no jersey number is visible."
+      ],
+      "group_sec": 15.66
+    },
+    {
+      "group": "g05",
+      "file": "g05_03.jpg",
+      "ref_stars": 3,
+      "human_pick": false,
+      "score": 7.41,
+      "stars": 4,
+      "pick": false,
+      "rank": null,
+      "issues": [
+        "subject_cropped"
+      ],
+      "moment": "portrait",
+      "caption": null,
+      "headline": null,
+      "needs_review": null,
+      "review": null,
+      "group_sec": 15.66
+    },
+    {
+      "group": "g06",
+      "file": "g06_01.jpg",
+      "ref_stars": 3,
+      "human_pick": false,
+      "score": 4.17,
+      "stars": 2,
+      "pick": false,
+      "rank": null,
+      "issues": [
+        "subject_cropped"
+      ],
+      "moment": "portrait",
+      "caption": null,
+      "headline": null,
+      "needs_review": null,
+      "review": null,
+      "group_sec": 22.38
+    },
+    {
+      "group": "g06",
+      "file": "g06_02.jpg",
+      "ref_stars": 4,
+      "human_pick": false,
+      "score": 5.1,
+      "stars": 2,
+      "pick": false,
+      "rank": null,
+      "issues": [
+        "subject_cropped"
+      ],
+      "moment": "portrait",
+      "caption": null,
+      "headline": null,
+      "needs_review": null,
+      "review": null,
+      "group_sec": 22.38
+    },
+    {
+      "group": "g06",
+      "file": "g06_03.jpg",
+      "ref_stars": 4,
+      "human_pick": false,
+      "score": 6.3,
+      "stars": 3,
+      "pick": true,
+      "rank": 2,
+      "issues": [
+        "subject_cropped"
+      ],
+      "moment": "portrait",
+      "caption": "一名Coser戴著紅色圓形墨鏡、身穿黑色服裝，坐在金色龍紋裝飾前擺姿勢拍照。（攝影：測試／SnapPipe）",
+      "headline": "一名Coser在龍紋背景前進行角色扮演人像拍攝",
+      "needs_review": true,
+      "review": [
+        "No roster provided; person must not be named",
+        "Image is a cosplay portrait, not a sports action photo; team and jersey are not applicable"
+      ],
+      "group_sec": 22.38
+    },
+    {
+      "group": "g06",
+      "file": "g06_04.jpg",
+      "ref_stars": 4,
+      "human_pick": false,
+      "score": 7.06,
+      "stars": 4,
+      "pick": false,
+      "rank": null,
+      "issues": [
+        "subject_cropped"
+      ],
+      "moment": "portrait",
+      "caption": null,
+      "headline": null,
+      "needs_review": null,
+      "review": null,
+      "group_sec": 22.38
+    },
+    {
+      "group": "g06",
+      "file": "g06_05.jpg",
+      "ref_stars": 5,
+      "human_pick": false,
+      "score": 7.63,
+      "stars": 4,
+      "pick": true,
+      "rank": 1,
+      "issues": [
+        "eyes_closed"
+      ],
+      "moment": "portrait",
+      "caption": "一名Coser戴著紅色圓形墨鏡、頂著藍色長假髮，身穿黑色紅邊服裝坐在木椅上，右手持長桿擺拍。（攝影：測試／SnapPipe）",
+      "headline": "一名Coser藍髮紅鏡造型人像擺拍",
+      "needs_review": true,
+      "review": [
+        "roster未提供且非球賽畫面，無法確認身分與隊伍編號，僅能以服裝特徵描述",
+        "畫面無可辨識球衣號碼"
+      ],
+      "group_sec": 22.38
+    }
+  ]
+}

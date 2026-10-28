@@ -1,0 +1,598 @@
+{
+  "model": "muse-spark-1.2",
+  "reasoning": "low",
+  "frames": [
+    {
+      "group": "g01",
+      "file": "g01_01.jpg",
+      "ref_stars": 1,
+      "human_pick": false,
+      "score": 3.75,
+      "stars": 1,
+      "pick": true,
+      "rank": 1,
+      "issues": [
+        "face_blocked",
+        "face_blocked",
+        "face_blocked"
+      ],
+      "moment": "portrait",
+      "caption": "一名Coser手持紅色摺扇傘佇立於昏暗的拱形廊道中。（攝影：測試／SnapPipe）",
+      "headline": "一名Coser持紅傘佇立幽暗古廊道",
+      "needs_review": false,
+      "review": [],
+      "group_sec": 12.44
+    },
+    {
+      "group": "g01",
+      "file": "g01_02.jpg",
+      "ref_stars": 1,
+      "human_pick": false,
+      "score": 2.05,
+      "stars": 1,
+      "pick": false,
+      "rank": null,
+      "issues": [
+        "face_blocked"
+      ],
+      "moment": "portrait",
+      "caption": null,
+      "headline": null,
+      "needs_review": null,
+      "review": null,
+      "group_sec": 12.44
+    },
+    {
+      "group": "g01",
+      "file": "g01_03.jpg",
+      "ref_stars": 1,
+      "human_pick": false,
+      "score": 3.0,
+      "stars": 1,
+      "pick": false,
+      "rank": null,
+      "issues": [
+        "face_blocked"
+      ],
+      "moment": "portrait",
+      "caption": null,
+      "headline": null,
+      "needs_review": null,
+      "review": null,
+      "group_sec": 12.44
+    },
+    {
+      "group": "g02",
+      "file": "g02_01.jpg",
+      "ref_stars": 2,
+      "human_pick": false,
+      "score": 1.0,
+      "stars": 1,
+      "pick": true,
+      "rank": 1,
+      "issues": [
+        "motion_blur_subject",
+        "face_blocked",
+        "subject_cropped"
+      ],
+      "moment": "portrait",
+      "caption": "一名Coser手持紅色摺扇站在傳統建築廊道中進行人像拍攝。（攝影：測試／SnapPipe）",
+      "headline": "一名Coser於古式廊道手持紅扇拍攝人像寫真",
+      "needs_review": true,
+      "review": [
+        "影像呈動態模糊影響清晰度"
+      ],
+      "group_sec": 13.63
+    },
+    {
+      "group": "g02",
+      "file": "g02_02.jpg",
+      "ref_stars": 2,
+      "human_pick": false,
+      "score": 1.0,
+      "stars": 1,
+      "pick": false,
+      "rank": null,
+      "issues": [
+        "subject_cropped",
+        "face_blocked",
+        "motion_blur_subject"
+      ],
+      "moment": "portrait",
+      "caption": null,
+      "headline": null,
+      "needs_review": null,
+      "review": null,
+      "group_sec": 13.63
+    },
+    {
+      "group": "g02",
+      "file": "g02_03.jpg",
+      "ref_stars": 1,
+      "human_pick": false,
+      "score": 1.0,
+      "stars": 1,
+      "pick": false,
+      "rank": null,
+      "issues": [
+        "motion_blur_subject",
+        "face_blocked",
+        "subject_cropped",
+        "out_of_focus"
+      ],
+      "moment": "portrait",
+      "caption": null,
+      "headline": null,
+      "needs_review": null,
+      "review": null,
+      "group_sec": 13.63
+    },
+    {
+      "group": "g02",
+      "file": "g02_04.jpg",
+      "ref_stars": 3,
+      "human_pick": false,
+      "score": 1.0,
+      "stars": 1,
+      "pick": false,
+      "rank": null,
+      "issues": [
+        "motion_blur_subject",
+        "face_blocked",
+        "subject_cropped"
+      ],
+      "moment": "portrait",
+      "caption": null,
+      "headline": null,
+      "needs_review": null,
+      "review": null,
+      "group_sec": 13.63
+    },
+    {
+      "group": "g03",
+      "file": "g03_01.jpg",
+      "ref_stars": 3,
+      "human_pick": false,
+      "score": 4.24,
+      "stars": 2,
+      "pick": false,
+      "rank": null,
+      "issues": [
+        "subject_cropped"
+      ],
+      "moment": "portrait",
+      "caption": null,
+      "headline": null,
+      "needs_review": null,
+      "review": null,
+      "group_sec": 20.86
+    },
+    {
+      "group": "g03",
+      "file": "g03_02.jpg",
+      "ref_stars": 3,
+      "human_pick": false,
+      "score": 4.48,
+      "stars": 2,
+      "pick": false,
+      "rank": null,
+      "issues": [
+        "subject_cropped"
+      ],
+      "moment": "portrait",
+      "caption": null,
+      "headline": null,
+      "needs_review": null,
+      "review": null,
+      "group_sec": 20.86
+    },
+    {
+      "group": "g03",
+      "file": "g03_03.jpg",
+      "ref_stars": 3,
+      "human_pick": false,
+      "score": 5.13,
+      "stars": 2,
+      "pick": false,
+      "rank": null,
+      "issues": [
+        "subject_cropped"
+      ],
+      "moment": "portrait",
+      "caption": null,
+      "headline": null,
+      "needs_review": null,
+      "review": null,
+      "group_sec": 20.86
+    },
+    {
+      "group": "g03",
+      "file": "g03_04.jpg",
+      "ref_stars": 3,
+      "human_pick": false,
+      "score": 3.07,
+      "stars": 1,
+      "pick": false,
+      "rank": null,
+      "issues": [
+        "out_of_focus"
+      ],
+      "moment": "portrait",
+      "caption": null,
+      "headline": null,
+      "needs_review": null,
+      "review": null,
+      "group_sec": 20.86
+    },
+    {
+      "group": "g03",
+      "file": "g03_05.jpg",
+      "ref_stars": 3,
+      "human_pick": false,
+      "score": 3.06,
+      "stars": 1,
+      "pick": false,
+      "rank": null,
+      "issues": [
+        "out_of_focus"
+      ],
+      "moment": "portrait",
+      "caption": null,
+      "headline": null,
+      "needs_review": null,
+      "review": null,
+      "group_sec": 20.86
+    },
+    {
+      "group": "g03",
+      "file": "g03_06.jpg",
+      "ref_stars": 4,
+      "human_pick": false,
+      "score": 7.94,
+      "stars": 4,
+      "pick": true,
+      "rank": 3,
+      "issues": [],
+      "moment": "portrait",
+      "caption": "一名Coser身穿黑色與紅色漸層服飾走在公園石橋上進行角色扮演人像拍攝。（攝影：測試／SnapPipe）",
+      "headline": "一名Coser於公園石橋上進行角色扮演寫真拍攝",
+      "needs_review": false,
+      "review": [],
+      "group_sec": 20.86
+    },
+    {
+      "group": "g03",
+      "file": "g03_07.jpg",
+      "ref_stars": 4,
+      "human_pick": false,
+      "score": 8.84,
+      "stars": 5,
+      "pick": true,
+      "rank": 2,
+      "issues": [],
+      "moment": "portrait",
+      "caption": "一名Coser身穿黑紅色系服裝走在庭園石橋上進行肖像拍攝。（攝影：測試／SnapPipe）",
+      "headline": "一名Coser於庭園石橋上進行角色扮演肖像拍攝",
+      "needs_review": false,
+      "review": [],
+      "group_sec": 20.86
+    },
+    {
+      "group": "g03",
+      "file": "g03_08.jpg",
+      "ref_stars": 4,
+      "human_pick": false,
+      "score": 9.75,
+      "stars": 5,
+      "pick": true,
+      "rank": 1,
+      "issues": [],
+      "moment": "portrait",
+      "caption": "一名Coser身穿黑紅相間服裝走在戶外庭園的石橋上進行人像拍攝。（攝影：測試／SnapPipe）",
+      "headline": "一名Coser於戶外庭園石橋上進行角色扮演人像拍攝",
+      "needs_review": false,
+      "review": [],
+      "group_sec": 20.86
+    },
+    {
+      "group": "g04",
+      "file": "g04_01.jpg",
+      "ref_stars": 3,
+      "human_pick": false,
+      "score": 3.59,
+      "stars": 1,
+      "pick": false,
+      "rank": null,
+      "issues": [
+        "subject_cropped",
+        "subject_cropped"
+      ],
+      "moment": "peak_action",
+      "caption": null,
+      "headline": null,
+      "needs_review": null,
+      "review": null,
+      "group_sec": 13.33
+    },
+    {
+      "group": "g04",
+      "file": "g04_02.jpg",
+      "ref_stars": 3,
+      "human_pick": false,
+      "score": 4.25,
+      "stars": 2,
+      "pick": false,
+      "rank": null,
+      "issues": [
+        "subject_cropped"
+      ],
+      "moment": "peak_action",
+      "caption": null,
+      "headline": null,
+      "needs_review": null,
+      "review": null,
+      "group_sec": 13.33
+    },
+    {
+      "group": "g04",
+      "file": "g04_03.jpg",
+      "ref_stars": 3,
+      "human_pick": false,
+      "score": 4.45,
+      "stars": 2,
+      "pick": false,
+      "rank": null,
+      "issues": [
+        "subject_cropped"
+      ],
+      "moment": "peak_action",
+      "caption": null,
+      "headline": null,
+      "needs_review": null,
+      "review": null,
+      "group_sec": 13.33
+    },
+    {
+      "group": "g04",
+      "file": "g04_04.jpg",
+      "ref_stars": 3,
+      "human_pick": false,
+      "score": 5.35,
+      "stars": 2,
+      "pick": false,
+      "rank": null,
+      "issues": [
+        "subject_cropped"
+      ],
+      "moment": "peak_action",
+      "caption": null,
+      "headline": null,
+      "needs_review": null,
+      "review": null,
+      "group_sec": 13.33
+    },
+    {
+      "group": "g04",
+      "file": "g04_05.jpg",
+      "ref_stars": 3,
+      "human_pick": false,
+      "score": 6.24,
+      "stars": 3,
+      "pick": true,
+      "rank": 3,
+      "issues": [
+        "subject_cropped"
+      ],
+      "moment": "peak_action",
+      "caption": "一名Coser身著黑紅漸層古裝在庭園石橋上向前行走。（攝影：測試／SnapPipe）",
+      "headline": "一名Coser身著藍髮古風服飾於庭園小橋取景拍攝",
+      "needs_review": false,
+      "review": [],
+      "group_sec": 13.33
+    },
+    {
+      "group": "g04",
+      "file": "g04_06.jpg",
+      "ref_stars": 3,
+      "human_pick": false,
+      "score": 8.17,
+      "stars": 4,
+      "pick": true,
+      "rank": 2,
+      "issues": [],
+      "moment": "peak_action",
+      "caption": "一名Coser身穿黑紅配色古風服飾走下公園石橋的階梯。（攝影：測試／SnapPipe）",
+      "headline": "一名Coser古風角色扮演公園石橋外拍",
+      "needs_review": true,
+      "review": [
+        "cosplay_portrait_not_a_sport_no_team_or_jersey"
+      ],
+      "group_sec": 13.33
+    },
+    {
+      "group": "g04",
+      "file": "g04_07.jpg",
+      "ref_stars": 3,
+      "human_pick": false,
+      "score": 7.98,
+      "stars": 4,
+      "pick": true,
+      "rank": 1,
+      "issues": [
+        "subject_cropped"
+      ],
+      "moment": "peak_action",
+      "caption": "一名Coser身穿黑紅相間服裝走在公園池塘邊的石橋上。（攝影：測試／SnapPipe）",
+      "headline": "一名Coser化身藍髮角色漫步庭園石橋",
+      "needs_review": false,
+      "review": [],
+      "group_sec": 13.33
+    },
+    {
+      "group": "g05",
+      "file": "g05_01.jpg",
+      "ref_stars": 5,
+      "human_pick": false,
+      "score": 3.1,
+      "stars": 1,
+      "pick": false,
+      "rank": null,
+      "issues": [
+        "over_exposed",
+        "face_blocked",
+        "face_blocked"
+      ],
+      "moment": "portrait",
+      "caption": null,
+      "headline": null,
+      "needs_review": null,
+      "review": null,
+      "group_sec": 13.15
+    },
+    {
+      "group": "g05",
+      "file": "g05_02.jpg",
+      "ref_stars": 3,
+      "human_pick": false,
+      "score": 6.45,
+      "stars": 3,
+      "pick": true,
+      "rank": 1,
+      "issues": [
+        "face_blocked",
+        "face_blocked"
+      ],
+      "moment": "portrait",
+      "caption": "一名Coser在金色龍紋圓形雕飾前側身輕扶紅色太陽眼鏡擺拍肖像。（攝影：測試／SnapPipe）",
+      "headline": "一名Coser藍髮紅鏡肖像寫真",
+      "needs_review": true,
+      "review": [
+        "cosplay_portrait_non_sport_no_roster_requires_team_jersey_null_placeholder"
+      ],
+      "group_sec": 13.15
+    },
+    {
+      "group": "g05",
+      "file": "g05_03.jpg",
+      "ref_stars": 3,
+      "human_pick": false,
+      "score": 6.41,
+      "stars": 3,
+      "pick": false,
+      "rank": null,
+      "issues": [
+        "face_blocked",
+        "face_blocked"
+      ],
+      "moment": "portrait",
+      "caption": null,
+      "headline": null,
+      "needs_review": null,
+      "review": null,
+      "group_sec": 13.15
+    },
+    {
+      "group": "g06",
+      "file": "g06_01.jpg",
+      "ref_stars": 3,
+      "human_pick": false,
+      "score": 1.0,
+      "stars": 1,
+      "pick": false,
+      "rank": null,
+      "issues": [
+        "out_of_focus",
+        "motion_blur_subject",
+        "under_exposed",
+        "face_blocked"
+      ],
+      "moment": "portrait",
+      "caption": null,
+      "headline": null,
+      "needs_review": null,
+      "review": null,
+      "group_sec": 12.87
+    },
+    {
+      "group": "g06",
+      "file": "g06_02.jpg",
+      "ref_stars": 4,
+      "human_pick": false,
+      "score": 4.6,
+      "stars": 2,
+      "pick": false,
+      "rank": null,
+      "issues": [
+        "under_exposed",
+        "subject_cropped",
+        "subject_cropped",
+        "subject_cropped"
+      ],
+      "moment": "portrait",
+      "caption": null,
+      "headline": null,
+      "needs_review": null,
+      "review": null,
+      "group_sec": 12.87
+    },
+    {
+      "group": "g06",
+      "file": "g06_03.jpg",
+      "ref_stars": 4,
+      "human_pick": false,
+      "score": 4.55,
+      "stars": 2,
+      "pick": true,
+      "rank": 3,
+      "issues": [
+        "subject_cropped",
+        "subject_cropped",
+        "subject_cropped",
+        "face_blocked"
+      ],
+      "moment": "portrait",
+      "caption": "一名Coser戴著紅色墨鏡、身穿黑色中式服裝坐在木椅上於金色龍紋圓形雕飾前擺拍。（攝影：測試／SnapPipe）",
+      "headline": "一名Coser以藍色假髮與中式服裝在龍紋背景前進行寫真拍攝",
+      "needs_review": true,
+      "review": [
+        "unverified_identity_team_roster",
+        "generic_cosplay_portrait_no_sport_action"
+      ],
+      "group_sec": 12.87
+    },
+    {
+      "group": "g06",
+      "file": "g06_04.jpg",
+      "ref_stars": 4,
+      "human_pick": false,
+      "score": 8.06,
+      "stars": 4,
+      "pick": true,
+      "rank": 2,
+      "issues": [],
+      "moment": "portrait",
+      "caption": "一名Coser身穿黑色中式服裝、戴著紅色墨鏡，手持長煙管倚靠在木椅上擺拍肖像。（攝影：測試／SnapPipe）",
+      "headline": "一名Coser以藍髮中式造型手持煙管拍攝肖像",
+      "needs_review": false,
+      "review": [],
+      "group_sec": 12.87
+    },
+    {
+      "group": "g06",
+      "file": "g06_05.jpg",
+      "ref_stars": 5,
+      "human_pick": false,
+      "score": 8.88,
+      "stars": 5,
+      "pick": true,
+      "rank": 1,
+      "issues": [],
+      "moment": "portrait",
+      "caption": "一名Coser身著黑色中式服裝、戴著紅色墨鏡與藍色假髮，手持長菸桿斜倚在木製座椅上擺出姿勢。（攝影：測試／SnapPipe）",
+      "headline": "一名Coser扮中式造型持菸桿擺拍肖像",
+      "needs_review": false,
+      "review": [],
+      "group_sec": 12.87
+    }
+  ]
+}

@@ -1,0 +1,138 @@
+[
+  {
+    "name": "burst_selection",
+    "images": 3,
+    "sec": 6.92,
+    "in": 953,
+    "out": 713,
+    "raw": "{\"best\": [0], \"frames\": [{\"composition\": 6, \"focus\": 6, \"index\": 0, \"issues\": [\"subject_cropped\", \"eyes_closed\", \"under_exposed\", \"subject_cropped\"], \"overall\": 6, \"peak\": 5}, {\"composition\": 5, \"focus\": 4, \"index\": 1, \"issues\": [\"subject_cropped\", \"eyes_closed\", \"under_exposed\", \"subject_cropped\"], \"overall\": 3, \"peak\": 4}, {\"composition\": 5, \"focus\": 5, \"index\": 2, \"issues\": [\"subject_cropped\", \"eyes_closed\", \"under_exposed\", \"subject_cropped\"], \"overall\": 4, \"peak\": 4}], \"moment\": \"portrait\"}"
+  },
+  {
+    "name": "photo_caption",
+    "images": 1,
+    "sec": 6.46,
+    "in": 2270,
+    "out": 719,
+    "raw": "{\"action_sentence\": \"{P0}手持紅色油紙傘，站在昏暗的迴廊中側身擺姿勢進行人像外拍。\", \"headline\": \"{P0}迴廊人像外拍\", \"keywords\": [\"角色扮演\", \"人像攝影\", \"外拍\", \"擺姿勢\", \"油紙傘\", \"迴廊\"], \"needs_review\": true, \"players\": [{\"box\": [0.725, 0.193, 0.17, 0.3], \"confidence\": 0.85, \"jersey\": null, \"role_in_frame\": \"primary\", \"team\": \"unknown\"}] , \"review_reasons\": [\"未提供名單且非體育賽事，無球隊與球衣號碼可辨識\"]}"
+  },
+  {
+    "name": "burst_selection",
+    "images": 4,
+    "sec": 9.72,
+    "in": 1188,
+    "out": 1208,
+    "raw": "{\"best\":  [0], \"frames\": [{\"composition\": 6, \"focus\": 3, \"index\": 0, \"issues\": [\"motion_blur_subject\", \"face_blocked\"], \"overall\": 4, \"peak\": 5}, {\"composition\": 1, \"focus\": 2, \"index\": 1, \"issues\": [\"subject_cropped\"], \"overall\": 1, \"peak\": 2}, {\"composition\": 5, \"focus\": 2, \"index\": 2, \"issues\": [\"motion_blur_subject\", \"subject_cropped\"], \"overall\": 3, \"peak\": 4}, {\"composition\": 7, \"focus\": 2, \"index\": 3, \"issues\": [], \"overall\": 3, \"peak\": 2}], \"moment\": \"portrait\"}"
+  },
+  {
+    "name": "photo_caption",
+    "images": 1,
+    "sec": 8.07,
+    "in": 2270,
+    "out": 681,
+    "raw": "{\"action_sentence\": \"{P0} 手持紅色摺扇，站在傳統建築的黃色燈籠旁進行人像拍攝。\", \"headline\": \"{P0} 藍髮造型持紅扇於燈籠旁留影\", \"keywords\": [\"角色扮演\", \"人像攝影\", \"肖像\", \"摺扇\", \"燈籠\", \"傳統建築\", \"擺拍\"], \"needs_review\": true, \"players\": [{\"box\": [0.58, 0.285, 0.175, 0.55], \"confidence\": 0.72, \"jersey\": null, \"role_in_frame\": \"primary\", \"team\": \"unknown\"}] \t, \"review_reasons\": [\"畫面中的人物略為模糊，且無名單可供核對身分與造型資訊。\", \"此為角色扮演人像拍攝，非體育賽事畫面，球隊與球衣號碼不適用。\"]}"
+  },
+  {
+    "name": "burst_selection",
+    "images": 8,
+    "sec": 6.23,
+    "in": 2128,
+    "out": 766,
+    "raw": "{\"best\": [7, 6, 5], \"frames\": [{\"composition\": 5, \"focus\": 4, \"index\": 0, \"issues\": [\"subject_cropped\"], \"overall\": 4, \"peak\": 3}, {\"composition\": 5, \"focus\": 5, \"index\": 1, \"issues\": [\"subject_cropped\"], \"overall\": 5, \"peak\": 4}, {\"composition\": 6, \"focus\": 5, \"index\": 2, \"issues\": [\"subject_cropped\"], \"overall\": 5, \"peak\": 5}, {\"composition\": 6, \"focus\": 5, \"index\": 3, \"issues\": [\"subject_cropped\"], \"overall\": 6, \"peak\": 6}, {\"composition\": 6, \"focus\": 5, \"index\": 4, \"issues\": [\"subject_cropped\"], \"overall\": 6, \"peak\": 6}, {\"composition\": 7, \"focus\": 8, \"index\": 5, \"issues\": [\"subject_cropped\"], \"overall\": 7, \"peak\": 7}, {\"composition\": 8, \"focus\": 8, \"index\": 6, \"issues\": [], \"overall\": 8, \"peak\": 8}, {\"composition\": 9, \"focus\": 9, \"index\": 7, \"issues\": [], \"overall\": 9, \"peak\": 9}], \"moment\": \"peak_action\"}"
+  },
+  {
+    "name": "photo_caption",
+    "images": 1,
+    "sec": 6.42,
+    "in": 2271,
+    "out": 819,
+    "raw": "{\"action_sentence\": \"{P0} 身穿黑紅服裝並戴著藍色假髮，走下涼亭旁的石橋階梯擺出姿勢。\", \"headline\": \"{P0} 於公園涼亭旁石橋進行角色扮演外拍\", \"keywords\": [\"角色扮演\", \"外拍\", \"人像攝影\", \"擺姿勢\", \"走階梯\"], \"needs_review\": true, \"players\": [{\"box\": [0.339, 0.404, 0.3, 0.31], \"confidence\": 0.86, \"jersey\": null, \"role_in_frame\": \"primary\", \"team\": \"unknown\"}] \t, \"review_reasons\": [\"照片內容為角色扮演人像外拍而非體育賽事，無法判定主客隊與球衣號碼，且名單未提供，均需編輯確認\"]}"
+  },
+  {
+    "name": "photo_caption",
+    "images": 1,
+    "sec": 6.82,
+    "in": 2271,
+    "out": 651,
+    "raw": "{\"action_sentence\": \"{P0} 身穿黑紅漸層服裝站在涼亭旁的石橋階梯上擺姿勢拍照。\", \"headline\": \"{P0} 於庭園石橋上進行角色扮演人像外拍\", \"keywords\": [\"角色扮演\", \"人像外拍\", \"擺姿勢\", \"石橋\", \"庭園\", \"藍色假髮\"], \"needs_review\": true, \"players\": [{\"box\": [0.365, 0.405, 0.295, 0.315], \"confidence\": 0.9, \"jersey\": null, \"role_in_frame\": \"primary\", \"team\": \"unknown\"}] \t, \"review_reasons\": [\"No roster provided and the subject is a single cosplayer, not a sports player with a visible team or jersey number.\"]}"
+  },
+  {
+    "name": "photo_caption",
+    "images": 1,
+    "sec": 9.02,
+    "in": 2271,
+    "out": 802,
+    "raw": "{\"action_sentence\": \"{P0} 身穿藍色假髮與黑紅色服裝走在石橋上進行角色扮演人像拍攝。\", \"headline\": \"{P0} 於戶外庭園石橋上進行角色扮演人像拍攝\", \"keywords\": [\"角色扮演\", \"人像拍攝\", \"戶外拍攝\", \"擺姿勢\", \"行走\", \"全身造型\"], \"needs_review\": true, \"players\": [{\"box\": [0.35, 0.43, 0.32, 0.36], \"confidence\": 0.82, \"jersey\": null, \"role_in_frame\": \"primary\", \"team\": \"unknown\"}]  , \"review_reasons\": [\"Game data is cosplay not sports; no roster provided; person identity and character identity cannot be verified from the image.\"]}"
+  },
+  {
+    "name": "burst_selection",
+    "images": 7,
+    "sec": 9.15,
+    "in": 1893,
+    "out": 847,
+    "raw": "{\"best\":  [5, 4, 6], \"frames\": [{\"composition\": 6, \"focus\": 4, \"index\": 0, \"issues\": [\"subject_cropped\", \"eyes_closed\", \"face_blocked\"], \"overall\": 4, \"peak\": 3}, {\"composition\": 6, \"focus\": 5, \"index\": 1, \"issues\": [\"face_blocked\", \"eyes_closed\"], \"overall\": 5, \"peak\": 4}, {\"composition\": 7, \"focus\": 6, \"index\": 2, \"issues\": [\"eyes_closed\"], \"overall\": 6, \"peak\": 5}, {\"composition\": 7, \"focus\": 7, \"index\": 3, \"issues\": [\"eyes_closed\"], \"overall\": 7, \"peak\": 6}, {\"composition\": 8, \"focus\": 8, \"index\": 4, \"issues\": [\"eyes_closed\"], \"overall\": 8, \"peak\": 7}, {\"composition\": 9, \"focus\": 9, \"index\": 5, \"issues\": [], \"overall\": 9, \"peak\": 8}, {\"composition\": 8, \"focus\": 6, \"index\": 6, \"issues\": [\"motion_blur_subject\", \"eyes_closed\"], \"overall\": 7, \"peak\": 8}], \"moment\": \"peak_action\"}"
+  },
+  {
+    "name": "photo_caption",
+    "images": 1,
+    "sec": 6.51,
+    "in": 2271,
+    "out": 713,
+    "raw": "{\"action_sentence\": \"{P0}站在池畔石橋上面對鏡頭擺出角色扮演造型。\", \"headline\": \"{P0}於池畔石橋角色扮演外拍\", \"keywords\": [\"角色扮演\", \"外拍\", \"人像攝影\", \"石橋\", \"造型\", \"擺拍\"], \"needs_review\": true, \"players\": [{\"box\": [0.4, 0.23, 0.3, 0.35], \"confidence\": 0.85, \"jersey\": null, \"role_in_frame\": \"primary\", \"team\": \"unknown\"}]  , \"review_reasons\": [\"非體育賽事畫面：無球隊、球衣號碼或名單可供辨識\", \"僅能依畫面描述角色扮演外拍，需編輯確認人物與角色身分\"]}"
+  },
+  {
+    "name": "photo_caption",
+    "images": 1,
+    "sec": 8.88,
+    "in": 2271,
+    "out": 810,
+    "raw": "{\"action_sentence\": \"{P0}身穿黑紅服裝、頭戴藍色長髮，沿著池塘旁的石橋階梯向下走。\", \"headline\": \"{P0}於涼亭石橋前進行角色扮演外拍\", \"keywords\": [\"角色扮演\", \"外拍\", \"人像攝影\", \"石橋\", \"涼亭\", \"階梯\", \"擺拍\"], \"needs_review\": true, \"players\": [{\"box\": [0.41, 0.294, 0.3, 0.33], \"confidence\": 0.9, \"jersey\": null, \"role_in_frame\": \"primary\", \"team\": \"unknown\"} ], \"review_reasons\": [\"Game data indicates cosplay portrait photoshoot with no roster provided, so identity, character, and team/jersey information cannot be verified from the image.\", \"team and jersey are not applicable or not visible; jersey set to null.\"]}"
+  },
+  {
+    "name": "photo_caption",
+    "images": 1,
+    "sec": 9.23,
+    "in": 2271,
+    "out": 844,
+    "raw": "{\"action_sentence\": \"{P0} 穿著黑紅服裝、戴著藍色假髮走下池畔石橋階梯擺姿勢。\", \"headline\": \"{P0} 戶外角色扮演人像外拍\", \"keywords\": [\"角色扮演\", \"人像攝影\", \"外拍\", \"擺姿勢\", \"走下階梯\"], \"needs_review\": true, \"players\": [{\"box\": [0.42, 0.338, 0.4, 0.35], \"confidence\": 0.9, \"jersey\": null, \"role_in_frame\": \"primary\", \"team\": \"unknown\"}] , \"review_reasons\": [\"非體育賽事畫面，無球衣號碼與主客隊資訊，且無選手名單可供對照\"]}"
+  },
+  {
+    "name": "burst_selection",
+    "images": 3,
+    "sec": 7.53,
+    "in": 953,
+    "out": 781,
+    "raw": "{\"best\": [1], \"frames\": [{\"composition\": 6, \"focus\": 7, \"index\": 0, \"issues\": [\"subject_cropped\", \"motion_blur_subject\"], \"overall\": 7, \"peak\": 8}, {\"composition\": 9, \"focus\": 10, \"index\": 1, \"issues\": [], \"overall\": 9, \"peak\": 9}, {\"composition\": 7, \"focus\": 9, \"index\": 2, \"issues\": [\"subject_cropped\"], \"overall\": 8, \"peak\": 9}], \"moment\": \"portrait\"}"
+  },
+  {
+    "name": "photo_caption",
+    "images": 1,
+    "sec": 7.85,
+    "in": 2270,
+    "out": 806,
+    "raw": "{\"action_sentence\": \"{P0} 戴著紅色圓形眼鏡並以手輕觸鏡框，在金色龍紋圓形背景前側身擺姿勢。\", \"headline\": \"{P0} 藍髮造型側身人像\", \"keywords\": [\"角色扮演\", \"人像攝影\", \"擺姿勢\", \"側身\", \"藍髮\", \"眼鏡\", \"龍紋背景\"], \"needs_review\": true, \"players\": [{\"box\": [0.22, 0.221, 0.59, 0.779], \"confidence\": 0.85, \"jersey\": null, \"role_in_frame\": \"primary\", \"team\": \"unknown\"}] , \"review_reasons\": [\"Game data indicates cosplay portrait photoshoot with no roster provided, so identity, team and jersey number cannot be determined from the image.\", \"The subject is not in a sports uniform and no jersey number is visible.\"]}"
+  },
+  {
+    "name": "burst_selection",
+    "images": 5,
+    "sec": 12.59,
+    "in": 1423,
+    "out": 1263,
+    "raw": "{\"best\": [4, 2], \"frames\": [{\"composition\": 6, \"focus\": 4, \"index\": 0, \"issues\": [\"subject_cropped\"], \"overall\": 5, \"peak\": 6}, {\"composition\": 5, \"focus\": 6, \"index\": 1, \"issues\": [\"subject_cropped\"], \"overall\": 6, \"peak\": 6}, {\"composition\": 5, \"focus\": 9, \"index\": 2, \"issues\": [\"subject_cropped\"], \"overall\": 7, \"peak\": 7}, {\"composition\": 7, \"focus\": 8, \"index\": 3, \"issues\": [\"subject_cropped\"], \"overall\": 8, \"peak\": 8}, {\"composition\": 9, \"focus\": 7, \"index\": 4, \"issues\": [\"eyes_closed\"], \"overall\": 9, \"peak\": 8}], \"moment\": \"portrait\"}"
+  },
+  {
+    "name": "photo_caption",
+    "images": 1,
+    "sec": 9.23,
+    "in": 2270,
+    "out": 791,
+    "raw": "{\"action_sentence\": \"{P0}戴著紅色圓形墨鏡、身穿黑色服裝，坐在金色龍紋裝飾前擺姿勢拍照。\", \"headline\": \"{P0}在龍紋背景前進行角色扮演人像拍攝\", \"keywords\": [\"角色扮演\", \"人像攝影\", \"擺姿勢\", \"藍色假髮\", \"紅色墨鏡\", \"傳統裝飾\"], \"needs_review\": true, \"players\": [{\"box\": [0.0, 0.15, 0.66, 0.85], \"confidence\": 0.9, \"jersey\": null, \"role_in_frame\": \"primary\", \"team\": \"unknown\"}] \t, \"review_reasons\": [\"No roster provided; person must not be named\", \"Image is a cosplay portrait, not a sports action photo; team and jersey are not applicable\"]}"
+  },
+  {
+    "name": "photo_caption",
+    "images": 1,
+    "sec": 9.4,
+    "in": 2270,
+    "out": 839,
+    "raw": "{\"action_sentence\": \"{P0} 戴著紅色圓形墨鏡、頂著藍色長假髮，身穿黑色紅邊服裝坐在木椅上，右手持長桿擺拍。\", \"headline\": \"{P0} 藍髮紅鏡造型人像擺拍\", \"keywords\": [\"角色扮演\", \"人像攝影\", \"擺拍\", \"肖像\", \"藍色假髮\", \"紅色墨鏡\", \"道具\"], \"needs_review\": true, \"players\": [{\"box\": [0.045, 0.264, 0.609, 0.556], \"confidence\": 0.85, \"jersey\": null, \"role_in_frame\": \"primary\", \"team\": \"home\"}] \t, \"review_reasons\": [\"roster未提供且非球賽畫面，無法確認身分與隊伍編號，僅能以服裝特徵描述\", \"畫面無可辨識球衣號碼\"] }"
+  }
+]

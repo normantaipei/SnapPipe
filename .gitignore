@@ -1,0 +1,63 @@
+# 機密與本機設定
+.env
+*.env
+!.env.example
+
+# 環境與建置產物
+.venv/
+__pycache__/
+node_modules/
+web/dist/
+dist/
+
+# 執行時資料（照片、資料庫）
+server/data/
+*.db
+*.db-wal
+*.db-shm
+
+# 照片一律不進 repo
+*.jpg
+*.jpeg
+*.JPG
+*.JPEG
+*.heic
+*.HEIC
+*.png
+*.arw
+*.ARW
+*.cr2
+*.CR2
+*.cr3
+*.CR3
+*.nef
+*.NEF
+*.raf
+*.RAF
+*.dng
+*.DNG
+*.orf
+*.rw2
+*.xmp
+
+.DS_Store
+
+# 伺服器設定（含 token）
+ingest/servers/
+
+# 比賽資料（名單、署名）只留在本機；範本例外
+worker/games/*
+!worker/games/example.toml
+!worker/games/example.csv
+
+# 即時路徑：worker 與 Pi 的本機狀態
+worker/.env
+worker/models/
+worker/.venv/
+agent/.venv/
+agent/*.toml
+!agent/config.example.toml
+*.part
+
+# Meta API 實測：照片只留在本機（上面的 *.jpg 規則也會擋），manifest 與結果可以進 repo
+tests/meta_api/sets/*/images/

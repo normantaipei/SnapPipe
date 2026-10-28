@@ -1,0 +1,154 @@
+[
+  {
+    "name": "burst_selection",
+    "images": 3,
+    "sec": 3.7,
+    "in": 953,
+    "out": 453,
+    "raw": "{\"best\": [0], \"frames\": [{\"composition\": 6, \"focus\": 8, \"index\": 0, \"issues\": [\"subject_cropped\", \"under_exposed\"], \"overall\": 7, \"peak\": 7}, {\"composition\": 4, \"focus\": 4, \"index\": 1, \"issues\": [\"subject_cropped\", \"face_blocked\", \"face_blocked\", \"under_exposed\", \"subject_cropped\", \"subject_cropped\"], \"overall\": 3, \"peak\": 3}, {\"composition\": 4, \"focus\": 4, \"index\": 2, \"issues\": [\"subject_cropped\", \"face_blocked\", \"under_exposed\", \"subject_cropped\"], \"overall\": 3, \"peak\": 3}], \"moment\": \"portrait\"}"
+  },
+  {
+    "name": "photo_caption",
+    "images": 1,
+    "sec": 5.37,
+    "in": 2270,
+    "out": 742,
+    "raw": "{\"action_sentence\": \"{P0}\\u624b\\u6301\\u7d05\\u8272\\u646f\\u6247\\u8d70\\u5728\\u50b3\\u7d71\\u5efa\\u7bc9\\u7684\\u9ed1\\u6697\\u5eca\\u9053\\u4e2d\\u3002\", \"headline\": \"{P0}\\u5728\\u53e4\\u5f0f\\u5eca\\u9053\\u6301\\u7d05\\u6247\\u6a21\\u7279\\u5beb\\u771f\", \"keywords\": [\"\\u89d2\\u8272\\u626e\\u6f14\", \"\\u5beb\\u771f\", \"\\u4eba\\u50cf\", \"\\u6a21\\u7279\", \"\\u646f\\u6247\", \"\\u53e4\\u98a8\", \"\\u5eca\\u9053\"], \"needs_review\": false, \"players\": [{\"box\": [740, 252, 162, 381], \"confidence\": 0.92, \"jersey\": null, \"role_in_frame\": \"primary\", \"team\": \"home\"}] , \"review_reasons\": []}"
+  },
+  {
+    "name": "burst_selection",
+    "images": 4,
+    "sec": 5.18,
+    "in": 1188,
+    "out": 1122,
+    "raw": "{\"best\":  [0, 3], \"frames\": [\n  {\"composition\": 4, \"focus\": 3, \"index\": 0, \"issues\": [\"motion_blur_subject\", \"face_blocked\", \"face_blocked\", \"subject_cropped\"], \"overall\": 3, \"peak\": 3},\n  {\"composition\": 1, \"focus\": 2, \"index\": 1, \"issues\": [\"subject_cropped\", \"subject_cropped\", \"subject_cropped\", \"face_blocked\", \"subject_cropped\", \"subject_cropped\"], \"overall\": 1, \"peak\": 1},\n  {\"composition\": 3, \"focus\": 1, \"index\": 2, \"issues\": [\"motion_blur_subject\", \"motion_blur_subject\", \"face_blocked\", \"face_blocked\", \"face_blocked\"], \"overall\": 2, \"peak\": 3},\n  {\"composition\": 3, \"focus\": 7, \"index\": 3, \"issues\": [\"face_blocked\", \"subject_cropped\", \"face_blocked\", \"face_blocked\"], \"overall\": 3, \"peak\": 2}\n], \"moment\": \"portrait\"}"
+  },
+  {
+    "name": "photo_caption",
+    "images": 1,
+    "sec": 5.03,
+    "in": 2270,
+    "out": 876,
+    "raw": "{\"action_sentence\":\"{P0} 在傳統建築廊道中手持紅色摺扇擺姿勢拍攝人像\",\"headline\":\"{P0} 手持紅色摺扇在古式建築前進行角色扮演人像拍攝\",\"keywords\":[\"角色扮演\",\"Cosplay\",\"人像攝影\",\"寫真\",\"摺扇\",\"古風服飾\",\"擺拍\"],\"needs_review\":true,\"players\":[{\"box\":[0.578,0.327,0.183,0.523],\"confidence\":0.82,\"jersey\":null,\"role_in_frame\":\"primary\",\"team\":\"home\"}] \t,\"review_reasons\":[\"cosplay_portrait_not_sport_context\",\"image_blur_motions\",\"no_roster_name_rule\"]}"
+  },
+  {
+    "name": "burst_selection",
+    "images": 8,
+    "sec": 5.42,
+    "in": 2128,
+    "out": 1906,
+    "raw": "{\n  \"best\":  [7, 6, 5],\n  \"frames\": [\n    {\n      \"composition\": 6,\n      \"focus\": 5,\n      \"index\": 0,\n      \"issues\": [\"subject_cropped\",\n        \"subject_cropped\",\n        \"subject_cropped\",\n        \"subject_cropped\",\n        \"subject_cropped\",\n        \"subject_cropped\",\n        \"subject_cropped\",\n        \"subject_cropped\",\n        \"subject_cropped\",\n        \"subject_cropped\",\n        \"subject_cropped\",\n        \"subject_cropped\",\n        \"subject_cropped\",\n        \"subject_cropped\",\n        \"subject_cropped\",\n        \"subject_cropped\",\n        \"subject_cropped\",\n        \"subject_cropped\",\n        \"subject_cropped\",\n        \"subject_cropped\",\n        \"subject_cropped\",\n        \"subject_cropped\",\n        \"subject_cropped\",\n        \"subject_cropped\",\n        \"subject_cropped\"\n      ],\n      \"overall\": 4,\n      \"peak\": 3\n    },\n    {\n      \"composition\": 6,\n      \"focus\": 5,\n      \"index\": 1,\n      \"issues\": [\"subject_cropped\",\n        \"subject_cropped\",\n        \"subject_cropped\",\n        \"subject_cropped\",\n        \"subject_cropped\",\n        \"subject_cropped\",\n        \"subject_cropped\",\n        \"subject_cropped\",\n        \"subject_cropped\"\n      ],\n      \"overall\": 5,\n      \"peak\": 4\n    },\n    {\n      \"composition\": 7,\n      \"focus\": 6,\n      \"index\": 2,\n      \"issues\": [\"subject_cropped\",\n        \"subject_cropped\",\n        \"subject_cropped\",\n        \"subject_cropped\",\n        \"subject_cropped\",\n        \"subject_cropped\",\n        \"subject_cropped\",\n        \"subject_cropped\",\n        \"subject_cropped\",\n        \"subject_cropped\",\n        \"subject_cropped\",\n        \"subject_cropped\",\n        \"subject_cropped\",\n        \"subject_cropped\",\n        \"subject_cropped\",\n        \"subject_cropped\",\n        \"subject_cropped\",\n        \"subject_cropped\",\n        \"subject_cropped\",\n        \"subject_cropped\",\n        \"subject_cropped\",\n        \"subject_cropped\",\n        \"subject_cropped\",\n        \"subject_cropped\",\n        \"subject_cropped\"\n      ],\n      \"overall\": 5,\n      \"peak\": 5\n    },\n    {\n      \"composition\": 7,\n      \"focus\": 4,\n      \"index\": 3,\n      \"issues\": [\"subject_cropped\",\n        \"subject_cropped\",\n        \"subject_cropped\",\n        \"subject_cropped\",\n        \"subject_cropped\",\n        \"subject_cropped\",\n        \"subject_cropped\",\n        \"subject_cropped\",\n        \"subject_cropped\",\n        \"subject_cropped\",\n        \"subject_cropped\",\n        \"subject_cropped\",\n        \"subject_cropped\",\n        \"subject_cropped\",\n        \"subject_cropped\"\n      ],\n      \"overall\": 5,\n      \"peak\": 5\n    },\n    {\n      \"composition\": 7,\n      \"focus\": 4,\n      \"index\": 4,\n      \"issues\": [\"subject_cropped\",\n        \"subject_cropped\",\n        \"subject_cropped\",\n        \"subject_cropped\",\n        \"subject_cropped\",\n        \"subject_cropped\"\n      ],\n      \"overall\": 5,\n      \"peak\": 5\n    },\n    {\n      \"composition\": 8,\n      \"focus\": 8,\n      \"index\": 5,\n      \"issues\": [\"subject_cropped\",\n        \"subject_cropped\",\n        \"subject_cropped\",\n        \"subject_cropped\",\n        \"subject_cropped\",\n        \"subject_cropped\",\n        \"subject_cropped\",\n        \"subject_cropped\",\n        \"subject_cropped\",\n        \"subject_cropped\",\n        \"subject_cropped\",\n        \"subject_cropped\",\n        \"subject_cropped\",\n        \"subject_cropped\",\n        \"subject_cropped\"\n      ],\n      \"overall\": 7,\n      \"peak\": 6\n    },\n    {\n      \"composition\": 8,\n      \"focus\": 9,\n      \"index\": 6,\n      \"issues\": [\"subject_cropped\",\n        \"subject_cropped\",\n        \"subject_cropped\",\n        \"subject_cropped\",\n        \"subject_cropped\",\n        \"subject_cropped\",\n        \"subject_cropped\",\n        \"subject_cropped\",\n        \"subject_cropped\",\n        \"subject_cropped\",\n        \"subject_cropped\",\n        \"subject_cropped\",\n        \"subject_cropped\",\n        \"subject_cropped\",\n        \"subject_cropped\",\n        \"subject_cropped\",\n        \"subject_cropped\",\n        \"subject_cropped\",\n        \"subject_cropped\",\n        \"subject_cropped\",\n        \"subject_cropped\",\n        \"subject_cropped\",\n        \"subject_cropped\",\n        \"subject_cropped\",\n        \"subject_cropped\",\n        \"subject_cropped\",\n        \"subject_cropped\",\n        \"subject_cropped\",\n        \"subject_cropped\",\n        \"subject_cropped\"\n      ],\n      \"overall\": 8,\n      \"peak\": 7\n    },\n    {\n      \"composition\": 9,\n      \"focus\": 10,\n      \"index\": 7,\n      \"issues\": [\"subject_cropped\",\n        \"subject_cropped\",\n        \"subject_cropped\",\n        \"subject_cropped\",\n        \"subject_cropped\",\n        \"subject_cropped\",\n        \"subject_cropped\",\n        \"subject_cropped\",\n        \"subject_cropped\",\n        \"subject_cropped\",\n        \"subject_cropped\",\n        \"subject_cropped\",\n        \"subject_cropped\",\n        \"subject_cropped\",\n        \"subject_cropped\",\n        \"subject_cropped\",\n        \"subject_cropped\",\n        \"subject_cropped\",\n        \"subject_cropped\",\n        \"subject_cropped\",\n        \"subject_cropped\",\n        \"subject_cropped\",\n        \"subject_cropped\",\n        \"subject_cropped\",\n        \"subject_cropped\",\n        \"subject_cropped\",\n        \"subject_cropped\",\n        \"subject_cropped\",\n        \"subject_cropped\",\n        \"subject_cropped\"\n      ],\n      \"overall\": 9,\n      \"peak\": 9\n    }\n  ],\n  \"moment\": \"portrait\"\n}"
+  },
+  {
+    "name": "photo_caption",
+    "images": 1,
+    "sec": 4.98,
+    "in": 2270,
+    "out": 926,
+    "raw": "{\"action_sentence\": \"{P0}身穿黑紅漸層服裝走在庭園石橋上進行人像寫真拍攝\", \"headline\": \"{P0}在戶外庭園石橋上進行角色扮演寫真拍攝\", \"keywords\": [\"角色扮演\", \"外拍\", \"寫真\", \"人像攝影\", \"和風\", \"藍色假髮\", \"公園\", \"石橋\"], \"needs_review\": false, \"players\": [{\"box\": [415, 384, 195, 195], \"confidence\": 0.93, \"jersey\": null, \"role_in_frame\": \"primary\", \"team\": \"home\"} ]   , \"review_reasons\": []}"
+  },
+  {
+    "name": "photo_caption",
+    "images": 1,
+    "sec": 5.02,
+    "in": 2270,
+    "out": 751,
+    "raw": "{\"action_sentence\": \"{P0}身穿黑色旗袍式服裝搭配藍色假髮走在公園石橋上擺拍。\",\"headline\": \"{P0}Cosplay外拍造型亮相\",\"keywords\": [\"Cosplay\", \"角色扮演\", \"外拍\", \"人像寫真\", \"制服\", \"假髮造型\"],\"needs_review\": false,\"players\": [{\"box\": [0.325, 0.407, 0.37, 0.27], \"confidence\": 0.95, \"jersey\": null, \"role_in_frame\": \"primary\", \"team\": \"home\"}] ,\"review_reasons\": []}"
+  },
+  {
+    "name": "photo_caption",
+    "images": 1,
+    "sec": 5.11,
+    "in": 2270,
+    "out": 788,
+    "raw": "{\"action_sentence\": \"{P0}身著黑紅相間的長袍在公園石橋上行走擺拍。\",\"headline\": \"{P0}在戶外進行角色扮演人像拍攝\",\"keywords\": [\"Cosplay\", \"角色扮演\", \"人像外拍\", \"寫真\", \"服裝\", \"假髮造型\"],\"needs_review\": false,\"players\": [{\"box\": [320, 375, 380, 320], \"confidence\": 0.95, \"jersey\": null, \"role_in_frame\": \"primary\", \"team\": \"home\"} ] ,\"review_reasons\": []}"
+  },
+  {
+    "name": "burst_selection",
+    "images": 7,
+    "sec": 4.46,
+    "in": 1893,
+    "out": 1153,
+    "raw": "{\n  \"best\": [\n    6,\n    5,\n    4\n  ],\n  \"frames\": [\n    {\n      \"composition\": 6,\n      \"focus\": 6,\n      \"index\": 0,\n      \"issues\": [\n        \"subject_cropped\",\n        \"subject_cropped\",\n        \"subject_cropped\",\n        \"subject_cropped\",\n        \"subject_cropped\",\n        \"subject_cropped\",\n        \"subject_cropped\",\n        \"subject_cropped\",\n        \"subject_cropped\",\n        \"subject_cropped\",\n        \"subject_cropped\",\n        \"subject_cropped\",\n        \"subject_cropped\"\n      ],\n      \"overall\": 5,\n      \"peak\": 5\n    },\n    {\n      \"composition\": 6,\n      \"focus\": 6,\n      \"index\": 1,\n      \"issues\": [\n        \"subject_cropped\",\n        \"subject_cropped\",\n        \"subject_cropped\",\n        \"subject_cropped\",\n        \"subject_cropped\",\n        \"subject_cropped\",\n        \"subject_cropped\",\n        \"subject_cropped\",\n        \"subject_cropped\",\n        \"subject_cropped\",\n        \"subject_cropped\",\n        \"subject_cropped\",\n        \"subject_cropped\"\n      ],\n      \"overall\": 5,\n      \"peak\": 5\n    },\n    {\n      \"composition\": 7,\n      \"focus\": 7,\n      \"index\": 2,\n      \"issues\": [\n        \"subject_cropped\",\n        \"subject_cropped\",\n        \"subject_cropped\",\n        \"subject_cropped\",\n        \"subject_cropped\",\n        \"subject_cropped\"\n      ],\n      \"overall\": 6,\n      \"peak\": 6\n    },\n    {\n      \"composition\": 7,\n      \"focus\": 7,\n      \"index\": 3,\n      \"issues\": [\n        \"subject_cropped\",\n        \"subject_cropped\",\n        \"subject_cropped\"\n      ],\n      \"overall\": 7,\n      \"peak\": 7\n    },\n    {\n      \"composition\": 8,\n      \"focus\": 7,\n      \"index\": 4,\n      \"issues\": [\n        \"subject_cropped\",\n        \"subject_cropped\"\n      ],\n      \"overall\": 7,\n      \"peak\": 7\n    },\n    {\n      \"composition\": 8,\n      \"focus\": 8,\n      \"index\": 5,\n      \"issues\": [\n        \"subject_cropped\"\n      ],\n      \"overall\": 8,\n      \"peak\": 8\n    },\n    {\n      \"composition\": 9,\n      \"focus\": 8,\n      \"index\": 6,\n      \"issues\": [\n        \"subject_cropped\"\n      ],\n      \"overall\": 9,\n      \"peak\": 9\n    }\n  ]\n,\n  \"moment\": \"portrait\"\n}"
+  },
+  {
+    "name": "photo_caption",
+    "images": 1,
+    "sec": 3.86,
+    "in": 2270,
+    "out": 945,
+    "raw": "{\"action_sentence\": \"{P0}身穿黑紅配色的服裝走在公園的石橋上\",\"headline\": \"{P0}在公園石橋上進行角色扮演寫真拍攝\",\"keywords\": [\"Cosplay\",\"角色扮演\",\"寫真\",\"人像攝影\",\"戶外拍攝\"],\"needs_review\": false,\"players\": [{\"box\": [0.51, 0.335, 0.29, 0.32], \"confidence\": 0.96, \"jersey\": null, \"role_in_frame\": \"primary\", \"team\": \"home\"}] ,\"review_reasons\": []}"
+  },
+  {
+    "name": "photo_caption",
+    "images": 1,
+    "sec": 4.65,
+    "in": 2270,
+    "out": 682,
+    "raw": "{\"action_sentence\": \"{P0}身穿黑紅漸層長袍與藍色假髮走下公園內的石橋階梯\",\"headline\": \"{P0}在庭園石橋上進行角色扮演寫真拍攝\",\"keywords\": [\"角色扮演\", \"寫真\", \"古風服裝\", \"走下階梯\", \"公園\", \"石橋\", \"藍色假髮\"], \"needs_review\": false, \"players\": [{\"box\": [0.386, 0.305, 0.32, 0.415], \"confidence\": 0.96, \"jersey\": null, \"role_in_frame\": \"primary\", \"team\": \"home\"} ]  ,\"review_reasons\": []}"
+  },
+  {
+    "name": "photo_caption",
+    "images": 1,
+    "sec": 6.35,
+    "in": 2270,
+    "out": 918,
+    "raw": "{\"action_sentence\": \"{P0}\\u8eab\\u7a7f\\u9ed1\\u7d05\\u6f38\\u5c64\\u9577\\u888d\\u8207\\u85cd\\u8272\\u5047\\u9aee\\uff0c\\u8d70\\u5728\\u5ead\\u5712\\u77f3\\u6a4b\\u4e0a\", \"headline\": \"{P0} Cosplay \\u9020\\u578b\\u5728\\u5ead\\u5712\\u77f3\\u6a4b\\u4e0a\\u62cd\\u651d\", \"keywords\": [\"Cosplay\", \"\\u89d2\\u8272\\u626e\\u6f14\", \"\\u4eba\\u50cf\\u651d\\u5f71\", \"\\u670d\\u88dd\", \"\\u599d\\u9aee\", \"\\u6236\\u5916\\u62cd\\u651d\", \"\\u77f3\\u6a4b\", \"\\u5ead\\u5712\", \"\\u5beb\\u771f\"], \"needs_review\": false, \"players\": [{\"box\": [0.395, 0.24, 0.27, 0.41], \"confidence\": 0.92, \"jersey\": null, \"role_in_frame\": \"primary\", \"team\": \"home\"}] , \"review_reasons\": []}"
+  },
+  {
+    "name": "burst_selection",
+    "images": 3,
+    "sec": 4.4,
+    "in": 953,
+    "out": 1072,
+    "raw": "{\n  \"best\":  [\n    1,\n    2\n  ],\n  \"frames\": [\n    {\n      \"composition\": 6,\n      \"focus\": 6,\n      \"index\": 0,\n      \"issues\": [\n        \"motion_blur_subject\",\n        \"face_blocked\",\n        \"subject_cropped\"\n      ],\n      \"overall\": 6,\n      \"peak\": 6\n    },\n    {\n      \"composition\": 9,\n      \"focus\": 9,\n      \"index\": 1,\n      \"issues\": [],\n      \"overall\": 9,\n      \"peak\": 8\n    },\n    {\n      \"composition\": 8,\n      \"focus\": 8,\n      \"index\": 2,\n      \"issues\": [\n        \"face_blocked\"\n      ],\n      \"overall\": 8,\n      \"peak\": 8\n    }\n  ],\n  \"moment\": \"portrait\"\n}"
+  },
+  {
+    "name": "photo_caption",
+    "images": 1,
+    "sec": 5.33,
+    "in": 2270,
+    "out": 982,
+    "raw": "{\"action_sentence\": \"{P0}在金色龍紋圓形雕飾前側身擺拍並輕扶紅色墨鏡\",\"headline\": \"{P0}以藍髮和風造型拍攝人像寫真\",\"keywords\": [\"角色扮演\",\"人像攝影\",\"寫真\",\"藍髮造型\",\"墨鏡\",\"和風外套\"],\"needs_review\": false,\"players\": [{\"box\": [0.215, 0.231, 0.58, 0.769], \"confidence\": 0.92, \"jersey\": null, \"role_in_frame\": \"primary\", \"team\": \"home\"} ] ,\"review_reasons\": []}"
+  },
+  {
+    "name": "photo_caption",
+    "images": 1,
+    "sec": 5.71,
+    "in": 2270,
+    "out": 1272,
+    "raw": "{\"action_sentence\": \"{P0}側身站在一面金色龍鳳雕花圓飾前，手扶紅色墨鏡擺出肖像姿勢\", \"headline\": \"{P0}於金色雕花背景前進行角色扮演肖像拍攝\", \"keywords\": [\"角色扮演\", \"肖像拍攝\", \"寫真\", \"假髮\", \"擺拍\"], \"needs_review\": false, \"players\": [{\"box\": [0.225, 0.214, 0.585, 0.785], \"confidence\": 0.95, \"jersey\": null, \"role_in_frame\": \"primary\", \"team\": \"home\"} ]   , \"review_reasons\": []}"
+  },
+  {
+    "name": "burst_selection",
+    "images": 5,
+    "sec": 3.66,
+    "in": 1423,
+    "out": 657,
+    "raw": "{\"best\": [2, 3, 4], \"frames\": [{\"composition\": 7, \"focus\": 5, \"index\": 0, \"issues\": [\"face_blocked\", \"motion_blur_subject\", \"subject_cropped\"], \"overall\": 6, \"peak\": 6}, {\"composition\": 5, \"focus\": 7, \"index\": 1, \"issues\": [\"subject_cropped\", \"under_exposed\", \"subject_cropped\"], \"overall\": 6, \"peak\": 6}, {\"composition\": 8, \"focus\": 9, \"index\": 2, \"issues\": [], \"overall\": 9, \"peak\": 8}, {\"composition\": 9, \"focus\": 8, \"index\": 3, \"issues\": [\"face_blocked\"], \"overall\": 8, \"peak\": 7}, {\"composition\": 9, \"focus\": 7, \"index\": 4, \"issues\": [\"face_blocked\"], \"overall\": 8, \"peak\": 7}], \"moment\": \"portrait\"}"
+  },
+  {
+    "name": "photo_caption",
+    "images": 1,
+    "sec": 3.78,
+    "in": 2270,
+    "out": 826,
+    "raw": "{\"action_sentence\": \"{P0}戴著紅色墨鏡、留著藍色長髮，身穿黑色中式服裝，手持煙管斜坐在木椅上擺拍。\",\"headline\": \"{P0}以藍髮紅鏡造型進行角色扮演寫真拍攝\",\"keywords\": [\"角色扮演\", \"Cosplay\", \"寫真\", \"人像\", \"服裝\", \"道具\", \"擺拍\", \"肖像\"], \"needs_review\": false, \"players\": [{\"box\": [0.304, 0.234, 0.195, 0.382], \"confidence\": 0.98, \"jersey\": null, \"role_in_frame\": \"primary\", \"team\": \"home\"}] , \"review_reasons\": []}"
+  },
+  {
+    "name": "photo_caption",
+    "images": 1,
+    "sec": 4.15,
+    "in": 2270,
+    "out": 911,
+    "raw": "{\"action_sentence\": \"{P0}身穿黑色唐裝坐在木椅上，手持長煙管擺出姿勢進行寫真拍攝。\",\"headline\": \"{P0} Cosplay 人像寫真拍攝\",\"keywords\": [\"Cosplay\", \"角色扮演\", \"寫真\", \"人像攝影\", \"煙管\", \"唐裝\", \"造型\"], \"needs_review\": false, \"players\": [{\"box\": [0.042, 0.313, 0.648, 0.718], \"confidence\": 0.95, \"jersey\": null, \"role_in_frame\": \"secondary\", \"team\": \"home\"}] , \"review_reasons\": []}"
+  },
+  {
+    "name": "photo_caption",
+    "images": 1,
+    "sec": 4.61,
+    "in": 2270,
+    "out": 932,
+    "raw": "{\"action_sentence\": \"{P0}身穿黑色中式服裝、戴著紅色圓形墨鏡，頂著藍色假髮靠坐在木椅上擺出姿勢拍照。\",\"headline\": \"{P0}以藍髮紅鏡造型進行角色扮演肖像拍攝\",\"keywords\": [\"角色扮演\", \"Cosplay\", \"肖像寫真\", \"擺拍\", \"服裝造型\"],\"needs_review\": false,\"players\": [{\"box\": [0.208, 0.183, 0.298, 0.612], \"confidence\": 0.96, \"jersey\": null, \"role_in_frame\": \"secondary\", \"team\": \"home\"}] ,\"review_reasons\": []}"
+  }
+]

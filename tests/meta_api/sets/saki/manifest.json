@@ -1,0 +1,463 @@
+{
+  "album_title": "2026_06_30_Saki星街貓棚",
+  "source": "返圖站相簿（分享連結不記錄）",
+  "created": "2026-10-27T20:24:52",
+  "note": "ref_stars / ref_tags / original_name 只在本機當參考答案，不會送給 API",
+  "groups": [
+    {
+      "id": "g01",
+      "frames": [
+        {
+          "file": "g01_01.jpg",
+          "offset_sec": 0.0,
+          "original_name": "DSC08652.JPG",
+          "ref_stars": 1,
+          "ref_tags": [
+            "people",
+            "adult"
+          ]
+        },
+        {
+          "file": "g01_02.jpg",
+          "offset_sec": 2.0,
+          "original_name": "DSC08653.JPG",
+          "ref_stars": 1,
+          "ref_tags": [
+            "people",
+            "adult"
+          ]
+        },
+        {
+          "file": "g01_03.jpg",
+          "offset_sec": 4.0,
+          "original_name": "DSC08654.JPG",
+          "ref_stars": 1,
+          "ref_tags": [
+            "people",
+            "adult"
+          ]
+        }
+      ],
+      "human_pick": []
+    },
+    {
+      "id": "g02",
+      "frames": [
+        {
+          "file": "g02_01.jpg",
+          "offset_sec": 0.0,
+          "original_name": "DSC08699.JPG",
+          "ref_stars": 2,
+          "ref_tags": [
+            "people",
+            "adult",
+            "clothing",
+            "jacket"
+          ]
+        },
+        {
+          "file": "g02_02.jpg",
+          "offset_sec": 1.0,
+          "original_name": "DSC08700.JPG",
+          "ref_stars": 2,
+          "ref_tags": []
+        },
+        {
+          "file": "g02_03.jpg",
+          "offset_sec": 2.0,
+          "original_name": "DSC08701.JPG",
+          "ref_stars": 1,
+          "ref_tags": [
+            "clothing",
+            "jacket",
+            "people",
+            "adult"
+          ]
+        },
+        {
+          "file": "g02_04.jpg",
+          "offset_sec": 4.0,
+          "original_name": "DSC08702.JPG",
+          "ref_stars": 3,
+          "ref_tags": [
+            "structure",
+            "material",
+            "brick",
+            "people",
+            "adult",
+            "fence"
+          ]
+        }
+      ],
+      "human_pick": []
+    },
+    {
+      "id": "g03",
+      "frames": [
+        {
+          "file": "g03_01.jpg",
+          "offset_sec": 0.0,
+          "original_name": "DSC08761.JPG",
+          "ref_stars": 3,
+          "ref_tags": [
+            "people",
+            "adult",
+            "structure",
+            "fence",
+            "conveyance",
+            "stairs",
+            "plant",
+            "shrub"
+          ]
+        },
+        {
+          "file": "g03_02.jpg",
+          "offset_sec": 1.0,
+          "original_name": "DSC08762.JPG",
+          "ref_stars": 3,
+          "ref_tags": [
+            "people",
+            "adult",
+            "structure",
+            "fence",
+            "plant",
+            "shrub",
+            "conveyance",
+            "stairs"
+          ]
+        },
+        {
+          "file": "g03_03.jpg",
+          "offset_sec": 2.0,
+          "original_name": "DSC08763.JPG",
+          "ref_stars": 3,
+          "ref_tags": [
+            "people",
+            "adult",
+            "structure",
+            "fence",
+            "conveyance",
+            "stairs",
+            "plant",
+            "shrub"
+          ]
+        },
+        {
+          "file": "g03_04.jpg",
+          "offset_sec": 3.0,
+          "original_name": "DSC08764.JPG",
+          "ref_stars": 3,
+          "ref_tags": [
+            "people",
+            "adult",
+            "structure",
+            "fence",
+            "plant",
+            "conveyance",
+            "stairs",
+            "shrub"
+          ]
+        },
+        {
+          "file": "g03_05.jpg",
+          "offset_sec": 3.0,
+          "original_name": "DSC08765.JPG",
+          "ref_stars": 3,
+          "ref_tags": [
+            "people",
+            "adult",
+            "structure",
+            "fence",
+            "conveyance",
+            "stairs",
+            "wood_natural",
+            "plant"
+          ]
+        },
+        {
+          "file": "g03_06.jpg",
+          "offset_sec": 4.0,
+          "original_name": "DSC08766.JPG",
+          "ref_stars": 4,
+          "ref_tags": [
+            "structure",
+            "fence",
+            "people",
+            "adult",
+            "plant",
+            "shrub",
+            "art",
+            "statue"
+          ]
+        },
+        {
+          "file": "g03_07.jpg",
+          "offset_sec": 4.0,
+          "original_name": "DSC08767.JPG",
+          "ref_stars": 4,
+          "ref_tags": [
+            "people",
+            "adult",
+            "structure",
+            "fence",
+            "plant",
+            "shrub",
+            "wood_natural",
+            "foliage"
+          ]
+        },
+        {
+          "file": "g03_08.jpg",
+          "offset_sec": 5.0,
+          "original_name": "DSC08768.JPG",
+          "ref_stars": 4,
+          "ref_tags": [
+            "people",
+            "adult",
+            "structure",
+            "fence",
+            "plant",
+            "shrub",
+            "wood_natural",
+            "wood_processed"
+          ]
+        }
+      ],
+      "human_pick": []
+    },
+    {
+      "id": "g04",
+      "frames": [
+        {
+          "file": "g04_01.jpg",
+          "offset_sec": 0.0,
+          "original_name": "DSC08773.JPG",
+          "ref_stars": 3,
+          "ref_tags": [
+            "structure",
+            "conveyance",
+            "stairs",
+            "people",
+            "adult",
+            "fence",
+            "wood_natural",
+            "plant"
+          ]
+        },
+        {
+          "file": "g04_02.jpg",
+          "offset_sec": 1.0,
+          "original_name": "DSC08774.JPG",
+          "ref_stars": 3,
+          "ref_tags": [
+            "structure",
+            "conveyance",
+            "stairs",
+            "people",
+            "adult",
+            "fence",
+            "wood_natural",
+            "plant"
+          ]
+        },
+        {
+          "file": "g04_03.jpg",
+          "offset_sec": 2.0,
+          "original_name": "DSC08775.JPG",
+          "ref_stars": 3,
+          "ref_tags": [
+            "structure",
+            "people",
+            "adult",
+            "conveyance",
+            "stairs",
+            "fence",
+            "wood_natural",
+            "plant"
+          ]
+        },
+        {
+          "file": "g04_04.jpg",
+          "offset_sec": 2.0,
+          "original_name": "DSC08776.JPG",
+          "ref_stars": 3,
+          "ref_tags": [
+            "structure",
+            "people",
+            "adult",
+            "conveyance",
+            "stairs",
+            "wood_natural",
+            "fence",
+            "plant"
+          ]
+        },
+        {
+          "file": "g04_05.jpg",
+          "offset_sec": 3.0,
+          "original_name": "DSC08777.JPG",
+          "ref_stars": 3,
+          "ref_tags": [
+            "structure",
+            "people",
+            "adult",
+            "conveyance",
+            "stairs",
+            "wood_natural",
+            "fence",
+            "plant"
+          ]
+        },
+        {
+          "file": "g04_06.jpg",
+          "offset_sec": 4.0,
+          "original_name": "DSC08778.JPG",
+          "ref_stars": 3,
+          "ref_tags": [
+            "structure",
+            "conveyance",
+            "stairs",
+            "people",
+            "adult",
+            "wood_natural",
+            "fence",
+            "plant"
+          ]
+        },
+        {
+          "file": "g04_07.jpg",
+          "offset_sec": 5.0,
+          "original_name": "DSC08779.JPG",
+          "ref_stars": 3,
+          "ref_tags": [
+            "people",
+            "adult",
+            "structure",
+            "wood_natural",
+            "fence",
+            "conveyance",
+            "stairs",
+            "plant"
+          ]
+        }
+      ],
+      "human_pick": []
+    },
+    {
+      "id": "g05",
+      "frames": [
+        {
+          "file": "g05_01.jpg",
+          "offset_sec": 0.0,
+          "original_name": "DSC08917.JPG",
+          "ref_stars": 5,
+          "ref_tags": [
+            "art",
+            "people",
+            "adult"
+          ]
+        },
+        {
+          "file": "g05_02.jpg",
+          "offset_sec": 1.0,
+          "original_name": "DSC08918.JPG",
+          "ref_stars": 3,
+          "ref_tags": [
+            "art",
+            "people",
+            "adult"
+          ]
+        },
+        {
+          "file": "g05_03.jpg",
+          "offset_sec": 3.0,
+          "original_name": "DSC08919.JPG",
+          "ref_stars": 3,
+          "ref_tags": [
+            "art",
+            "people",
+            "adult"
+          ]
+        }
+      ],
+      "human_pick": []
+    },
+    {
+      "id": "g06",
+      "frames": [
+        {
+          "file": "g06_01.jpg",
+          "offset_sec": 0.0,
+          "original_name": "DSC08979.JPG",
+          "ref_stars": 3,
+          "ref_tags": [
+            "people",
+            "adult",
+            "art",
+            "structure",
+            "wood_processed"
+          ]
+        },
+        {
+          "file": "g06_02.jpg",
+          "offset_sec": 2.0,
+          "original_name": "DSC08980.JPG",
+          "ref_stars": 4,
+          "ref_tags": [
+            "people",
+            "adult",
+            "art",
+            "light",
+            "lamp"
+          ]
+        },
+        {
+          "file": "g06_03.jpg",
+          "offset_sec": 4.0,
+          "original_name": "DSC08981.JPG",
+          "ref_stars": 4,
+          "ref_tags": [
+            "art",
+            "people",
+            "adult",
+            "celebration",
+            "costume",
+            "cosplay"
+          ]
+        },
+        {
+          "file": "g06_04.jpg",
+          "offset_sec": 5.0,
+          "original_name": "DSC08982.JPG",
+          "ref_stars": 4,
+          "ref_tags": [
+            "light",
+            "lamp",
+            "art",
+            "people",
+            "adult",
+            "celebration",
+            "costume",
+            "cosplay"
+          ]
+        },
+        {
+          "file": "g06_05.jpg",
+          "offset_sec": 7.0,
+          "original_name": "DSC08983.JPG",
+          "ref_stars": 5,
+          "ref_tags": [
+            "light",
+            "lamp",
+            "people",
+            "adult",
+            "art",
+            "structure",
+            "wood_processed"
+          ]
+        }
+      ],
+      "human_pick": []
+    }
+  ]
+}

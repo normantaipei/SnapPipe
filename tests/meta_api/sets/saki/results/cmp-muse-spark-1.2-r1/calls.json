@@ -1,0 +1,146 @@
+[
+  {
+    "name": "burst_selection",
+    "images": 3,
+    "sec": 7.59,
+    "in": 953,
+    "out": 1470,
+    "raw": "{\"best\": [0], \"frames\": [{\"composition\": 4, \"focus\": 5, \"index\": 0, \"issues\": [\"over_exposed\", \"subject_cropped\", \"under_exposed\"], \"overall\": 4, \"peak\": 4.0}, {\"composition\": 3, \"focus\": 4, \"index\": 1, \"issues\": [\"over_exposed\", \"subject_cropped\", \"under_exposed\"], \"overall\": 3, \"peak\": 3.0}, {\"composition\": 3, \"focus\": 4, \"index\": 2, \"issues\": [\"over_exposed\", \"under_exposed\", \"subject_cropped\"], \"overall\": 3, \"peak\": 3.0}], \"moment\":  \"portrait\"}"
+  },
+  {
+    "name": "photo_caption",
+    "images": 1,
+    "sec": 5.78,
+    "in": 2270,
+    "out": 1239,
+    "raw": "{\"action_sentence\":\"{P0}手持紅色摺扇站在幽暗的拱形磚砌長廊中擺拍。\",\"headline\":\"{P0}手持紅色摺扇於古式長廊進行角色扮演人像拍攝\",\"keywords\":[\"角色扮演\",\"人像攝影\",\"寫真\",\"擺拍\",\"摺扇\",\"古風服裝\",\"長廊\"],\"needs_review\":false,\"players\":[{\"box\":[0.78,0.255,0.165,0.36],\"confidence\":0.92,\"jersey\":null,\"role_in_frame\":\"primary\",\"team\":\"unknown\"} ]   ,\"review_reasons\":[\"無運動隊伍及背號資訊，角色扮演肖像且無名單可對照，僅依可見外觀標示\"] }"
+  },
+  {
+    "name": "burst_selection",
+    "images": 4,
+    "sec": 6.78,
+    "in": 1188,
+    "out": 1194,
+    "raw": "{\"best\":   \r\n[0], \"frames\":[\r\n{\"composition\": 4, \"focus\": 3, \"index\": 0, \"issues\": [\"motion_blur_subject\", \"face_blocked\", \"eyes_closed\", \"eyes_closed\"], \"overall\": 3, \"peak\": 3},\r\n{\"composition\": 1, \"focus\": 2, \"index\": 1, \"issues\": [\"subject_cropped\", \"subject_cropped\", \"face_blocked\"], \"overall\": 1, \"peak\": 1},\r\n{\"composition\": 3, \"focus\": 1, \"index\": 2, \"issues\": [\"motion_blur_subject\", \"face_blocked\", \"eyes_closed\"], \"overall\": 2, \"peak\": 2},\r\n{\"composition\": 3, \"focus\": 3, \"index\": 3, \"issues\": [\"face_blocked\", \"subject_cropped\", \"subject_cropped\"], \"overall\": 2, \"peak\": 1}\r\n], \"moment\":  \r\n\"peak_action\"\r\n}"
+  },
+  {
+    "name": "photo_caption",
+    "images": 1,
+    "sec": 6.8,
+    "in": 2271,
+    "out": 1191,
+    "raw": "{\"action_sentence\":\"{P0} 在傳統木造廊道內手持紅色摺扇擺出姿勢。\",\"headline\":\"{P0} 於古式廊道手持摺扇進行角色扮演寫真拍攝\",\"keywords\":[\"角色扮演\",\"Cosplay\",\"寫真\",\"擺拍\",\"摺扇\",\"古建築\",\"人像攝影\"],\"needs_review\":true,\"players\":[{\"box\":[0.578,0.334,0.168,0.545],\"confidence\":0.62,\"jersey\":null,\"role_in_frame\":\"primary\",\"team\":\"unknown\"} ]  ,\"review_reasons\":[\"影像存在明顯動態模糊與失焦，人臉與服裝細節不清晰，無法準確判讀球衣號碼與動作細節\"]}"
+  },
+  {
+    "name": "burst_selection",
+    "images": 8,
+    "sec": 6.95,
+    "in": 2128,
+    "out": 1169,
+    "raw": "{\"best\": [7, 6, 5], \"frames\": [{\"composition\": 5, \"focus\": 6, \"index\": 0, \"issues\": [\"subject_cropped\"], \"overall\": 4, \"peak\": 3}, {\"composition\": 6, \"focus\": 7, \"index\": 1, \"issues\": [\"subject_cropped\"], \"overall\": 5, \"peak\": 4}, {\"composition\": 6, \"focus\": 7, \"index\": 2, \"issues\": [\"subject_cropped\"], \"overall\": 6, \"peak\": 5}, {\"composition\": 6, \"focus\": 4, \"index\": 3, \"issues\": [\"out_of_focus\", \"motion_blur_subject\", \"subject_cropped\"], \"overall\": 4, \"peak\": 5}, {\"composition\": 6, \"focus\": 4, \"index\": 4, \"issues\": [\"out_of_focus\", \"motion_blur_subject\", \"subject_cropped\"], \"overall\": 4, \"peak\": 5}, {\"composition\": 8, \"focus\": 9, \"index\": 5, \"issues\": [], \"overall\": 8, \"peak\": 7}, {\"composition\": 8, \"focus\": 9, \"index\": 6, \"issues\": [], \"overall\": 8, \"peak\": 8}, {\"composition\": 9, \"focus\": 10, \"index\": 7, \"issues\": [], \"overall\": 9, \"peak\": 9}], \"moment\": \"portrait\"}"
+  },
+  {
+    "name": "photo_caption",
+    "images": 1,
+    "sec": 5.2,
+    "in": 2270,
+    "out": 935,
+    "raw": "{\"action_sentence\":\"{P0}身穿黑紅配色的和風長袍走下公園石橋的階梯進行人像拍攝。\",\"headline\":\"{P0}於戶外庭園石橋上進行角色扮演寫真拍攝\",\"keywords\":[\"角色扮演\",\"Cosplay\",\"寫真\",\"外拍\",\"和風服裝\",\"藍色假髮\",\"庭園\",\"石橋\",\"人像攝影\",\"戶外拍攝\"],\"needs_review\":false,\"players\":[{\"box\":[0.395,0.416,0.263,0.327],\"confidence\":0.96,\"jersey\":null,\"role_in_frame\":\"primary\",\"team\":\"unknown\"} ]   ,\"review_reasons\":[]}"
+  },
+  {
+    "name": "photo_caption",
+    "images": 1,
+    "sec": 6.42,
+    "in": 2270,
+    "out": 1028,
+    "raw": "{\"action_sentence\":\"{P0}身著黑紅漸層和風服飾走在庭園石橋上進行肖像拍攝。\",\"headline\":\"{P0}在古亭庭園石橋上進行角色扮演肖像拍攝\",\"keywords\":[\"角色扮演\",\"Cosplay\",\"肖像\",\"外拍\",\"寫真\",\"庭園\",\"石橋\"],\"needs_review\":false,\"players\":[{\"box\":[0.38,0.438,0.26,0.25],\"confidence\":0.92,\"jersey\":null,\"role_in_frame\":\"primary\",\"team\":\"home\"}]  ,\"review_reasons\":[]}"
+  },
+  {
+    "name": "photo_caption",
+    "images": 1,
+    "sec": 6.84,
+    "in": 2270,
+    "out": 981,
+    "raw": "{\"action_sentence\":\"{P0} 身穿黑色與紅色服裝在戶外石橋上進行人像擺拍。\",\"headline\":\"{P0} 於戶外庭園石橋上進行角色扮演人像拍攝\",\"keywords\":[\"角色扮演\",\"人像攝影\",\"戶外拍攝\",\"擺拍\",\"Cosplay\"],\"needs_review\":false,\"players\":[{\"box\":[0.398,0.42,0.278,0.315],\"confidence\":0.98,\"jersey\":null,\"role_in_frame\":\"primary\",\"team\":\"home\"}] \t,\"review_reasons\":[\"cosplay_portrait_non_sport_no_number_or_team_applicable\"]}"
+  },
+  {
+    "name": "burst_selection",
+    "images": 7,
+    "sec": 8.91,
+    "in": 1893,
+    "out": 1759,
+    "raw": "{\"best\": [5,6,4], \"frames\": [{\"composition\": 5, \"focus\": 6, \"index\": 0, \"issues\": [\"subject_cropped\", \"subject_cropped\"], \"overall\": 5, \"peak\": 5.0}, {\"composition\": 5, \"focus\": 7, \"index\": 1, \"issues\": [\"subject_cropped\", \"subject_cropped\"], \"overall\": 5, \"peak\": 5.0}, {\"composition\": 6, \"focus\": 6, \"index\": 2, \"issues\": [\"subject_cropped\", \"subject_cropped\"], \"overall\": 6, \"peak\": 5.0}, {\"composition\": 6, \"focus\": 6, \"index\": 3, \"issues\": [\"subject_cropped\", \"subject_cropped\"], \"overall\": 6, \"peak\": 6.0}, {\"composition\": 7, \"focus\": 7, \"index\": 4, \"issues\": [\"subject_cropped\", \"subject_cropped\"], \"overall\": 7, \"peak\": 7.0}, {\"composition\": 8, \"focus\": 8, \"index\": 5, \"issues\": [\"subject_cropped\", \"subject_cropped\"], \"overall\": 8, \"peak\": 8.0}, {\"composition\": 8, \"focus\": 7, \"index\": 6, \"issues\": [\"subject_cropped\", \"subject_cropped\"], \"overall\": 8, \"peak\": 8.0}], \"moment\": \"portrait\"}"
+  },
+  {
+    "name": "photo_caption",
+    "images": 1,
+    "sec": 5.62,
+    "in": 2270,
+    "out": 991,
+    "raw": "{\"action_sentence\":\"{P0}身著黑紅漸層古裝走在庭園石橋上進行人像寫真拍攝。\",\"headline\":\"{P0}在庭園石橋上進行角色扮演人像寫真拍攝\",\"keywords\":[\"角色扮演\",\"人像寫真\",\"Cosplay\",\"戶外拍攝\",\"古裝\"],\"needs_review\":false,\"players\":[{\"box\":[0.375,0.268,0.295,0.38],\"confidence\":0.96,\"jersey\":null,\"role_in_frame\":\"primary\",\"team\":\"unknown\"}] \t,\"review_reasons\":[]}"
+  },
+  {
+    "name": "photo_caption",
+    "images": 1,
+    "sec": 6.13,
+    "in": 2270,
+    "out": 921,
+    "raw": "{\"action_sentence\":\"{P0}身著黑紅配色的服裝走在公園池塘邊的石橋階梯上。\",\"headline\":\"{P0}於戶外庭園石橋上進行角色扮演寫真拍攝\",\"keywords\":[\"角色扮演\",\"寫真\",\"人像\",\"步行\",\"戶外拍攝\",\"Cosplay\"],\"needs_review\":false,\"players\":[{\"box\":[0.4,0.318,0.26,0.32],\"confidence\":0.96,\"jersey\":null,\"role_in_frame\":\"primary\",\"team\":\"unknown\"} ]   ,\"review_reasons\":[]}"
+  },
+  {
+    "name": "photo_caption",
+    "images": 1,
+    "sec": 6.86,
+    "in": 2270,
+    "out": 1122,
+    "raw": "{\"action_sentence\":\"{P0} 身穿黑紅色古風服裝走在池畔石橋上進行人像拍攝。\",\"headline\":\"{P0} 於戶外庭園石橋上進行角色扮演人像拍攝\",\"keywords\":[\"角色扮演\",\"人像攝影\",\"戶外拍攝\",\"步行\",\"服裝造型\"],\"needs_review\":false,\"players\":[{\"box\":[0.408,0.357,0.397,0.382],\"confidence\":0.96,\"jersey\":null,\"role_in_frame\":\"primary\",\"team\":\"home\"}]  ,\"review_reasons\":[]}"
+  },
+  {
+    "name": "burst_selection",
+    "images": 3,
+    "sec": 8.06,
+    "in": 953,
+    "out": 1480,
+    "raw": "{\"best\": [1], \"frames\": [{\"composition\": 5, \"focus\": 6, \"index\": 0, \"issues\": [\"over_exposed\", \"over_exposed\"], \"overall\": 6, \"peak\": 6.0}, {\"composition\": 9, \"focus\": 10, \"index\": 1, \"issues\": [\"over_exposed\"], \"overall\": 9, \"peak\": 8.0}, {\"composition\": 9, \"focus\": 9, \"index\": 2, \"issues\": [\"over_exposed\"], \"overall\": 8, \"peak\": 8.0}], \"moment\": \"portrait\"}"
+  },
+  {
+    "name": "photo_caption",
+    "images": 1,
+    "sec": 4.1,
+    "in": 2270,
+    "out": 767,
+    "raw": "{\"action_sentence\":\"{P0}在金色龍紋圓形雕飾前側身站立並以手輕扶紅色墨鏡擺拍肖像。\",\"headline\":\"{P0}以藍色假髮與和風服飾進行角色扮演肖像拍攝\",\"keywords\":[\"角色扮演\",\"肖像拍攝\",\"Cosplay\",\"擺拍\",\"寫真\"],\"needs_review\":false,\"players\":[{\"box\":[0.308,0.245,0.478,0.41],\"confidence\":0.98,\"jersey\":null,\"role_in_frame\":\"primary\",\"team\":\"home\"}]  ,\"review_reasons\":[]}"
+  },
+  {
+    "name": "burst_selection",
+    "images": 5,
+    "sec": 8.0,
+    "in": 1423,
+    "out": 1562,
+    "raw": "{\"best\":  \t\t\t   \t\t\t\t[3, 2, 4],\"frames\":   \t\t\t\t\t[{\"composition\":6,\"focus\":3,\"index\":0,\"issues\":[\"out_of_focus\",\"motion_blur_subject\",\"face_blocked\",\"face_blocked\",\"face_blocked\",\"face_blocked\",\"face_blocked\",\"face_blocked\"],\"overall\":3,\"peak\":4.0},\n\t\t\t {\"composition\":4,\"focus\":7,\"index\":1,\"issues\":[\"face_blocked\",\"face_blocked\",\"face_blocked\",\"face_blocked\",\"face_blocked\",\"face_blocked\",\"face_blocked\",\"face_blocked\"],\"overall\":5,\"peak\":6.0},\n\t\t\t {\"composition\":7,\"focus\":10,\"index\":2,\"issues\":[\"face_blocked\",\"face_blocked\",\"face_blocked\",\"face_blocked\",\"face_blocked\",\"face_blocked\",\"face_blocked\",\"face_blocked\",\"face_blocked\",\"face_blocked\",\"face_blocked\"],\"overall\":8,\"peak\":8.0},\n\t\t\t {\"composition\":9,\"focus\":9,\"index\":3,\"issues\":[\"face_blocked\",\"face_blocked\",\"face_blocked\"],\"overall\":9,\"peak\":9.0},\n\t\t\t {\"composition\":9,\"focus\":8,\"index\":4,\"issues\":[\"face_blocked\",\"face_blocked\",\"face_blocked\"],\"overall\":8,\"peak\":8.0}]\n,\"moment\":  \t\t\t   \"portrait\"}"
+  },
+  {
+    "name": "photo_caption",
+    "images": 1,
+    "sec": 5.61,
+    "in": 2270,
+    "out": 998,
+    "raw": "{\"action_sentence\":\"{P0}身著黑色中式服裝、戴紅色圓形墨鏡，手持細長菸桿斜倚在中式雕花木椅上進行肖像拍攝。\",\"headline\":\"{P0}以藍色長髮與中式黑色服裝造型進行人像寫真拍攝\",\"keywords\":[\"Cosplay\",\"角色扮演\",\"人像攝影\",\"寫真\",\"肖像\",\"中式服裝\",\"假髮\",\"墨鏡\",\"道具\",\"佈景\"],\"needs_review\":false,\"players\":[{\"box\":[0.327,0.307,0.205,0.484],\"confidence\":0.96,\"jersey\":null,\"role_in_frame\":\"primary\",\"team\":\"unknown\"} ]  ,\"review_reasons\":[]}"
+  },
+  {
+    "name": "photo_caption",
+    "images": 1,
+    "sec": 5.86,
+    "in": 2270,
+    "out": 1038,
+    "raw": "{\"action_sentence\":\"{P0}手持煙桿倚坐在裝飾有金色龍紋背景前的木椅上擺出姿勢。\",\"headline\":\"{P0} 以藍髮紅鏡造型詮釋中式風格角色寫真\",\"keywords\":[\"Cosplay\",\"角色扮演\",\"寫真\",\"人像攝影\",\"擺拍\"],\"needs_review\":false,\"players\":[{\"box\":[0.308,0.243,0.205,0.382],\"confidence\":0.96,\"jersey\":null,\"role_in_frame\":\"secondary\",\"team\":\"home\"}]  ,\"review_reasons\":[]}"
+  },
+  {
+    "name": "photo_caption",
+    "images": 1,
+    "sec": 7.92,
+    "in": 2270,
+    "out": 1138,
+    "raw": "{\"action_sentence\":\"{P0} 身穿黑色唐裝斜靠在木椅上擺拍，背景為金色龍紋圓雕與燈籠。\",\"headline\":\"{P0} 以藍色長髮與紅色墨鏡造型進行角色扮演人像拍攝\",\"keywords\":[\"角色扮演\",\"人像攝影\",\"寫真\",\"擺拍\",\"Cosplay\"],\"needs_review\":false,\"players\":[{\"box\":[0.233,0.187,0.248,0.543],\"confidence\":0.92,\"jersey\":null,\"role_in_frame\":\"primary\",\"team\":\"home\"}] \t,\"review_reasons\":[\"cosplay portrait non-sport context no roster jersey number not applicable\"] }"
+  }
+]

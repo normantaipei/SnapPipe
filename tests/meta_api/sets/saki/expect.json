@@ -1,0 +1,10 @@
+{
+  "note": "人工看圖確認、答案明顯的檢核點（不是完整的人工評分）",
+  "top_in": {"g01": ["g01_01.jpg"], "g03": ["g03_06.jpg", "g03_07.jpg", "g03_08.jpg"]},
+  "issue_on": [
+    {"issue": ["under_exposed"], "files": ["g01_01.jpg", "g01_02.jpg", "g01_03.jpg"]},
+    {"issue": ["motion_blur_subject", "out_of_focus"], "files": ["g02_01.jpg", "g02_02.jpg", "g02_03.jpg"]}
+  ],
+  "caption_prop": {"groups": ["g01", "g02"], "right": "傘", "wrong": "扇",
+                   "note": "道具是紅色油紙傘（看得到傘骨），寫成扇子算錯"}
+}
