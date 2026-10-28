@@ -1,0 +1,14 @@
+# 預設的相簿設定（一般攝影）。setup.sh 會複製成 games/default.toml：沒有自己設定檔的相簿都用這份。
+# 一般攝影：AI 依對焦、表情、構圖選片、評星等，不寫圖說。
+# 拍體育比賽時：把 example.toml 複製成 games/<相簿名稱>.toml，填好賽事、主客隊與名單，那本相簿才會寫體育新聞圖說。
+
+[game]
+lang = "zh"                          # zh / en
+creator = ""                         # 攝影師署名（寫進照片的 IPTC）
+credit = "SnapPipe"
+# subject = "cosplay portrait photoshoot"   # 拍攝題材，給 AI 參考（英文較準），例 wedding / concert / street
+# captions = true                    # 一般攝影也要寫一句描述的話打開
+
+# 每台相機由誰拍：機身序號（完整或末幾碼）= 署名
+[cameras]
+# "5530" = "李攝影"

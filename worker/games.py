@@ -8,6 +8,11 @@
 比賽中改檔案會自動重新載入（看修改時間），不用重開 worker。
 
 名單的用途是「防止 AI 編造人名」：模型只能回報看到的球衣號碼，姓名一律由這裡查表填入。
+
+兩種模式（自動判斷）：
+  - 體育：有寫賽事（event）、主客隊（home / away）或名單 → 用體育新聞的標準選片，並寫圖說
+  - 一般攝影：都沒寫（例如 default.toml 只有署名）→ 依對焦、表情、構圖選片、評星等，不寫圖說
+    [game] subject 可以描述拍攝題材給 AI 參考（例 "cosplay portrait"）；captions = true 強制寫圖說
 """
 
 import csv
@@ -43,6 +48,23 @@ class Game:
     @property
     def sport(self):
         return self.get("sport", "sports")
+
+    @property
+    def is_sports(self) -> bool:
+        return bool(self.get("event") or self.get("home") or self.get("away") or self.roster)
+
+    @property
+    def captions(self) -> bool:
+        """要不要寫圖說：體育模式預設寫；一般攝影預設不寫（[game] captions = true / false 可以改）。"""
+        v = self.info.get("captions")
+        return self.is_sports if v is None else bool(v)
+
+    @property
+    def subject(self) -> str:
+        """給 AI 的題材描述。"""
+        if self.is_sports:
+            return f"Sport: {self.sport}"
+        return f"Subject: {self.get('subject') or self.get('sport') or 'general photography (people, events, portraits)'}"
 
     def team_name(self, team: str) -> str:
         return self.get("home" if team == "home" else "away") if team in ("home", "away") else ""

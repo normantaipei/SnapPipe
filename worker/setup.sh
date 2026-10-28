@@ -49,6 +49,15 @@ PY=$(pick_python)
 .venv/bin/pip install -q -r requirements.txt
 [ -f .env ] || { cp .env.example .env; chmod 600 .env; echo "已建立 worker/.env（記得填 SERVER_URL）"; }
 .venv/bin/python setup_key.py ${KEY_ARGS[@]+"${KEY_ARGS[@]}"}
-[ -d games ] && [ ! -f games/default.toml ] && cp games/example.toml games/default.toml && \
-  echo "已建立 worker/games/default.toml（比賽資料範本，請改成你的署名與賽事）"
+# 預設相簿設定 = 一般攝影（只選片評星等、不寫圖說）；體育比賽才另外放 games/<相簿名稱>.toml
+if [ -d games ]; then
+  if [ ! -f games/default.toml ]; then
+    cp games/general.toml games/default.toml
+    echo "已建立 worker/games/default.toml（一般攝影：只選片評星等；拍體育比賽見 games/example.toml）"
+  elif cmp -s games/default.toml games/example.toml; then
+    # 舊版直接複製籃球範本當預設，害每本相簿都被當成那場比賽寫圖說：沒改過就換成一般攝影
+    cp games/general.toml games/default.toml
+    echo "已把 worker/games/default.toml 從籃球範本換成一般攝影（只選片評星等，不寫體育圖說）"
+  fi
+fi
 echo "✅ 安裝完成（$(.venv/bin/python --version)）"

@@ -66,6 +66,23 @@ Score every frame from 1 to 10 (overall, peak, focus, composition) and list its 
 "local sharpness" is a pixel-level hint from the server (0-1, higher is sharper), not a judgement of content.
 Output only JSON that matches the schema."""
 
+# 一般攝影（沒有賽事資料的相簿）：不談比賽與球，看對焦、表情、構圖
+SELECT_SYSTEM_GENERAL = """You are a senior photo editor choosing keepers for a photo album (portraits, events, cosplay, street, travel).
+You receive N frames from ONE burst shot by ONE camera, in time order, numbered 0..N-1.
+Compare them against each other and pick the 1-3 best frames.
+
+Selection criteria, most important first:
+1. Subject focus: the main subject's eyes or face are sharp; no motion blur on the subject.
+2. Expression and gesture: natural expression, eyes open, the pose or gesture at its best.
+3. Composition and light: subject not cut off awkwardly, nothing blocking the face, pleasing light and background.
+4. Overall impression: the frame a photographer would deliver to the client.
+
+Score every frame from 1 to 10 (overall, peak = how well the moment / expression is caught, focus, composition)
+and list its problems. Never use the issue "ball_missing" (there is no ball here).
+For "moment" use portrait, crowd, celebration or other.
+"local sharpness" is a pixel-level hint from the server (0-1, higher is sharper), not a judgement of content.
+Output only JSON that matches the schema."""
+
 SELECT_SCHEMA = {
     "type": "object",
     "additionalProperties": False,
@@ -208,6 +225,9 @@ class MetaAIAnalyzer(Analyzer):
             sel, ai_failed = {"best": [], "frames": [], "moment": "other"}, str(e)[:200]
 
         frames = {f.get("index"): f for f in sel.get("frames", []) if isinstance(f, dict)}
+        if not game.is_sports:                 # 一般攝影沒有球：模型若還是回報「沒拍到球」就不算
+            for f in frames.values():
+                f["issues"] = [x for x in f.get("issues") or [] if x != "ball_missing"]
         finals = [self.final_score(frames.get(i), sharp_n[i]) for i in range(len(items))]
         best = []
         for i in sel.get("best", []):
@@ -222,7 +242,7 @@ class MetaAIAnalyzer(Analyzer):
 
         # 階段二：只做選中的幾張，同時送出
         described = {}
-        if self.caption_on and not ai_failed:
+        if self.caption_on and game.captions and not ai_failed:   # 一般攝影預設不寫圖說
             with cf.ThreadPoolExecutor(max_workers=len(best)) as ex:
                 futs = {ex.submit(self.describe, items[i][0], items[i][1], game, moment): i for i in best}
                 for fut in cf.as_completed(futs):
@@ -263,13 +283,14 @@ class MetaAIAnalyzer(Analyzer):
 
     def select(self, thumbs, items, sharp_n, game: Game):
         t_first = seconds(items[0][1].get("taken_at"))
-        content = [{"type": "text", "text": f"Sport: {game.sport}. {len(items)} frame(s) from one burst, in time order."}]
+        content = [{"type": "text", "text": f"{game.subject}. {len(items)} frame(s) from one burst, in time order."}]
         for i, (img, (_, job)) in enumerate(zip(thumbs, items)):
             t = seconds(job.get("taken_at"))
             offset = f"+{t - t_first:.2f}s" if t is not None and t_first is not None else "time unknown"
             content.append({"type": "text", "text": f"Frame {i}: {offset}, local sharpness {sharp_n[i]:.2f}"})
             content.append({"type": "image_url", "image_url": {"url": data_url(img, 80)}})
-        return self.client.chat_json(SELECT_SYSTEM, content, SELECT_SCHEMA, "burst_selection", max_tokens=3000)
+        system = SELECT_SYSTEM if game.is_sports else SELECT_SYSTEM_GENERAL
+        return self.client.chat_json(system, content, SELECT_SCHEMA, "burst_selection", max_tokens=3000)
 
     def final_score(self, f, sharp_n: float) -> float:
         """§9.6：final = 0.65 × overall + 0.25 × peak + 0.10 × 銳利度 − 問題扣分（AI 沒給分時只看銳利度）。"""

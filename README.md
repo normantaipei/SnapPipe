@@ -232,6 +232,13 @@ nano .env                              # SERVER_URL
 
 檔名 = 相簿名稱，找不到就用 `default.toml`。比賽中改檔案會自動重新載入。範本：`worker/games/example.toml`、`example.csv`。
 
+**兩種模式（自動判斷）**：
+
+- **一般攝影**（預設）：相簿沒有自己的設定檔時用 `default.toml`，裡面沒有賽事、主客隊與名單。AI 依對焦、表情、構圖選片、評星等，**不寫圖說**（也省下圖說的費用）。`setup.sh` 會從 `games/general.toml` 建這份；`[game] subject` 可以寫拍攝題材給 AI 參考，`captions = true` 可以打開一句描述。
+- **體育**：把 `example.toml` 複製成 `games/<相簿名稱>.toml`、填好賽事（`event`）、主客隊或名單，那本相簿才用體育新聞的標準選片並寫圖說。
+
+舊版安裝把籃球範本直接當成 `default.toml`，導致每本相簿都被寫成那場比賽的圖說；更新時若 `default.toml` 還是範本原樣，會自動換成一般攝影。
+
 ```toml
 [game]
 sport = "basketball"

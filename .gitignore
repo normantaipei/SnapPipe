@@ -48,6 +48,7 @@ ingest/servers/
 # 比賽資料（名單、署名）只留在本機；範本例外
 worker/games/*
 !worker/games/example.toml
+!worker/games/general.toml
 !worker/games/example.csv
 
 # 即時路徑：worker 與 Pi 的本機狀態
