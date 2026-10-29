@@ -33,7 +33,8 @@ NODE_LINE=22   # 下載的 Node.js LTS 主版本
 
 # 介面語言：--lang en（或 SNAPPIPE_LANG=en、或上次安裝選過英文）印英文。t '中文' 'English'
 _prev=""; for _a in "$@"; do [ "$_prev" = --lang ] && export SNAPPIPE_LANG="$_a"; _prev="$_a"; done
-[ -n "${SNAPPIPE_LANG:-}" ] || SNAPPIPE_LANG=$(sed -n 's/^SNAPPIPE_LANG=//p' /etc/snappipe.env 2>/dev/null | tail -1)
+# 全新機器還沒有 /etc/snappipe.env：sed 失敗 + pipefail + set -e 會讓整支腳本無聲退出，所以補 || true
+[ -n "${SNAPPIPE_LANG:-}" ] || SNAPPIPE_LANG=$(sed -n 's/^SNAPPIPE_LANG=//p' /etc/snappipe.env 2>/dev/null | tail -1 || true)
 export SNAPPIPE_LANG
 t() { if [ "${SNAPPIPE_LANG:-}" = en ]; then printf '%s' "$2"; else printf '%s' "$1"; fi; }
 die() { printf '\n\033[1;31m✗ %b\033[0m\n' "$*" >&2; exit 1; }
