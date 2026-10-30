@@ -1,5 +1,9 @@
 """
-snap-agent 的 OLED 狀態畫面（0.96 吋 SSD1306 128×64 I2C，黃藍雙色：上 16 列黃、下 48 列藍）
+snap-agent 的狀態畫面。[display] type 選螢幕：
+  oled    0.96 吋 SSD1306 128×64 I2C（這個檔案）
+  lcd144  Waveshare 1.44 吋 LCD HAT，ST7735S 128×128 SPI（display_lcd.py，含背光省電）
+
+以下是 OLED（黃藍雙色：上 16 列黃、下 48 列藍）。
 
 沒有螢幕、沒裝 luma.oled、I2C 沒開、沒接按鍵——都照常跑，只在日誌印一行。
 agent 每秒給一份狀態快照（dict），這裡只負責畫；按鍵短按切頁、長按 3 秒安全關機。
@@ -36,6 +40,18 @@ def bars(dbm):
 
 def fmt_mb(b):
     return f"{b / 1e6:.1f}M" if b < 1e9 else f"{b / 1e9:.2f}G"
+
+
+def make_display(cfg: dict, log=print):
+    """依 [display] type 建立螢幕；enabled = false 或型號不認得時回傳不畫任何東西的 Display。"""
+    kind = str(cfg.get("type", "oled")).lower()
+    if kind in ("lcd144", "lcd", "st7735") and str(cfg.get("enabled", "auto")).lower() not in ("false", "0", "off", "no"):
+        from display_lcd import LcdDisplay
+        return LcdDisplay(cfg, log)
+    if kind not in ("oled", "ssd1306", "lcd144", "lcd", "st7735"):
+        log(f"⚠ 不認得的 display.type：{kind}（oled / lcd144），不啟用螢幕")
+        return Display({"enabled": False}, log)
+    return Display(cfg, log)
 
 
 class Display:
@@ -94,6 +110,9 @@ class Display:
 
     def update(self, snapshot: dict):
         self.snapshot = snapshot
+
+    def interval(self) -> float:
+        return 1.0
 
     def _loop(self):
         while not self._stop:

@@ -158,7 +158,7 @@ worker 本機 `WORK_DIR/state.db`：`photos`（已處理、本機路徑）、`pl
 
 - **多張相機 / 同型號**：`photos.camera` 來自 EXIF BodySerialNumber，worker 與 NAS 以序號分資料夾；監看頁可依相機篩選。Sony 的 JPG 不一定寫序號（實測 α 系列沒有），gphoto2 模式可改由 Pi 讀 PTP 序號補上（`X-SnapPipe-Camera`）。
 - **SSE**：目前用輪詢，流量小；要更即時可在 `/api/share/{key}` 旁加 SSE。
-- **Pi 硬體**：UPS、OLED 狀態畫面（見設計摘要 §6）還沒接；`battery_cmd` 可先接電量。
+- **Pi 硬體**：狀態畫面支援 0.96" OLED 與 Waveshare 1.44" LCD HAT（`display.type`，LCD 含背光省電狀態機）；Waveshare UPS HAT (C) 電量用內建的 `battery_cmd = "ina219:1:0x43"`。
 - **gphoto2 模式**要實機驗證：相機事件在連拍中的行為、`capturetarget` 名稱因廠牌而異。
 - **FTPS**：Pi 的 FTP 轉送是純 FTP，只建議在相機熱點 / 區網內；相機支援 FTPS 時可改用 pyftpdlib 的 TLS handler。
 - **處理端在雲端**：照工作協定寫一支雲端函式即可，不需改伺服器。

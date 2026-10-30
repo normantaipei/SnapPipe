@@ -1,2 +1,3 @@
-# 0.96 吋 SSD1306 OLED（選用）；Pillow 與 gpiozero 由 apt 裝（python3-pil、python3-gpiozero）
+# 0.96 吋 SSD1306 OLED（選用）；Pillow、gpiozero 由 apt 裝（python3-pil、python3-gpiozero）
+# 1.44 吋 LCD HAT 不需要 pip 套件：spidev、numpy、smbus2 都由 apt 裝（install.sh）
 luma.oled==3.14.0

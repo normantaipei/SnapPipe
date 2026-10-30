@@ -51,7 +51,9 @@ DEFAULTS = {
     "source": {"mode": "watch", "dir": "/var/lib/snap-agent/inbox", "delete_after": False, "send_raw": False,
                "raw_idle_sec": 30, "settle_sec": 1.0, "spool_min_free_mb": 500},
     "ftp": {"port": 2121, "user": "camera", "password": "", "listen": "0.0.0.0"},
-    "display": {"enabled": "auto", "i2c_port": 1, "address": "0x3c", "rotate": 0, "button_gpio": 0},
+    "display": {"enabled": "auto", "type": "oled", "i2c_port": 1, "address": "0x3c", "rotate": 0, "button_gpio": 0,
+                "on_sec": 15, "dim_sec": 15, "brightness": 100, "dim_brightness": 10, "wake_on_photo": False,
+                "backlog_alert": 20, "buttons": True, "spi_hz": 16000000, "offset_x": -1, "offset_y": -1},
 }
 
 
@@ -393,6 +395,38 @@ class CameraSource:
         self.camera = None
 
 
+# ---------- 電量 ----------
+
+# 單顆鋰電池「電壓 → 剩餘 %」（帶載時電壓偏低，估得保守一點）
+LIPO_CURVE = [(4.15, 100), (4.05, 90), (3.97, 80), (3.90, 70), (3.84, 60), (3.79, 50), (3.75, 40),
+              (3.71, 30), (3.67, 20), (3.61, 10), (3.50, 5), (3.30, 0)]
+
+
+def ina219_percent(spec: str):
+    """battery_cmd = "ina219" 或 "ina219:<bus>:<位址>"。Waveshare UPS HAT (C) 是 ina219:1:0x43。
+    只讀 bus voltage 暫存器（0x02），不需要校正；讀不到回傳 None。"""
+    parts = spec.split(":")
+    bus = int(parts[1]) if len(parts) > 1 and parts[1] else 1
+    addr = int(parts[2], 16) if len(parts) > 2 and parts[2] else 0x43
+    try:
+        try:
+            from smbus2 import SMBus
+        except ImportError:
+            from smbus import SMBus
+        with SMBus(bus) as b:
+            raw = b.read_word_data(addr, 0x02)
+    except Exception:
+        return None
+    raw = ((raw & 0xFF) << 8) | (raw >> 8)        # SMBus 是小端序，INA219 是大端序
+    volts = (raw >> 3) * 0.004
+    if volts >= LIPO_CURVE[0][0]:
+        return 100.0
+    for (v1, p1), (v0, p0) in zip(LIPO_CURVE, LIPO_CURVE[1:]):
+        if volts >= v0:
+            return round(p0 + (p1 - p0) * (volts - v0) / (v1 - v0), 1)
+    return 0.0
+
+
 # ---------- 上傳 ----------
 
 class Agent:
@@ -416,8 +450,8 @@ class Agent:
         self.current = None        # (檔名, 已傳 bytes, 總 bytes, Mbps)：OLED 進度條
         self.last_done = ""
         self.source = self.make_source()
-        from display import Display
-        self.display = Display(self.cfg["display"], log)
+        from display import make_display
+        self.display = make_display(self.cfg["display"], log)
 
     def make_source(self):
         mode = self.cfg["source"]["mode"]
@@ -443,6 +477,8 @@ class Agent:
         cmd = self.cfg["device"]["battery_cmd"]
         if not cmd:
             return None
+        if cmd.startswith("ina219"):   # 內建：直接讀 I2C，不用每次開一個子行程
+            return ina219_percent(cmd)
         try:
             out = subprocess.run(cmd, shell=True, capture_output=True, text=True, timeout=5).stdout
             digits = "".join(c for c in out if c.isdigit() or c == ".")
@@ -459,7 +495,7 @@ class Agent:
         body = {"version": VERSION, "mode": self.cfg["source"]["mode"], "uptime": int(time.time() - self.started),
                 "pending": c["pending"], "done": c["done"], "failed": c["failed"], "last_error": self.last_error[:200],
                 "camera": getattr(self.source, "serial", ""), "local_album": self.q.get("album") or self.cfg["device"]["album"]}
-        b = self.battery()
+        b = self.battery_cached()
         if b is not None:
             body["battery"] = b
         if self.source is not None:
@@ -608,7 +644,7 @@ class Agent:
         return getattr(self, "_bat", None)
 
     def refresh_display(self):
-        if self.display.device and time.time() - getattr(self, "_disp_at", 0) >= 1.0:
+        if self.display.device and time.time() - getattr(self, "_disp_at", 0) >= self.display.interval():
             self._disp_at = time.time()
             self.display.update(self.snapshot())
 

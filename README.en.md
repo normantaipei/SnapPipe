@@ -195,7 +195,7 @@ Set `--mode` to `gphoto2` (camera connected to the Pi over USB), `ftp` (the Pi r
 
 Burst grouping relies on the EXIF capture time (with milliseconds) and the camera body serial number. Sony JPGs don't always include the serial number; in gphoto2 mode the Pi reads it over PTP and fills it in. Without a serial number, grouping is done per Pi.
 
-Common commands (`sudo -u snap /opt/snap-agent/.venv/bin/python /opt/snap-agent/snap_agent.py …`): `status`, `album <album>` / `album --clear`, `retry`, `send a.jpg`, `test`. For the optional 0.96-inch SSD1306 OLED status screen and buttons, see the wiring notes at the top of `agent/display.py`.
+Common commands (`sudo -u snap /opt/snap-agent/.venv/bin/python /opt/snap-agent/snap_agent.py …`): `status`, `album <album>` / `album --clear`, `retry`, `send a.jpg`, `test`. Optional status screen: a 0.96-inch SSD1306 OLED (`type = "oled"`, wiring at the top of `agent/display.py`) or the Waveshare 1.44-inch LCD HAT (`type = "lcd144"`, plugs straight onto the 40-pin header; the backlight dims and turns off on its own and only lights up for problems or a key press — see the top of `agent/display_lcd.py`). For the Waveshare UPS HAT (C) battery level, set `battery_cmd = "ina219:1:0x43"`.
 
 ## 3. worker (Meta AI processing)
 

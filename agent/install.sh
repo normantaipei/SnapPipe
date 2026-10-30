@@ -36,23 +36,29 @@ if [ -n "$WITH_GPHOTO" ]; then
 fi
 
 id snap &>/dev/null || useradd --system --home "$STATE" --shell /usr/sbin/nologin --groups plugdev snap
-for g in i2c gpio; do getent group "$g" >/dev/null && usermod -aG "$g" snap; done   # OLED 與按鍵（選用）
+for g in i2c spi gpio; do getent group "$g" >/dev/null && usermod -aG "$g" snap; done   # 螢幕與按鍵（選用）
 mkdir -p "$APP" "$STATE/inbox"
-cp "$HERE/snap_agent.py" "$HERE/display.py" "$HERE/requirements.txt" "$HERE/requirements-display.txt" "$APP/"
+cp "$HERE/snap_agent.py" "$HERE/display.py" "$HERE/display_lcd.py" "$HERE/requirements.txt" "$HERE/requirements-display.txt" "$APP/"
 chown -R snap:snap "$STATE"
 
 say "$(t 'Python 環境' 'Python environment')"
 [ -x "$APP/.venv/bin/python" ] || python3 -m venv --system-site-packages "$APP/.venv"
 "$APP/.venv/bin/pip" install -q --upgrade pip
 "$APP/.venv/bin/pip" install -q -r "$APP/requirements.txt"
-# OLED（選用）：裝不起來也不影響上傳；I2C 沒開就打開（要重開機才生效）
-say "$(t 'OLED 套件（選用）' 'OLED packages (optional)')"
-apt-get install -y -qq python3-pil python3-gpiozero i2c-tools >/dev/null 2>&1 || true
+# 螢幕（選用）：裝不起來也不影響上傳；I2C / SPI 沒開就打開（要重開機才生效）
+# OLED 用 I2C + luma.oled；1.44 吋 LCD HAT 用 SPI + spidev；UPS HAT (C) 電量用 I2C + smbus2
+say "$(t '螢幕套件（選用）' 'Display packages (optional)')"
+apt-get install -y -qq python3-pil python3-gpiozero python3-lgpio python3-spidev python3-numpy python3-smbus2 \
+  fonts-dejavu-core i2c-tools >/dev/null 2>&1 || true
 "$APP/.venv/bin/pip" install -q -r "$APP/requirements-display.txt" 2>/dev/null || echo "$(t '  （OLED 套件沒裝成，沒接螢幕可忽略）' "  (OLED packages didn't install; safe to ignore if no screen is attached)")"
 CFG=/boot/firmware/config.txt; [ -f "$CFG" ] || CFG=/boot/config.txt
 if [ -f "$CFG" ] && ! grep -q '^dtparam=i2c_arm=on' "$CFG"; then
   echo 'dtparam=i2c_arm=on' >> "$CFG"; grep -q '^i2c-dev' /etc/modules || echo i2c-dev >> /etc/modules
   echo "$(t '  已開啟 I2C（重開機後生效）' '  Turned on I2C (takes effect after a reboot)')"
+fi
+if [ -f "$CFG" ] && ! grep -q '^dtparam=spi=on' "$CFG"; then
+  echo 'dtparam=spi=on' >> "$CFG"
+  echo "$(t '  已開啟 SPI（重開機後生效）' '  Turned on SPI (takes effect after a reboot)')"
 fi
 # 按鍵長按關機：snap 使用者只允許這一個指令
 echo 'snap ALL=(root) NOPASSWD: /sbin/poweroff' > /etc/sudoers.d/snap-agent && chmod 440 /etc/sudoers.d/snap-agent

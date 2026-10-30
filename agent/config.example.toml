@@ -12,7 +12,8 @@ name = "cage-a"                      # 顯示用；身分由 token 決定
 album = ""                           # 預設相簿：空 = 用拍攝日期（2026_10_30）；伺服器指定的相簿優先
 newest_first = true                  # 斷線後恢復時最新的先傳
 state_dir = "/var/lib/snap-agent"    # 待傳清單（SQLite，幾 KB）
-battery_cmd = ""                     # 讀電量的指令（印出百分比），例 PiSugar："echo 'get battery' | nc -q 0 127.0.0.1 8423"
+battery_cmd = ""                     # 讀電量：Waveshare UPS HAT (C) 填 "ina219:1:0x43"（內建，直接讀 I2C）；
+                                     # 其他填會印出百分比的指令，例 PiSugar："echo 'get battery' | nc -q 0 127.0.0.1 8423"
 
 [source]
 # gphoto2：相機 USB 接 Pi，聽 FILE_ADDED 直接從相機讀（相機設 PC 遙控 / PTP、capturetarget = 記憶卡）
@@ -26,12 +27,28 @@ raw_idle_sec = 30                    # 最近幾秒沒有新 JPG 才開始傳 RA
 settle_sec = 1.0                     # 檔案大小不再變動幾秒後才算寫完
 spool_min_free_mb = 500              # gphoto2 模式：Pi 暫存區（SD 卡）剩不到這麼多 MB 就不收 RAW（JPG 照收）
 
-[display]                            # 0.96 吋 SSD1306 I2C OLED（選用）；沒接螢幕也照常跑
+[display]                            # 狀態螢幕（選用）；沒接螢幕也照常跑
 enabled = "auto"                     # auto = 有就用；true = 一定要有（失敗會警告）；false = 關
+type = "oled"                        # oled = 0.96 吋 SSD1306 I2C；lcd144 = Waveshare 1.44 吋 LCD HAT（ST7735S SPI）
+rotate = 0                           # 0–3，每格轉 90°（oled：2 = 倒裝；lcd144：0 = 搖桿在左）
+
+# --- oled 才用 ---
 i2c_port = 1
 address = "0x3c"                     # i2cdetect -y 1 看到的位址，有些模組是 0x3d
-rotate = 0                           # 螢幕倒著裝就填 2
 button_gpio = 0                      # 切頁 / 長按 3 秒關機的按鍵接哪個 GPIO（BCM 編號，例 17）；0 = 沒有按鍵
+
+# --- lcd144 才用（省電：背光 亮 → 暗 → 關，關的時候面板也睡；平常拍照不會叫醒，只有出狀況或按鍵才亮）---
+# 按鍵：KEY1 下一頁、KEY2 立刻關螢幕、KEY3 長按 3 秒關機；搖桿左右切頁。睡著時按任何鍵只會叫醒
+on_sec = 15                          # 最後一次按鍵／警示後全亮幾秒
+dim_sec = 15                         # 接著變暗幾秒，然後關掉（0 = 不經過暗段直接關）
+brightness = 100                     # 全亮的亮度 %（調低更省電；低於 100 會用 PWM）
+dim_brightness = 10                  # 暗段亮度 %
+wake_on_photo = false                # true = 每傳完一張也亮一下（比較耗電）
+backlog_alert = 20                   # 待傳堆到幾張時亮起來提醒
+buttons = true                       # HAT 上的按鍵與搖桿
+spi_hz = 16000000                    # 畫面有雜訊就降到 8000000
+offset_x = -1                        # 邊緣有 1–3px 雜訊條時才調（-1 = 依 rotate 自動）
+offset_y = -1
 
 [ftp]                                # 只有 mode = "ftp" 用到
 listen = "0.0.0.0"

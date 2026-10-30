@@ -193,7 +193,7 @@ curl -fsSL https://raw.githubusercontent.com/normantaipei/SnapPipe/main/agent/bo
 
 連拍分組靠 EXIF 的拍攝時間（含毫秒）與機身序號。Sony 的 JPG 不一定寫序號，gphoto2 模式會由 Pi 經 PTP 讀序號補上；沒有序號時以 Pi 為單位分組。
 
-常用指令（`sudo -u snap /opt/snap-agent/.venv/bin/python /opt/snap-agent/snap_agent.py …`）：`status`、`album <相簿>` / `album --clear`、`retry`、`send a.jpg`、`test`。選用的 0.96 吋 SSD1306 OLED 狀態畫面與按鍵，接線見 `agent/display.py` 開頭。
+常用指令（`sudo -u snap /opt/snap-agent/.venv/bin/python /opt/snap-agent/snap_agent.py …`）：`status`、`album <相簿>` / `album --clear`、`retry`、`send a.jpg`、`test`。選用的狀態螢幕：0.96 吋 SSD1306 OLED（`type = "oled"`，接線見 `agent/display.py` 開頭）或 Waveshare 1.44 吋 LCD HAT（`type = "lcd144"`，直接插 40pin，背光會自動變暗、關閉，只有出狀況或按鍵才亮，見 `agent/display_lcd.py` 開頭）。Waveshare UPS HAT (C) 的電量填 `battery_cmd = "ina219:1:0x43"`。
 
 ## 3. worker（Meta AI 處理端）
 
