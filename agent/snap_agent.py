@@ -424,12 +424,21 @@ def ina219_read(spec: str):
         try:
             from smbus2 import SMBus
         except ImportError:
-            from smbus import SMBus
-        with SMBus(bus) as b:
+            from smbus import SMBus      # 舊的 python3-smbus：沒有 with 語法，下面手動 close
+        b = SMBus(bus)
+        try:
             raw_v = b.read_word_data(addr, 0x02)
             raw_s = b.read_word_data(addr, 0x01)
-    except Exception:
+        finally:
+            b.close()
+    except Exception as e:
+        # 只在第一次和錯誤改變時記一筆，不要每 30 秒洗版
+        msg = f"{type(e).__name__}: {e}"
+        if getattr(ina219_read, "_last_err", None) != msg:
+            ina219_read._last_err = msg
+            log(f"⚠ 讀不到電量（INA219 i2c-{bus} 0x{addr:02x}）：{msg}")
         return None
+    ina219_read._last_err = None
     swap = lambda w: ((w & 0xFF) << 8) | (w >> 8)   # SMBus 是小端序，INA219 是大端序
     volts = (swap(raw_v) >> 3) * 0.004
     shunt = swap(raw_s)

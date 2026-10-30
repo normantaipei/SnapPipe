@@ -48,8 +48,10 @@ say "$(t 'Python 環境' 'Python environment')"
 # 螢幕（選用）：裝不起來也不影響上傳；I2C / SPI 沒開就打開（要重開機才生效）
 # OLED 用 I2C + luma.oled；1.44 吋 LCD HAT 用 SPI + spidev；UPS HAT (C) 電量用 I2C + smbus2
 say "$(t '螢幕套件（選用）' 'Display packages (optional)')"
-apt-get install -y -qq python3-pil python3-gpiozero python3-lgpio python3-spidev python3-numpy python3-smbus2 \
-  fonts-dejavu-core i2c-tools >/dev/null 2>&1 || true
+# 一個一個裝：某個套件在這版系統上不存在時，其他的照樣裝得起來
+for p in python3-pil python3-gpiozero python3-lgpio python3-spidev python3-numpy python3-smbus2 fonts-dejavu-core i2c-tools; do
+  apt-get install -y -qq "$p" >/dev/null 2>&1 || echo "$(t "  （$p 沒裝成，可忽略）" "  ($p didn't install; safe to ignore)")"
+done
 "$APP/.venv/bin/pip" install -q -r "$APP/requirements-display.txt" 2>/dev/null || echo "$(t '  （OLED 套件沒裝成，沒接螢幕可忽略）' "  (OLED packages didn't install; safe to ignore if no screen is attached)")"
 CFG=/boot/firmware/config.txt; [ -f "$CFG" ] || CFG=/boot/config.txt
 if [ -f "$CFG" ] && ! grep -q '^dtparam=i2c_arm=on' "$CFG"; then

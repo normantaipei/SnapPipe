@@ -111,20 +111,38 @@ class ST7735S:
 
 
 class Backlight:
-    """0 與 1 用一般 GPIO（不跑 PWM 執行緒）；中間亮度才切成 PWM。"""
+    """0 與 1 用一般 GPIO（不跑 PWM 執行緒）；中間亮度才切成 PWM。PWM 開不起來就退回全亮／全關。"""
 
-    def __init__(self, pin=PIN_BL):
-        self.pin, self.dev, self.pwm, self.level = pin, None, False, None
+    def __init__(self, pin=PIN_BL, log=print):
+        self.pin, self.dev, self.pwm, self.level, self.log = pin, None, False, None, log
+        self.pwm_ok = True
 
     def set(self, level: float):
         level = max(0.0, min(1.0, level))
         if level == self.level:
             return
+        try:
+            self._set(level)
+        except Exception as e:
+            if not (0.0 < level < 1.0) or not self.pwm_ok:
+                raise
+            self.pwm_ok = False
+            self.log(f"⚠ 背光 PWM 無法使用（{type(e).__name__}: {e}），改成只有全亮／全關")
+            self.dev = None
+            self._set(1.0)
+            self.level = level
+
+    def _set(self, level: float):
         from gpiozero import DigitalOutputDevice, PWMOutputDevice
-        want_pwm = 0.0 < level < 1.0
+        want_pwm = 0.0 < level < 1.0 and self.pwm_ok
+        if not self.pwm_ok and 0.0 < level < 1.0:
+            level = 1.0
         if self.dev is None or want_pwm != self.pwm:
             if self.dev:
-                self.dev.close()
+                try:
+                    self.dev.close()
+                except Exception:
+                    pass
             self.dev = PWMOutputDevice(self.pin, frequency=500) if want_pwm else DigitalOutputDevice(self.pin)
             self.pwm = want_pwm
         if want_pwm:
@@ -318,7 +336,7 @@ class LcdDisplay:
         try:
             self.panel = ST7735S(cfg.get("rotate", 0), cfg.get("spi_hz", 16_000_000),
                                  cfg.get("offset_x", -1), cfg.get("offset_y", -1))
-            self.bl = Backlight()
+            self.bl = Backlight(log=self.log)
             self.renderer = Renderer()
         except Exception as e:
             mode = str(cfg.get("enabled", "auto")).lower()
@@ -431,30 +449,35 @@ class LcdDisplay:
     # ---- 繪圖迴圈 ----
 
     def _loop(self):
+        """任何錯誤都不能讓這個執行緒結束（否則畫面會停在最後一幀）：記下來、等一下、繼續。"""
+        import traceback
         while not self._stop:
-            want, self._want = self._want, None
-            if want and want != self.state:
-                self._set_state(want)
-            idle = time.time() - self.last_activity
-            if want == ASLEEP:
-                pass
-            elif self.state == AWAKE and idle > self.on_sec:
-                self._set_state(DIMMED if self.dim_level > 0 and self.dim_sec > 0 else ASLEEP)
-            elif self.state == DIMMED and idle > self.on_sec + self.dim_sec:
-                self._set_state(ASLEEP)
-            if self.state == ASLEEP:
-                self._evt.wait()         # 睡著：不畫、不送 SPI，等按鍵或警示叫醒
-                self._evt.clear()
-                continue
-            if self.overlay and idle > 2 and not self.overlay[0].startswith("Shutting"):
-                self.overlay = None
             try:
-                self._push()
+                self._step()
             except Exception as e:
-                self.log(f"LCD 繪圖錯誤：{e}")
-                time.sleep(5)
-            self._evt.wait(1.0)          # 最多每秒一幀；有事就提早醒
+                self.log(f"LCD 錯誤：{type(e).__name__}: {e}\n{traceback.format_exc(limit=3)}")
+                time.sleep(2)
+
+    def _step(self):
+        want, self._want = self._want, None
+        if want and want != self.state:
+            self._set_state(want)
+        idle = time.time() - self.last_activity
+        if want == ASLEEP:
+            pass
+        elif self.state == AWAKE and idle > self.on_sec:
+            self._set_state(DIMMED if self.dim_level > 0 and self.dim_sec > 0 else ASLEEP)
+        elif self.state == DIMMED and idle > self.on_sec + self.dim_sec:
+            self._set_state(ASLEEP)
+        if self.state == ASLEEP:
+            self._evt.wait()         # 睡著：不畫、不送 SPI，等按鍵或警示叫醒
             self._evt.clear()
+            return
+        if self.overlay and idle > 2 and not self.overlay[0].startswith("Shutting"):
+            self.overlay = None
+        self._push()
+        self._evt.wait(1.0)          # 最多每秒一幀；有事就提早醒
+        self._evt.clear()
 
     def _push(self):
         with self._lock:

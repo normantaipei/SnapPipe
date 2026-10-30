@@ -1,3 +1,5 @@
 # 0.96 吋 SSD1306 OLED（選用）；Pillow、gpiozero 由 apt 裝（python3-pil、python3-gpiozero）
-# 1.44 吋 LCD HAT 不需要 pip 套件：spidev、numpy、smbus2 都由 apt 裝（install.sh）
+# 1.44 吋 LCD HAT：spidev、numpy 由 apt 裝（install.sh）
+# UPS HAT (C) 電量：smbus2（純 Python；apt 沒有時從這裡裝）
+smbus2>=0.4
 luma.oled==3.14.0
