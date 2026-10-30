@@ -7,6 +7,7 @@ import { pageTitle } from "../lib/site.js";
 import { fetchLiveFeed, mediaUrl } from "../lib/api.js";
 import { errorText, lang, t } from "../lib/i18n.js";
 import Lightbox from "./Lightbox.vue";
+import BatteryBadge from "./BatteryBadge.vue";
 
 const props = defineProps({ liveKey: { type: String, required: true } });
 const scope = { type: "l", key: props.liveKey };
@@ -27,8 +28,9 @@ const POLL_MS = 3000;
 async function refresh() {
   try {
     const d = await fetchLiveFeed(props.liveKey, since.value);
+    const first = !feed.value; // 打開頁面時已經在的照片不算「剛到」，不亮框
     if (d.full) photos.value = new Map();
-    for (const p of d.photos) photos.value.set(p.pk, { ...p, seen: photos.value.get(p.pk)?.seen ?? d.server_time });
+    for (const p of d.photos) photos.value.set(p.pk, { ...p, seen: photos.value.get(p.pk)?.seen ?? (first ? 0 : d.server_time) });
     photos.value = new Map(photos.value); // 觸發更新
     since.value = d.server_time;
     serverOffset.value = d.server_time - Date.now() / 1000;
@@ -97,58 +99,78 @@ const pct = (u) => (u.total ? Math.round((u.received / u.total) * 100) : 0);
 const devState = (d) => (!d.online ? "offline" : d.stale ? "stale" : "online");
 const devCameras = (d) => (feed.value?.cameras || []).filter((c) => c.device === d.name);
 const toggleCam = (k) => (camera.value = camera.value === k ? null : k);
+const subtitle = (d) => [d.stats.mode, d.stats.camera_model].filter(Boolean).join(" · ");
+// 卡片上的警示：最嚴重的在前；沒有就不顯示這一區
+function alerts(d) {
+  const a = [];
+  if (!d.online) a.push({ tone: "bad", text: t("lastSeen", { t: ago(d.last_seen) }) });
+  if (d.online && d.stats.battery != null && d.stats.battery < 10 && !d.stats.charging) a.push({ tone: "bad", text: t("batteryLow") });
+  if (d.stats.camera_connected === false) a.push({ tone: "warn", text: t("cameraOff") });
+  if (d.stats.failed) a.push({ tone: "bad", text: `${d.stats.failed} ${t("failedUpload")}` });
+  if (d.stats.last_error) a.push({ tone: "bad", text: d.stats.last_error });
+  if (d.stale) a.push({ tone: "warn", text: t("staleHint") });
+  if (d.active_album && d.active_album !== feed.value?.slug) a.push({ tone: "warn", text: t("otherAlbum", { a: d.active_album }) });
+  return a;
+}
 </script>
 
 <template>
   <header class="top live-top">
-    <div>
+    <div class="live-head">
       <h1>
-        <span class="live-dot" :class="{ off: !feed || closed }"></span>
-        {{ error ? errorText(error) : feed?.title || t("loading") }}
+        <span class="live-badge" :class="{ off: !feed || closed }"><i></i>LIVE</span>
+        <span class="title">{{ error ? errorText(error) : feed?.title || t("loading") }}</span>
       </h1>
-      <p v-if="feed && !closed" class="muted">
-        {{ feed.shoot_date }} · {{ t("photos", { n: feed.counts.total || 0 }) }}
-        <template v-if="feed.counts.pending"> · <span class="warn">{{ t("nProcessing", { n: feed.counts.pending }) }}</span></template>
-        <template v-if="feed.counts.failed"> · <span class="bad">{{ t("nFailed", { n: feed.counts.failed }) }}</span></template>
-        <template v-if="feed.workers.length"> · {{ t("workers", { n: feed.workers.length }) }}</template>
-      </p>
+      <div v-if="feed && !closed" class="stats">
+        <span>{{ feed.shoot_date }}</span>
+        <span>{{ t("photos", { n: feed.counts.total || 0 }) }}</span>
+        <span v-if="feed.counts.pending" class="warn"><i class="spin"></i>{{ t("nProcessing", { n: feed.counts.pending }) }}</span>
+        <span v-if="feed.counts.failed" class="bad">{{ t("nFailed", { n: feed.counts.failed }) }}</span>
+        <span v-if="feed.workers.length">{{ t("workers", { n: feed.workers.length }) }}</span>
+      </div>
     </div>
     <a v-if="feed" class="btn small" :href="feed.share_url" target="_blank" rel="noopener">★ {{ t("openAlbum") }}</a>
   </header>
 
   <!-- 相機 / Pi 狀態面板 -->
-  <section v-if="feed && !closed" class="devices" :aria-label="t('cameras')">
+  <section v-if="feed && !closed" class="devices" :aria-label="t('devices')">
     <p v-if="!feed.devices.length" class="muted">{{ t("noDevices") }}</p>
     <article v-for="d in feed.devices" :key="d.name" class="dev" :class="devState(d)">
-      <header>
-        <span class="state" :title="devState(d)"></span>
-        <strong>{{ d.name }}</strong>
-        <span class="muted mode">{{ d.stats.mode }}<template v-if="d.stats.camera_model"> · {{ d.stats.camera_model }}</template></span>
-        <span v-if="d.stats.camera_connected === false" class="warn small">⚠ {{ t("cameraOff") }}</span>
-        <span class="muted right">{{ d.online ? t("online") : t("lastSeen", { t: ago(d.last_seen) }) }}</span>
+      <header class="dev-head">
+        <span class="state" :title="d.online ? t('online') : t('offline')"></span>
+        <div class="dev-title">
+          <strong :title="d.name">{{ d.name }}</strong>
+          <span class="dev-sub">{{ subtitle(d) }}</span>
+        </div>
+        <BatteryBadge
+          :level="d.stats.battery" :charging="!!d.stats.charging" :stale="!d.online"
+          :stale-text="t('batteryLast', { t: ago(d.last_seen) })"
+        />
       </header>
-      <div class="nums">
-        <span><b>{{ d.album_count }}</b> {{ t("shots") }}</span>
-        <span v-if="d.per_min"><b>{{ d.per_min }}</b>/min</span>
-        <span :class="{ warn: d.stats.pending > 0 }"><b>{{ d.stats.pending ?? "–" }}</b> {{ t("pendingUpload") }}</span>
-        <span v-if="d.stats.failed" class="bad"><b>{{ d.stats.failed }}</b> {{ t("failedUpload") }}</span>
-        <span v-if="d.stats.battery != null" :class="{ bad: d.stats.battery < 15 }">🔋 {{ Math.round(d.stats.battery) }}%</span>
-        <span v-if="d.stats.mode === 'ftp'" :title="t('ftpClients')">FTP {{ d.stats.ftp_clients ?? 0 }} · {{ d.stats.ftp_received ?? 0 }}</span>
-        <span v-if="d.stats.spool_files" :title="t('spoolHint')">💾 {{ d.stats.spool_files }} · {{ d.stats.spool_mb }} MB</span>
+
+      <div class="metrics">
+        <div><b>{{ d.album_count }}</b><span>{{ t("shots") }}</span></div>
+        <div :class="{ warn: d.stats.pending > 0 }"><b>{{ d.stats.pending ?? "–" }}</b><span>{{ t("pendingUpload") }}</span></div>
+        <div><b>{{ d.per_min || 0 }}</b><span>{{ t("perMin") }}</span></div>
       </div>
-      <p class="muted small">
-        {{ t("lastPhoto") }}：{{ ago(d.last_photo_at) }}
-        <template v-if="d.active_album && d.active_album !== feed.slug"> · <span class="warn">→ {{ d.active_album }}</span></template>
-        <template v-if="d.stale"> · <span class="warn">⚠ {{ t("staleHint") }}</span></template>
-      </p>
+
       <div v-for="u in d.in_progress" :key="u.filename" class="prog" :title="u.filename">
         <span class="bar"><i :style="{ width: pct(u) + '%' }"></i></span>
-        <span class="muted small">{{ u.filename }} {{ pct(u) }}%</span>
+        <span class="prog-text"><span class="fname">{{ u.filename }}</span><span>{{ pct(u) }}%</span></span>
       </div>
-      <p v-if="d.stats.last_error" class="bad small">{{ d.stats.last_error }}</p>
-      <p v-if="devCameras(d).length" class="small cams">
-        <span v-for="c in devCameras(d)" :key="c.camera" class="camtag" :style="{ '--c': camColor(c.camera) }">…{{ c.camera.slice(-4) }} <i>{{ c.n }}</i></span>
-      </p>
+
+      <ul v-if="alerts(d).length" class="alerts">
+        <li v-for="a in alerts(d)" :key="a.text" :class="a.tone">{{ a.text }}</li>
+      </ul>
+
+      <footer class="dev-foot">
+        <span>{{ t("lastPhoto") }} {{ ago(d.last_photo_at) }}</span>
+        <span v-if="d.stats.mode === 'ftp'" :title="t('ftpClients')">FTP {{ d.stats.ftp_clients ?? 0 }} · {{ d.stats.ftp_received ?? 0 }}</span>
+        <span v-if="d.stats.spool_files" :title="t('spoolHint')">spool {{ d.stats.spool_files }} · {{ d.stats.spool_mb }} MB</span>
+        <span v-for="c in devCameras(d)" :key="c.camera" class="camtag" :style="{ '--c': camColor(c.camera) }">
+          <i class="dot"></i>{{ c.camera.slice(-4) }} <em>{{ c.n }}</em>
+        </span>
+      </footer>
     </article>
   </section>
 
@@ -173,14 +195,17 @@ const toggleCam = (k) => (camera.value = camera.value === k ? null : k);
         :style="{ '--c': camColor(camKey(p)) }" :aria-label="p.name" @click="lbIndex = i"
       >
         <img :src="mediaUrl(scope, 's', p.id)" alt="" loading="lazy" decoding="async">
+        <span v-if="p.ai?.pick || p.ai?.needs_review || p.raw_name" class="badges">
+          <span v-if="p.ai?.pick" class="b-pick" :title="t('aiPick')">◆</span>
+          <span v-if="p.ai?.needs_review" class="b-review" :title="t('needsReview')">!</span>
+          <span v-if="p.raw_name" class="b-raw">RAW</span>
+        </span>
         <span class="meta">
+          <i class="dot"></i>
           <span class="cam">{{ camLabel(camKey(p)) }}</span>
           <span class="time">{{ clockText(p.taken_at) }}</span>
-          <span v-if="p.raw_name" class="rawtag">RAW</span>
-          <span v-if="p.ai?.pick" class="picktag" :title="t('aiPick')">◆</span>
-          <span v-if="p.ai?.needs_review" class="reviewtag" :title="t('needsReview')">⚠</span>
           <span v-if="p.status === 'done' && p.stars" class="stars">{{ "★".repeat(p.stars) }}</span>
-          <span v-else-if="p.status === 'pending'" class="pend">{{ t("processing") }}</span>
+          <span v-else-if="p.status === 'pending'" class="pend" :title="t('processing')"><i class="spin"></i></span>
           <span v-else-if="p.status === 'failed'" class="fail">{{ t("failed") }}</span>
         </span>
       </button>

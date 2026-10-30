@@ -185,7 +185,7 @@ class Renderer:
     def status(self, s):
         """(顏色, 文字)：一條狀態色帶 + 一句話，一眼知道現在好不好。"""
         bat = s.get("battery")
-        if bat is not None and bat < 10:
+        if bat is not None and bat < 10 and not s.get("charging"):
             return RED, "BATTERY LOW"
         if not s.get("server_ok", True):
             return RED, "OFFLINE"
@@ -225,8 +225,14 @@ class Renderer:
         col = DIM if bat is None else RED if bat < 10 else AMBER if bat < 20 else FG
         d.rectangle((90, 4, 108, 11), outline=col)
         d.rectangle((109, 6, 110, 9), fill=col)
+        if s.get("charging"):
+            col = GREEN
+            d.rectangle((90, 4, 108, 11), outline=col)
+            d.rectangle((109, 6, 110, 9), fill=col)
         if bat is not None:
             d.rectangle((92, 6, 92 + int(14 * max(0, min(100, bat)) / 100), 9), fill=col)
+            if s.get("charging"):          # 充電中：電池上畫一道閃電（黑色鏤空）
+                d.polygon([(100, 4), (96, 8), (99, 8), (98, 11), (102, 7), (99, 7)], fill=BG)
             if bat < 99.5:                       # 100% 只畫滿格，空間放不下三位數
                 d.text((113, 3), f"{bat:.0f}", font=self.f_mono, fill=col)
 
@@ -357,7 +363,7 @@ class LcdDisplay:
         if p.get("pending", 0) < self.backlog <= s.get("pending", 0):
             return f"待傳堆到 {self.backlog} 張"
         pb, sb = p.get("battery"), s.get("battery")
-        if pb is not None and sb is not None:
+        if pb is not None and sb is not None and not s.get("charging"):
             for th in (20, 10):
                 if pb >= th > sb:
                     return f"電量低於 {th}%"

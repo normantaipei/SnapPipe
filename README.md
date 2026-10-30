@@ -181,7 +181,7 @@ curl -fsSL https://raw.githubusercontent.com/normantaipei/SnapPipe/main/agent/bo
   --url http://<伺服器IP>:8080 --token <裝置token> --name pi-1 --mode gphoto2
 ```
 
-`--mode` 填 `gphoto2`（相機 USB 接 Pi）、`ftp`（Pi 開 FTP 給相機連，印出相機要填的帳密）或 `watch`；`--send-raw` 讓 RAW 也傳。重跑同一行就是更新。設定檔在 `/etc/snap-agent.toml`（範本 `agent/config.example.toml`）。
+`--mode` 填 `gphoto2`（相機 USB 接 Pi）、`ftp`（Pi 開 FTP 給相機連，印出相機要填的帳密）或 `watch`；`--send-raw` 讓 RAW 也傳；`--battery ups-c`（Waveshare UPS HAT (C)）/ `pisugar` 讓 Pi 回報電量，live 頁面的裝置卡片會顯示電量與充電狀態；`--display lcd144` 用 1.44 吋 LCD HAT。重跑同一行就是更新。設定檔在 `/etc/snap-agent.toml`（範本 `agent/config.example.toml`）。
 
 | mode | 適合 | 說明 |
 |---|---|---|

@@ -12,6 +12,8 @@
 #   --ftp-user U --ftp-password P   mode=ftp 時相機登入 Pi 的帳密   預設 camera / 隨機
 #   --send-raw          RAW 也傳（排在所有 JPG 之後、安靜期才傳）
 #   --album NAME        預設相簿（不給 = 用拍攝日期；伺服器指定的優先）
+#   --battery B         電量來源：ups-c（Waveshare UPS HAT (C)）/ ina219:<bus>:<位址> / pisugar / none  預設 none
+#   --display D         狀態螢幕：oled（0.96" SSD1306）/ lcd144（Waveshare 1.44" LCD HAT）/ none     預設 oled（沒接就自動略過）
 #   --ref BRANCH        要裝哪個分支                            預設 main
 #   --lang en|zh        訊息語言（en = English）                 預設 zh（或環境變數 SNAPPIPE_LANG）
 # 沒給 --url / --token 且 /etc/snap-agent.toml 已存在：只更新程式，不動設定。
@@ -23,7 +25,7 @@ REPO="${SNAPPIPE_REPO:-normantaipei/SnapPipe}"
 REF=main
 DIR=/opt/snap-agent/src
 CONF=/etc/snap-agent.toml
-URL="" TOKEN="" NAME="pi-1" MODE="gphoto2" FTP_USER="camera" FTP_PASS="" SEND_RAW="false" ALBUM=""
+URL="" TOKEN="" NAME="pi-1" MODE="gphoto2" FTP_USER="camera" FTP_PASS="" SEND_RAW="false" ALBUM="" BATTERY="none" DISPLAY_TYPE="oled"
 
 t() { if [ "${SNAPPIPE_LANG:-}" = en ]; then printf '%s' "$2"; else printf '%s' "$1"; fi; }
 die() { printf '\n\033[1;31m✗ %b\033[0m\n' "$*" >&2; exit 1; }
@@ -48,10 +50,12 @@ main() {
       --ftp-password) FTP_PASS="$2"; shift 2 ;;
       --send-raw) SEND_RAW="true"; shift ;;
       --album) ALBUM="$2"; shift 2 ;;
+      --battery) BATTERY="$2"; shift 2 ;;
+      --display) DISPLAY_TYPE="$2"; shift 2 ;;
       --ref) REF="$2"; shift 2 ;;
       --lang) LANG_OPT="${2:-}"; shift; [ $# -gt 0 ] && shift ;;
       --lang=*) LANG_OPT="${1#*=}"; shift ;;
-      -h|--help) sed -n '2,17p' "$0" 2>/dev/null || true; exit 0 ;;
+      -h|--help) sed -n '2,19p' "$0" 2>/dev/null || true; exit 0 ;;
       *) die "$(t "不認得的參數：$1" "Unknown option: $1")" ;;
     esac
   done
@@ -59,6 +63,20 @@ main() {
   [ "$(id -u)" = 0 ] || die "$(t '請用 sudo 執行' 'Please run with sudo')"
   command -v apt-get >/dev/null || die "$(t '只支援 Raspberry Pi OS / Debian' 'Only Raspberry Pi OS / Debian is supported')"
   case "$MODE" in gphoto2|ftp|watch) ;; *) die "$(t '--mode 只能是 gphoto2 / ftp / watch' '--mode must be gphoto2 / ftp / watch')" ;; esac
+  local BATTERY_CMD
+  case "$BATTERY" in
+    none|"") BATTERY_CMD="" ;;
+    ups-c|ups_c|upshatc) BATTERY_CMD="ina219:1:0x43" ;;
+    ina219*) BATTERY_CMD="$BATTERY" ;;
+    pisugar) BATTERY_CMD="echo 'get battery' | nc -q 0 127.0.0.1 8423" ;;
+    *) die "$(t '--battery 只能是 ups-c / ina219:<bus>:<位址> / pisugar / none' '--battery must be ups-c / ina219:<bus>:<addr> / pisugar / none')" ;;
+  esac
+  local DISPLAY_ENABLED="auto"
+  case "$DISPLAY_TYPE" in
+    oled|lcd144) ;;
+    none) DISPLAY_TYPE="oled"; DISPLAY_ENABLED="false" ;;
+    *) die "$(t '--display 只能是 oled / lcd144 / none' '--display must be oled / lcd144 / none')" ;;
+  esac
   if [ -z "$URL" ] && [ ! -f "$CONF" ]; then die "$(t '第一次安裝需要 --url 與 --token（伺服器安裝完印出的）' 'The first install needs --url and --token (printed when the server install finished)')"; fi
   if [ -n "$URL" ] && [ -z "$TOKEN" ]; then die "$(t '有 --url 就要一起給 --token' '--url needs --token too')"; fi
 
@@ -106,7 +124,7 @@ name = "$NAME"
 album = "$ALBUM"                      # 空 = 用拍攝日期；伺服器指定的優先
 newest_first = true
 state_dir = "/var/lib/snap-agent"
-battery_cmd = ""                     # 例 PiSugar："echo 'get battery' | nc -q 0 127.0.0.1 8423"
+battery_cmd = "$BATTERY_CMD"         # ina219:1:0x43 = Waveshare UPS HAT (C)；或任何印出百分比的指令
 
 [source]
 mode = "$MODE"                       # gphoto2 / ftp / watch
@@ -115,6 +133,10 @@ delete_after = $delete_after
 send_raw = $SEND_RAW
 raw_idle_sec = 30
 settle_sec = 1.0
+
+[display]
+enabled = "$DISPLAY_ENABLED"
+type = "$DISPLAY_TYPE"                # oled / lcd144；其他選項見 agent/config.example.toml
 
 [ftp]
 listen = "0.0.0.0"

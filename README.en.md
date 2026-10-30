@@ -183,7 +183,7 @@ curl -fsSL https://raw.githubusercontent.com/normantaipei/SnapPipe/main/agent/bo
   --url http://<server-IP>:8080 --token <device-token> --name pi-1 --mode gphoto2 --lang en
 ```
 
-Set `--mode` to `gphoto2` (camera connected to the Pi over USB), `ftp` (the Pi runs an FTP server for the camera and prints the credentials to enter on the camera) or `watch`; `--send-raw` uploads RAW files too. Re-running the same line updates the agent. The config file is `/etc/snap-agent.toml` (template: `agent/config.example.toml`).
+Set `--mode` to `gphoto2` (camera connected to the Pi over USB), `ftp` (the Pi runs an FTP server for the camera and prints the credentials to enter on the camera) or `watch`; `--send-raw` uploads RAW files too. `--battery ups-c` (Waveshare UPS HAT (C)) / `pisugar` makes the Pi report its battery level, shown with charging state on the device cards of the live page; `--display lcd144` uses the 1.44-inch LCD HAT. Re-running the same line updates the agent. The config file is `/etc/snap-agent.toml` (template: `agent/config.example.toml`).
 
 | mode | Best for | Description |
 |---|---|---|

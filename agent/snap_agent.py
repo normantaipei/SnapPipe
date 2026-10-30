@@ -25,6 +25,7 @@ import argparse
 import datetime as dt
 import hashlib
 import os
+import re
 import socket
 import sqlite3
 import subprocess
@@ -402,29 +403,54 @@ LIPO_CURVE = [(4.15, 100), (4.05, 90), (3.97, 80), (3.90, 70), (3.84, 60), (3.79
               (3.71, 30), (3.67, 20), (3.61, 10), (3.50, 5), (3.30, 0)]
 
 
-def ina219_percent(spec: str):
-    """battery_cmd = "ina219" 或 "ina219:<bus>:<位址>"。Waveshare UPS HAT (C) 是 ina219:1:0x43。
-    只讀 bus voltage 暫存器（0x02），不需要校正；讀不到回傳 None。"""
-    parts = spec.split(":")
-    bus = int(parts[1]) if len(parts) > 1 and parts[1] else 1
-    addr = int(parts[2], 16) if len(parts) > 2 and parts[2] else 0x43
-    try:
-        try:
-            from smbus2 import SMBus
-        except ImportError:
-            from smbus import SMBus
-        with SMBus(bus) as b:
-            raw = b.read_word_data(addr, 0x02)
-    except Exception:
-        return None
-    raw = ((raw & 0xFF) << 8) | (raw >> 8)        # SMBus 是小端序，INA219 是大端序
-    volts = (raw >> 3) * 0.004
+def lipo_percent(volts: float) -> float:
     if volts >= LIPO_CURVE[0][0]:
         return 100.0
     for (v1, p1), (v0, p0) in zip(LIPO_CURVE, LIPO_CURVE[1:]):
         if volts >= v0:
             return round(p0 + (p1 - p0) * (volts - v0) / (v1 - v0), 1)
     return 0.0
+
+
+def ina219_read(spec: str):
+    """battery_cmd = "ina219" 或 "ina219:<bus>:<位址>[:inv]"。Waveshare UPS HAT (C) 是 ina219:1:0x43。
+    只讀 bus voltage（0x02）與 shunt voltage（0x01）兩個暫存器，不需要校正。
+    shunt 電壓的正負 = 電流方向：流進電池（充電）為正；板子接法相反時加 :inv。讀不到回傳 None。"""
+    parts = spec.split(":")
+    bus = int(parts[1]) if len(parts) > 1 and parts[1] else 1
+    addr = int(parts[2], 16) if len(parts) > 2 and parts[2] else 0x43
+    inv = "inv" in parts[3:]
+    try:
+        try:
+            from smbus2 import SMBus
+        except ImportError:
+            from smbus import SMBus
+        with SMBus(bus) as b:
+            raw_v = b.read_word_data(addr, 0x02)
+            raw_s = b.read_word_data(addr, 0x01)
+    except Exception:
+        return None
+    swap = lambda w: ((w & 0xFF) << 8) | (w >> 8)   # SMBus 是小端序，INA219 是大端序
+    volts = (swap(raw_v) >> 3) * 0.004
+    shunt = swap(raw_s)
+    shunt = (shunt - 0x10000 if shunt & 0x8000 else shunt) * 1e-5   # 有號數，LSB 10µV
+    if inv:
+        shunt = -shunt
+    # 0.1Ω 分流電阻：> 3mV ≈ 30mA 流進電池才算充電，避免雜訊抖動
+    return {"percent": lipo_percent(volts), "charging": shunt > 0.003, "volts": round(volts, 3)}
+
+
+def parse_battery_output(out: str):
+    """battery_cmd 的輸出 → {"percent", "charging"}。取帶 % 的數字（沒有就取第一個數字），夾在 0–100；
+    輸出裡有 charging / 充電（但不是 discharging / not charging）就當作充電中。"""
+    out = out or ""
+    m = re.search(r"(-?\d+(?:\.\d+)?)\s*%", out) or re.search(r"(-?\d+(?:\.\d+)?)", out)   # 有 % 的優先
+    if not m:
+        return None
+    low = out.lower()
+    charging = (("charging" in low and "discharging" not in low and "not charging" not in low)
+                or ("充電" in out and "未充電" not in out and "放電" not in out))
+    return {"percent": max(0.0, min(100.0, float(m.group(1)))), "charging": charging}
 
 
 # ---------- 上傳 ----------
@@ -474,15 +500,15 @@ class Agent:
         return hashlib.sha256(key.encode()).hexdigest()[:40]
 
     def battery(self):
+        """→ {"percent", "charging"[, "volts"]} 或 None（沒設定、讀不到）。"""
         cmd = self.cfg["device"]["battery_cmd"]
         if not cmd:
             return None
         if cmd.startswith("ina219"):   # 內建：直接讀 I2C，不用每次開一個子行程
-            return ina219_percent(cmd)
+            return ina219_read(cmd)
         try:
             out = subprocess.run(cmd, shell=True, capture_output=True, text=True, timeout=5).stdout
-            digits = "".join(c for c in out if c.isdigit() or c == ".")
-            return float(digits) if digits else None
+            return parse_battery_output(out)
         except Exception:
             return None
 
@@ -495,9 +521,12 @@ class Agent:
         body = {"version": VERSION, "mode": self.cfg["source"]["mode"], "uptime": int(time.time() - self.started),
                 "pending": c["pending"], "done": c["done"], "failed": c["failed"], "last_error": self.last_error[:200],
                 "camera": getattr(self.source, "serial", ""), "local_album": self.q.get("album") or self.cfg["device"]["album"]}
-        b = self.battery_cached()
+        b = self.battery_info()
         if b is not None:
-            body["battery"] = b
+            body["battery"] = b["percent"]
+            body["charging"] = b["charging"]
+            if "volts" in b:
+                body["battery_v"] = b["volts"]
         if self.source is not None:
             body.update(self.source.stats())
         try:
@@ -634,14 +663,19 @@ class Agent:
                 "wifi": wifi_dbm(), "camera_connected": st.get("camera_connected"), "spool_files": st.get("spool_files", 0),
                 "pending": c["pending"], "done": c["done"], "failed": c["failed"],
                 "current": self.current, "last_done": self.last_done, "last_error": self.last_error.split(":")[-1].strip()[:40],
-                "battery": self.battery_cached(), "album": self.remote_album or self.q.get("album") or self.cfg["device"]["album"]}
+                "battery": self.battery_cached(), "charging": bool((self.battery_info() or {}).get("charging")),
+                "album": self.remote_album or self.q.get("album") or self.cfg["device"]["album"]}
 
-    def battery_cached(self):
+    def battery_info(self):
         """電量指令可能慢（幾百 ms），最多每 30 秒讀一次。"""
         now = time.time()
         if now - getattr(self, "_bat_at", 0) > 30:
             self._bat, self._bat_at = self.battery(), now
         return getattr(self, "_bat", None)
+
+    def battery_cached(self):
+        b = self.battery_info()
+        return b["percent"] if b else None
 
     def refresh_display(self):
         if self.display.device and time.time() - getattr(self, "_disp_at", 0) >= self.display.interval():
