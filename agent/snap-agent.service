@@ -12,6 +12,8 @@ ExecStart=/opt/snap-agent/.venv/bin/python /opt/snap-agent/snap_agent.py -c /etc
 Restart=always
 RestartSec=3
 Environment=PYTHONUNBUFFERED=1
+# lgpio 要在可寫的資料夾建 FIFO（工作資料夾 /opt/snap-agent 對 snap 唯讀）
+Environment=LG_WD=/var/lib/snap-agent
 
 [Install]
 WantedBy=multi-user.target

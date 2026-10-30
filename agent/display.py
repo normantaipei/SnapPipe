@@ -11,9 +11,26 @@ agent 每秒給一份狀態快照（dict），這裡只負責畫；按鍵短按�
 接線：VCC→3.3V（pin 1）  GND→pin 6  SDA→GPIO2（pin 3）  SCL→GPIO3（pin 5）；按鍵接 GPIO17（pin 11）與 GND。
 """
 
+import os
 import subprocess
+import tempfile
 import threading
 import time
+
+# lgpio（Bookworm 上 gpiozero 的預設驅動）會在「目前資料夾」建通知用的 FIFO；服務的工作資料夾
+# /opt/snap-agent 對 snap 使用者唯讀時，lgpio 會開不起來，gpiozero 默默退回 native 驅動——
+# 按鍵（邊緣偵測）會 Errno 22、背光 PWM 也不能用。所以在 import gpiozero 之前指定可寫的資料夾。
+os.environ.setdefault("LG_WD", tempfile.gettempdir())
+
+
+def pin_factory_name():
+    try:
+        from gpiozero import Device
+        if Device.pin_factory is None:
+            Device.ensure_pin_factory()
+        return type(Device.pin_factory).__name__
+    except Exception as e:
+        return f"?（{type(e).__name__}: {e}）"
 
 PAGES = 2
 HOLD_SEC = 3.0

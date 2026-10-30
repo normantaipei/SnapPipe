@@ -343,6 +343,10 @@ class LcdDisplay:
             self.log(("LCD 未啟用" if mode == "auto" else "⚠ LCD 啟用失敗") + f"（{type(e).__name__}: {str(e)[:60]}）")
             return
         self.device = self.panel
+        from display import pin_factory_name
+        factory = pin_factory_name()
+        if factory != "LGPIOFactory":
+            self.log(f"⚠ GPIO 驅動是 {factory}，不是 LGPIOFactory：按鍵與背光調光可能不能用（apt install python3-lgpio）")
         self._setup_buttons()
         self._set_state(AWAKE)
         threading.Thread(target=self._loop, daemon=True, name="lcd").start()
