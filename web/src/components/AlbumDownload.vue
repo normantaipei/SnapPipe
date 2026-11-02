@@ -1,16 +1,16 @@
 <script setup>
 // 整本下載：JPG / RAW / JPG+RAW，依目前的星等篩選
-// iPhone / iPad 多一個「存到照片」：ZIP 只會進「檔案」App，要進相簿得分批交給系統分享選單
+// iPhone / iPad 多「存到照片」（JPG / RAW / JPG+RAW）：ZIP 只會進「檔案」App，要進相簿得分批交給系統分享選單
 import { computed, onBeforeUnmount, onMounted, ref } from "vue";
 import { fmtBytes, mediaUrl, zipUrl } from "../lib/api.js";
 import { showToast } from "../lib/share.js";
-import { canSaveToPhotos, chunkPhotos, fetchFiles, shareFiles } from "../lib/savePhotos.js";
+import { canSaveToPhotos, chunkUnits, fetchFiles, shareFiles } from "../lib/savePhotos.js";
 import { t } from "../lib/i18n.js";
 
 const props = defineProps({ scope: Object, photos: Array, minStars: Number });
 const open = ref(false);
 const root = ref(null);
-const ios = canSaveToPhotos();
+const ios = canSaveToPhotos("x.jpg");
 
 const sum = (f) => props.photos.reduce((a, p) => a + (f(p) || 0), 0);
 const rawCount = computed(() => props.photos.filter((p) => p.raw_name).length);
@@ -23,17 +23,34 @@ const options = computed(() => {
   }
   return opts;
 });
+// RAW 能不能存到照片：看這本第一個 RAW 的副檔名 iOS 認不認得
+const iosRaw = computed(() => {
+  const p = props.photos.find((x) => x.raw_name);
+  return !!p && canSaveToPhotos(p.raw_name);
+});
+const saveOptions = computed(() => (!ios ? [] : options.value.filter((o) => o.fmt === "jpg" || iosRaw.value)));
 
 // ── 存到照片（分批）──
-// job = { batches, i, done, files }；files 有值 = 這批已下載好、等使用者點一下
+// job = { batches, i, done, files, progress }；files 有值 = 這批已下載好、等使用者點一下
 const job = ref(null);
 let cancelled = false;
 
-async function startSave() {
+const jpgName = (n) => (/\.jpe?g$/i.test(n || "") ? n : `${(n || "photo").replace(/\.[^.]+$/, "")}.jpg`);
+function unitsFor(fmt) {
+  const units = [];
+  for (const p of props.photos) {
+    const u = [];
+    if (fmt !== "raw") u.push({ url: mediaUrl(props.scope, "o", p.sha), name: jpgName(p.name), bytes: p.bytes });
+    if (fmt !== "jpg" && p.raw_name) u.push({ url: mediaUrl(props.scope, "r", p.sha), name: p.raw_name, bytes: p.raw_bytes });
+    if (u.length) units.push(u);
+  }
+  return units;
+}
+
+async function startSave(fmt) {
   open.value = false;
   cancelled = false;
-  const batches = chunkPhotos([...props.photos]);
-  job.value = { batches, i: 0, done: 0, files: null };
+  job.value = { batches: chunkUnits(unitsFor(fmt)), i: 0, done: 0, files: null, progress: 0 };
   await nextBatch();
 }
 
@@ -45,13 +62,10 @@ async function nextBatch() {
     job.value = null;
     return;
   }
-  const batch = j.batches[j.i];
   try {
     j.files = null;
-    const files = await fetchFiles(
-      batch.map((p) => ({ url: mediaUrl(props.scope, "o", p.sha), name: p.name })),
-      (n) => { if (job.value) job.value.progress = n; },
-    );
+    j.progress = 0;
+    const files = await fetchFiles(j.batches[j.i], (n) => { if (job.value) job.value.progress = n; });
     if (cancelled) return;
     j.files = files;
     // 第一批通常還在點擊的時效內，直接開分享選單；不行就等使用者點按鈕
@@ -71,7 +85,6 @@ async function shareBatch() {
     if (r === "cancel") { job.value = null; return; }
     j.done += j.files.length;
     j.i += 1;
-    j.progress = 0;
     await nextBatch();
   } catch {
     showToast(t("saveFailed"));
@@ -97,7 +110,7 @@ onBeforeUnmount(() => { cancelled = true; document.removeEventListener("click", 
         ⬇ {{ t("saveBatch", { i: job.i + 1, n: job.batches.length, k: job.files.length }) }}
       </button>
       <span v-else class="btn" aria-live="polite">
-        {{ t("preparingBatch", { i: job.i + 1, n: job.batches.length, k: job.progress || 0, m: job.batches[job.i].length }) }}
+        {{ t("preparingBatch", { i: job.i + 1, n: job.batches.length, k: job.progress, m: job.batches[job.i].length }) }}
       </span>
       <button class="btn small" @click="cancelSave">{{ t("cancel") }}</button>
     </div>
@@ -105,9 +118,9 @@ onBeforeUnmount(() => { cancelled = true; document.removeEventListener("click", 
       ⬇ {{ minStars ? t("downloadStars", { n: minStars }) : t("downloadAll") }} ({{ photos.length }})<span class="caret">▾</span>
     </button>
     <div v-if="open" class="dl-pop" role="menu">
-      <a v-if="ios" role="menuitem" href="#" @click.prevent="startSave">
-        <strong>{{ t("saveToPhotosJpg") }}</strong>
-        <span class="muted">{{ t("files", { n: photos.length }) }} · {{ fmtBytes(sum((p) => p.bytes)) }}</span>
+      <a v-for="o in saveOptions" :key="'save-' + o.fmt" role="menuitem" href="#" @click.prevent="startSave(o.fmt)">
+        <strong>{{ t("saveToPhotosFmt", { fmt: o.label }) }}</strong>
+        <span class="muted">{{ t("files", { n: o.count }) }} · {{ fmtBytes(o.bytes) }}</span>
       </a>
       <a
         v-for="o in options" :key="o.fmt" role="menuitem" :href="zipUrl(scope, minStars, o.fmt)"
