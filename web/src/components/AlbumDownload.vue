@@ -1,6 +1,6 @@
 <script setup>
 // 整本下載：JPG / RAW / JPG+RAW，依目前的星等篩選
-// iPhone / iPad 多「存到照片」（JPG / RAW / JPG+RAW）：ZIP 只會進「檔案」App，要進相簿得分批交給系統分享選單
+// iPhone / iPad 多「存到照片（JPG）」：ZIP 只會進「檔案」App，要進相簿得分批交給系統分享選單
 import { computed, onBeforeUnmount, onMounted, ref } from "vue";
 import { fmtBytes, mediaUrl, zipUrl } from "../lib/api.js";
 import { showToast } from "../lib/share.js";
@@ -23,12 +23,8 @@ const options = computed(() => {
   }
   return opts;
 });
-// RAW 能不能存到照片：看這本第一個 RAW 的副檔名 iOS 認不認得
-const iosRaw = computed(() => {
-  const p = props.photos.find((x) => x.raw_name);
-  return !!p && canSaveToPhotos(p.raw_name);
-});
-const saveOptions = computed(() => (!ios ? [] : options.value.filter((o) => o.fmt === "jpg" || iosRaw.value)));
+// 存到照片只做 JPG；RAW 在 iOS 照片 App 不一定收得進去，照舊下載 ZIP 到「檔案」
+const saveOptions = computed(() => (ios ? options.value.filter((o) => o.fmt === "jpg") : []));
 
 // ── 存到照片（分批）──
 // job = { batches, i, done, files, progress }；files 有值 = 這批已下載好、等使用者點一下

@@ -1,5 +1,5 @@
 <script setup>
-// 單張下載：JPG / RAW 兩顆按鈕＋分享；iPhone / iPad 改成「存到照片」（JPG 與 RAW 各一顆）
+// 單張下載：JPG / RAW 兩顆按鈕＋分享；iPhone / iPad 的 JPG 改成「存到照片」，RAW 照舊下載到「檔案」
 import { reactive, watch } from "vue";
 import { fmtBytes, rawExt } from "../lib/api.js";
 import { sharePhoto, showToast } from "../lib/share.js";
@@ -9,7 +9,6 @@ import { t } from "../lib/i18n.js";
 const props = defineProps({ photo: Object, jpgUrl: String, rawUrl: String, shareTitle: String });
 
 const iosJpg = canSaveToPhotos("x.jpg");
-const iosRaw = (name) => canSaveToPhotos(name);
 
 // 每種各自的狀態：idle | loading | ready（已下載、等再點一下）
 const state = reactive({ jpg: "idle", raw: "idle" });
@@ -55,15 +54,9 @@ const label = (kind, text) =>
     <a v-else class="btn small" :href="jpgUrl" download>
       ⬇ JPG <span class="n">{{ fmtBytes(photo.bytes) }}</span>
     </a>
-    <template v-if="photo.raw_name">
-      <button v-if="iosRaw(photo.raw_name)" class="btn small" :disabled="state.raw === 'loading'" @click="save('raw')">
-        {{ label("raw", t("saveRawToPhotos", { ext: rawExt(photo.raw_name) })) }}
-        <span v-if="state.raw === 'idle'" class="n">{{ fmtBytes(photo.raw_bytes) }}</span>
-      </button>
-      <a v-else class="btn small" :href="rawUrl" download>
-        ⬇ {{ rawExt(photo.raw_name) }} <span class="n">{{ fmtBytes(photo.raw_bytes) }}</span>
-      </a>
-    </template>
+    <a v-if="photo.raw_name" class="btn small" :href="rawUrl" download>
+      ⬇ {{ rawExt(photo.raw_name) }} <span class="n">{{ fmtBytes(photo.raw_bytes) }}</span>
+    </a>
     <button class="btn small" @click="sharePhoto(photo.pk, shareTitle)">↗ {{ t("share") }}</button>
   </div>
 </template>
