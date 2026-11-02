@@ -43,6 +43,10 @@ body {
 }
 .btn:hover { background: #30343a; }
 .btn.small { padding: 5px 10px; font-size: 13px; }
+.btn.primary { background: var(--accent); color: #111; border-color: transparent; font-weight: 600; }
+.btn.primary:hover { background: #f5b55a; }
+.btn:disabled { opacity: .6; cursor: default; }
+.save-job { display: flex; gap: 8px; align-items: center; }
 
 .filters {
   position: sticky; top: 0; z-index: 5;
