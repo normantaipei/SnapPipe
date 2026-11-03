@@ -12,6 +12,21 @@ Meta Global AI Developer Hackathon 2026 參賽專案。設計與申請文件：
 - [Application Draft（English）](docs/APPLICATION.md)
 - [架構與協定（實作）](docs/ARCHITECTURE.md)
 
+## 黑客松繳交資訊
+
+| | |
+|---|---|
+| 活動 | Meta Global AI Developer Hackathon 2026 · Indie Developer Track · Build for Your World |
+| 團隊 | Norman Hsiao（個人參賽） |
+| Demo 影片（3 分鐘） | https://www.youtube.com/watch?v=BRKyZpX-enQ |
+| X 貼文 | https://x.com/HsiaoNorman/status/2117454066175676441 |
+
+**全部在活動期間完成。** 這個 repo 的所有程式碼都是黑客松期間（2026/10/26–11/4）寫的，第一個 commit 是 2026-10-27，完整歷史見 `git log`。只有 [docs/DESIGN.md](docs/DESIGN.md) 與 [docs/APPLICATION.md](docs/APPLICATION.md) 裡的構想是報名時寫的。
+
+**使用的 Meta 模型。** 透過 Meta Model API 使用 Muse Spark 1.3（Chat Completions + 影像 + JSON Schema 結構化輸出），程式在 [`worker/analyzers/meta_ai.py`](worker/analyzers/meta_ai.py)：整組連拍用 512px 縮圖一起比較、評分，選用的圖說草稿只用佔位符指人，人名由程式依名單填入。Muse Spark 1.1、1.2、1.3 與 Muse Wonder 1.0 的實測比較在 [`tests/meta_api`](tests/meta_api)。
+
+**cos 棚拍實測（2026-11-02）。** 單張從快門到伺服器約 15 秒（Pi Zero 2 W 經 USB），Muse Spark 評分每張約 8 秒（9 張實測 5.6–9.4 秒）。API 費用估計：一天 3,000 張約 US$5。
+
 ```mermaid
 flowchart LR
   subgraph site["場邊"]

@@ -12,6 +12,21 @@ A project for the Meta Global AI Developer Hackathon 2026. Design and applicatio
 - [Application Draft (English)](docs/APPLICATION.md)
 - [Architecture and protocols (implementation)](docs/ARCHITECTURE.md)
 
+## Hackathon submission
+
+| | |
+|---|---|
+| Event | Meta Global AI Developer Hackathon 2026 · Indie Developer Track · Build for Your World |
+| Team | Norman Hsiao (solo) |
+| Demo video (3 min) | https://www.youtube.com/watch?v=BRKyZpX-enQ |
+| X post | https://x.com/HsiaoNorman/status/2117454066175676441 |
+
+**Built during the event.** All code in this repository was written during the hackathon (Oct 26 – Nov 4, 2026); the first commit is on 2026-10-27, and the full history is in `git log`. Only the design idea in [docs/DESIGN.md](docs/DESIGN.md) and [docs/APPLICATION.md](docs/APPLICATION.md) was drafted for the application.
+
+**Meta models used.** Muse Spark 1.3 through Meta Model API (Chat Completions with images + JSON Schema structured output) in [`worker/analyzers/meta_ai.py`](worker/analyzers/meta_ai.py): whole-burst comparison and rating on 512px thumbnails, plus optional caption drafts with name placeholders filled from a roster in code. Muse Spark 1.1, 1.2, 1.3 and Muse Wonder 1.0 were benchmarked on real frames in [`tests/meta_api`](tests/meta_api).
+
+**Measured at a real cosplay studio shoot (2026-11-02).** About 15 s from shutter to the photo on the server (Pi Zero 2 W over USB, single shot), and about 8 s per photo for the Muse Spark rating (5.6–9.4 s across 9 photos). Estimated API cost: about US$5 for a 3,000-photo day.
+
 ```mermaid
 flowchart LR
   subgraph site["Courtside"]
